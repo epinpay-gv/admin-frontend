@@ -9,7 +9,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
-  const { navGroups, activeHref, setActiveHref } = useNavigation();
+  const { navGroups, activeHref, navigate } = useNavigation();
 
   return (
     <motion.aside
@@ -32,12 +32,11 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
             index={index}
             activeHref={activeHref}
             collapsed={collapsed}
-            onNavClick={setActiveHref}
+            onNavClick={navigate}
           />
         ))}
       </nav>
 
-      {/* Desktop toggle — sidebar alt kısmında */}
       <button
         onClick={onToggle}
         className="flex items-center gap-2 px-4 py-4 border-t text-white/30 hover:text-white/60 transition-colors"

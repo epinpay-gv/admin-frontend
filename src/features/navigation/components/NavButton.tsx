@@ -35,7 +35,7 @@ export default function NavButton({ item, isActive, collapsed, onClick }: NavBut
           className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-[#00C6A2]"
         />
       )}
-      <Icon size={18} className="flex-shrink-0" />
+      <Icon size={18} className="shrink-0" />
       <AnimatePresence initial={false}>
         {!collapsed && (
           <motion.span

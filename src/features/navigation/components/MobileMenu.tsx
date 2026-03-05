@@ -11,7 +11,7 @@ interface MobileMenuProps {
 }
 
 export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
-  const { navGroups, activeHref, setActiveHref } = useNavigation();
+  const { navGroups, activeHref, navigate } = useNavigation();
 
   return (
     <AnimatePresence>
@@ -51,7 +51,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                   activeHref={activeHref}
                   collapsed={false}
                   onNavClick={(href) => {
-                    setActiveHref(href);
+                    navigate(href);
                     onClose();
                   }}
                 />

@@ -8,6 +8,7 @@ import {
   BarChart3,
   ShieldCheck,
   Settings,
+  Package,
 } from "lucide-react";
 import { NavGroup } from "@/features/navigation/types";
 
@@ -30,6 +31,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     title: "Yönetim",
     items: [
+      { label: "Ürünler", icon: Package, href: "/products" },
       { label: "Kullanıcılar", icon: Users, href: "/users" },
       { label: "Raporlar", icon: BarChart3, href: "/reports" },
       { label: "Güvenlik", icon: ShieldCheck, href: "/security" },
