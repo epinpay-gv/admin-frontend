@@ -7,7 +7,7 @@ export const mockProducts: Product[] = [
     region_id: 1,
     platform_id: 4,
     type_id: 3,
-    status: PRODUCT_STATUS.ACTIVE,
+    status: PRODUCT_STATUS.INACTIVE,
     translation: {
       category_slug: "pubg-mobile-uc",
       slug: "pubg-mobile-660-uc-tr",

@@ -13,29 +13,32 @@ interface StatusOption {
 interface DataTableProps<T extends Record<string, unknown>> {
   data: T[];
   columns: ColumnDef<T>[];
-  filterKeys?: (keyof T)[];
   statusOptions?: StatusOption[];
   showStatusFilter?: boolean;
+  actions?: (row: T) => React.ReactNode;
 }
 
 export default function DataTable<T extends Record<string, unknown>>({
   data,
   columns,
-  filterKeys = [],
   statusOptions,
   showStatusFilter = false,
+  actions,
 }: DataTableProps<T>) {
   const {
     rows,
     totalRows,
     sort,
     handleSort,
+    columnFilters,
+    setColumnFilter,
+    clearColumnFilter,
     statusFilter,
     setStatusFilter,
     pagination,
     setPagination,
     totalPages,
-  } = useDataTable({ data, filterKeys });
+  } = useDataTable({ data, columns });
 
   return (
     <div
@@ -45,7 +48,6 @@ export default function DataTable<T extends Record<string, unknown>>({
         borderColor: "rgba(255,255,255,0.07)",
       }}
     >
-      {/* Toolbar — sadece status filter varsa göster */}
       {showStatusFilter && (
         <div
           className="flex items-center justify-end px-4 py-3 border-b"
@@ -62,19 +64,21 @@ export default function DataTable<T extends Record<string, unknown>>({
         </div>
       )}
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
           <DataTableHeader
             columns={columns}
             sort={sort}
             onSort={handleSort}
+            columnFilters={columnFilters}
+            onColumnFilter={setColumnFilter}
+            onClearColumnFilter={clearColumnFilter}
           />
           <tbody>
             {rows.length === 0 ? (
               <tr>
                 <td
-                  colSpan={columns.length}
+                  colSpan={columns.length + (actions ? 1 : 0)}
                   className="px-4 py-12 text-center text-sm text-white/25 font-mono"
                 >
                   Kayıt bulunamadı
@@ -98,6 +102,11 @@ export default function DataTable<T extends Record<string, unknown>>({
                         : String(row[col.key] ?? "-")}
                     </td>
                   ))}
+                  {actions && (
+                    <td className="px-4 py-3 text-right">
+                      {actions(row)}
+                    </td>
+                  )}
                 </tr>
               ))
             )}
@@ -105,7 +114,6 @@ export default function DataTable<T extends Record<string, unknown>>({
         </table>
       </div>
 
-      {/* Pagination */}
       <DataTablePagination
         pagination={pagination}
         totalRows={totalRows}

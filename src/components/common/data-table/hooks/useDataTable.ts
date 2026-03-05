@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { ColumnDef } from "../components/DataTableHeader";
 import { useSearchStore } from "@/store/useSearchStore";
 
 export type SortDirection = "asc" | "desc" | null;
@@ -17,19 +18,34 @@ export interface PaginationState {
 
 interface UseDataTableProps<T> {
   data: T[];
+  columns: ColumnDef<T>[];
   pageSize?: number;
-  filterKeys?: (keyof T)[];
+}
+
+function getNestedValue(obj: Record<string, unknown>, path: string): string {
+  return path.split(".").reduce<unknown>((acc, key) => {
+    if (acc && typeof acc === "object") {
+      return (acc as Record<string, unknown>)[key];
+    }
+    return undefined;
+  }, obj) as string ?? "";
 }
 
 export function useDataTable<T extends Record<string, unknown>>({
   data,
+  columns,
   pageSize = 10,
-  filterKeys = [],
 }: UseDataTableProps<T>) {
-  const { search } = useSearchStore();
+  const { search, clearSearch } = useSearchStore();
   const [sort, setSort] = useState<SortState>({ column: null, direction: null });
+  const [columnFilters, setColumnFilters] = useState<Record<string, string>>({});
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [pagination, setPagination] = useState<PaginationState>({ page: 1, pageSize });
+
+  // Sayfa değişince search'ü temizle
+  useEffect(() => {
+    return () => clearSearch();
+  }, [clearSearch]);
 
   const handleSort = (column: string) => {
     setSort((prev) => {
@@ -40,28 +56,60 @@ export function useDataTable<T extends Record<string, unknown>>({
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
+  const setColumnFilter = (column: string, value: string) => {
+    setColumnFilters((prev) => ({ ...prev, [column]: value }));
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  };
+
+  const clearColumnFilter = (column: string) => {
+    setColumnFilters((prev) => {
+      const next = { ...prev };
+      delete next[column];
+      return next;
+    });
+  };
+
   const filtered = useMemo(() => {
     let result = [...data];
 
+    // Header search — tüm searchable sütunlarda ara
     if (search) {
-      const lower = search.toLowerCase();
-      result = result.filter((row) =>
-        filterKeys.some((key) =>
-          String(row[key] ?? "").toLowerCase().includes(lower)
-        )
-      );
+        const lower = search.toLowerCase();
+        result = result.filter((row) =>
+            columns.some((col) => {
+            const searchPath = col.searchKey ?? String(col.key);
+            return getNestedValue(row as Record<string, unknown>, searchPath)
+                .toString()
+                .toLowerCase()
+                .includes(lower);
+            })
+        );
     }
+
+    // Sütun bazlı filtreler
+    Object.entries(columnFilters).forEach(([colKey, val]) => {
+        if (!val) return;
+        const lower = val.toLowerCase();
+        const col = columns.find((c) => String(c.key) === colKey);
+        const searchPath = col?.searchKey ?? colKey;
+        result = result.filter((row) =>
+            getNestedValue(row as Record<string, unknown>, searchPath)
+            .toString()
+            .toLowerCase()
+            .includes(lower)
+        );
+    });
 
     if (statusFilter !== "all") {
       result = result.filter((row) => row["status"] === statusFilter);
     }
 
     if (sort.column && sort.direction) {
+      const col = columns.find((c) => String(c.key) === sort.column);
+      const sortPath = col?.sortKey ?? sort.column;
       result.sort((a, b) => {
-        const aVal = a[sort.column!];
-        const bVal = b[sort.column!];
-        const aStr = String(aVal ?? "");
-        const bStr = String(bVal ?? "");
+        const aStr = getNestedValue(a as Record<string, unknown>, sortPath).toString();
+        const bStr = getNestedValue(b as Record<string, unknown>, sortPath).toString();
         return sort.direction === "asc"
           ? aStr.localeCompare(bStr)
           : bStr.localeCompare(aStr);
@@ -69,7 +117,7 @@ export function useDataTable<T extends Record<string, unknown>>({
     }
 
     return result;
-  }, [data, search, statusFilter, sort, filterKeys]);
+  }, [data, search, columnFilters, statusFilter, sort, columns]);
 
   const totalPages = Math.ceil(filtered.length / pagination.pageSize);
 
@@ -83,6 +131,9 @@ export function useDataTable<T extends Record<string, unknown>>({
     totalRows: filtered.length,
     sort,
     handleSort,
+    columnFilters,
+    setColumnFilter,
+    clearColumnFilter,
     statusFilter,
     setStatusFilter,
     pagination,

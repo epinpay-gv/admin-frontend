@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Eye } from "lucide-react";
 import { DataTable } from "@/components/common/data-table";
 import { ColumnDef } from "@/components/common/data-table";
 import { useProducts } from "@/features/products";
@@ -25,11 +27,16 @@ const COLUMNS: ColumnDef<ProductRow>[] = [
     key: "id",
     label: "ID",
     sortable: true,
+    searchable: true,
     width: "80px",
   },
   {
     key: "translation",
     label: "Ürün",
+    sortable: true,
+    searchable: true,
+    searchKey: "translation.name",
+    sortKey: "translation.name",
     render: (value, row) => {
       const translation = row.translation as Product["translation"];
       return (
@@ -44,7 +51,7 @@ const COLUMNS: ColumnDef<ProductRow>[] = [
             />
           </div>
           <div>
-            <p className="text-sm font-medium text-white/80">{translation.name}</p>
+            <p className="text-sm font-medium min-w-32 text-white/80">{translation.name}</p>
             <p className="text-[11px] text-white/30 font-mono">{translation.slug}</p>
           </div>
         </div>
@@ -55,11 +62,13 @@ const COLUMNS: ColumnDef<ProductRow>[] = [
     key: "platform",
     label: "Platform",
     sortable: true,
+    searchable: true,
   },
   {
     key: "region",
     label: "Bölge",
     sortable: true,
+    searchable: true,
   },
   {
     key: "basePrice",
@@ -74,8 +83,10 @@ const COLUMNS: ColumnDef<ProductRow>[] = [
     label: "İndirim",
     sortable: true,
     render: (value) => (
-      <span className="font-mono text-[11px] px-2 py-0.5 rounded-full"
-        style={{ background: "rgba(0,133,255,0.15)", color: "#0085FF" }}>
+      <span
+        className="font-mono text-[11px] px-2 py-0.5 rounded-full"
+        style={{ background: "rgba(0,133,255,0.15)", color: "#0085FF" }}
+      >
         %{String(value)}
       </span>
     ),
@@ -106,15 +117,14 @@ const COLUMNS: ColumnDef<ProductRow>[] = [
     },
   },
 ];
-
 const STATUS_OPTIONS = [
   { label: "Tümü", value: "all" },
   { label: "Aktif", value: PRODUCT_STATUS.ACTIVE },
-  { label: "Pasif", value: PRODUCT_STATUS.INACTIVE },
-  { label: "Taslak", value: PRODUCT_STATUS.DRAFT },
+  { label: "Pasif", value: PRODUCT_STATUS.INACTIVE },  
 ];
 
 export default function ProductsPage() {
+  const router = useRouter();
   const { products, loading, error } = useProducts();
 
   if (loading) {
@@ -143,10 +153,22 @@ export default function ProductsPage() {
       <DataTable
         data={products as ProductRow[]}
         columns={COLUMNS}
-        filterKeys={["platform", "region", "type"]}        
         showStatusFilter
         statusOptions={STATUS_OPTIONS}
-      />
+        actions={(row) => (
+            <button
+            onClick={() => router.push(`/products/${row.id}`)}
+            className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors hover:bg-white/10"
+            style={{
+                background: "rgba(255,255,255,0.05)",
+                borderColor: "rgba(255,255,255,0.1)",
+                color: "rgba(255,255,255,0.4)",
+            }}
+            >
+            <Eye size={14} />
+            </button>
+        )}
+        />
     </div>
   );
 }
