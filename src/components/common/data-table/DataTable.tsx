@@ -44,14 +44,14 @@ export default function DataTable<T extends Record<string, unknown>>({
     <div
       className="rounded-xl border overflow-hidden"
       style={{
-        background: "rgba(255,255,255,0.02)",
-        borderColor: "rgba(255,255,255,0.07)",
+        background: "var(--background-card)",
+        borderColor: "var(--border)",
       }}
     >
       {showStatusFilter && (
         <div
           className="flex items-center justify-end px-4 py-3 border-b"
-          style={{ borderColor: "rgba(255,255,255,0.06)" }}
+          style={{ borderColor: "var(--border-subtle)" }}
         >
           <DataTableStatusFilter
             value={statusFilter}
@@ -79,7 +79,8 @@ export default function DataTable<T extends Record<string, unknown>>({
               <tr>
                 <td
                   colSpan={columns.length + (actions ? 1 : 0)}
-                  className="px-4 py-12 text-center text-sm text-white/25 font-mono"
+                  className="px-4 py-12 text-center text-sm font-mono"
+                  style={{ color: "var(--text-muted)" }}
                 >
                   Kayıt bulunamadı
                 </td>
@@ -88,14 +89,14 @@ export default function DataTable<T extends Record<string, unknown>>({
               rows.map((row, rowIndex) => (
                 <tr
                   key={rowIndex}
-                  className="border-b transition-colors hover:bg-white/[0.02]"
-                  style={{ borderColor: "rgba(255,255,255,0.04)" }}
+                  className="border-b transition-colors hover:bg-black/5 dark:hover:bg-white/[0.02]"
+                  style={{ borderColor: "var(--border-subtle)" }}
                 >
                   {columns.map((col) => (
                     <td
                       key={String(col.key)}
                       className="px-4 py-3 text-sm"
-                      style={{ color: "rgba(255,255,255,0.7)" }}
+                      style={{ color: "var(--text-secondary)" }}
                     >
                       {col.render
                         ? col.render(row[col.key], row)

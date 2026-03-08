@@ -26,7 +26,8 @@ export default function NavGroup({ group, index, activeHref, collapsed, onNavCli
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-white/30 font-mono overflow-hidden"
+            className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest font-mono overflow-hidden"
+            style={{ color: "var(--text-muted)" }}
           >
             {group.title}
           </motion.p>

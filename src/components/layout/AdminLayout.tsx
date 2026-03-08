@@ -12,7 +12,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen bg-[#0F1117] overflow-hidden">
+    <div className="flex h-screen overflow-hidden" style={{ background: "var(--background)" }}>
       <Sidebar
         collapsed={collapsed}
         onToggle={() => setCollapsed((prev) => !prev)}

@@ -27,7 +27,10 @@ export default function UserMenu({ user }: UserMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 hover:bg-white/5 transition-colors outline-none">
+        <button
+          className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors outline-none"
+          style={{ color: "var(--text-primary)" }}
+        >
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shrink-0 font-mono"
             style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
@@ -35,25 +38,30 @@ export default function UserMenu({ user }: UserMenuProps) {
             {user.avatarInitials}
           </div>
           <div className="text-left hidden sm:block">
-            <p className="text-sm font-medium text-white/85 leading-tight">
+            <p className="text-sm font-medium leading-tight" style={{ color: "var(--text-primary)" }}>
               {user.displayName}
             </p>
-            <p className="text-[11px] text-white/35 leading-tight font-mono">
+            <p className="text-[11px] leading-tight font-mono" style={{ color: "var(--text-muted)" }}>
               {ROLE_LABELS[user.role]}
             </p>
           </div>
-          <ChevronDown size={14} className="text-white/30" />
+          <ChevronDown size={14} style={{ color: "var(--text-muted)" }} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-48 border-white/10 bg-[#1A1D27] text-white/80"
+        className="w-48"
+        style={{
+          background: "var(--background-secondary)",
+          borderColor: "var(--border)",
+          color: "var(--text-primary)",
+        }}
       >
         <div className="px-2 py-1.5">
-          <p className="text-xs font-medium text-white/60">{user.displayName}</p>
-          <p className="text-[11px] text-white/30 font-mono">{user.email}</p>
+          <p className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>{user.displayName}</p>
+          <p className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>{user.email}</p>
         </div>
-        <DropdownMenuSeparator className="bg-white/10" />
+        <DropdownMenuSeparator style={{ background: "var(--border)" }} />
         <DropdownMenuItem
           onClick={logout}
           disabled={loading}

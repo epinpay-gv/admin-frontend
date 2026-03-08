@@ -2,10 +2,10 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Eye } from "lucide-react";
+import { Eye, Pencil } from "lucide-react";
 import { DataTable } from "@/components/common/data-table";
 import { ColumnDef } from "@/components/common/data-table";
-import { useProducts } from "@/features/products";
+import { useProducts, useProductModal, ProductEditModal } from "@/features/products";
 import { Product, PRODUCT_STATUS } from "@/features/products";
 
 const STATUS_LABELS: Record<PRODUCT_STATUS, string> = {
@@ -41,7 +41,8 @@ const COLUMNS: ColumnDef<ProductRow>[] = [
       const translation = row.translation as Product["translation"];
       return (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-white/5">
+          <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0"
+            style={{ background: "var(--background-card)" }}>
             <Image
               src={translation.imgUrl}
               alt={translation.imgAlt}
@@ -51,8 +52,12 @@ const COLUMNS: ColumnDef<ProductRow>[] = [
             />
           </div>
           <div>
-            <p className="text-sm font-medium min-w-32 text-white/80">{translation.name}</p>
-            <p className="text-[11px] text-white/30 font-mono">{translation.slug}</p>
+            <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+              {translation.name}
+            </p>
+            <p className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
+              {translation.slug}
+            </p>
           </div>
         </div>
       );
@@ -75,7 +80,9 @@ const COLUMNS: ColumnDef<ProductRow>[] = [
     label: "Fiyat",
     sortable: true,
     render: (value) => (
-      <span className="font-mono text-white/70">₺ {Number(value).toFixed(2)}</span>
+      <span className="font-mono" style={{ color: "var(--text-secondary)" }}>
+        ₺ {Number(value).toFixed(2)}
+      </span>
     ),
   },
   {
@@ -96,7 +103,9 @@ const COLUMNS: ColumnDef<ProductRow>[] = [
     label: "Stok",
     sortable: true,
     render: (value) => (
-      <span className="font-mono text-white/60">{String(value)}</span>
+      <span className="font-mono" style={{ color: "var(--text-secondary)" }}>
+        {String(value)}
+      </span>
     ),
   },
   {
@@ -117,20 +126,26 @@ const COLUMNS: ColumnDef<ProductRow>[] = [
     },
   },
 ];
+
 const STATUS_OPTIONS = [
   { label: "Tümü", value: "all" },
   { label: "Aktif", value: PRODUCT_STATUS.ACTIVE },
-  { label: "Pasif", value: PRODUCT_STATUS.INACTIVE },  
+  { label: "Pasif", value: PRODUCT_STATUS.INACTIVE },
+  { label: "Taslak", value: PRODUCT_STATUS.DRAFT },
 ];
 
 export default function ProductsPage() {
   const router = useRouter();
   const { products, loading, error } = useProducts();
+  const { isOpen, selectedProduct, open, close } = useProductModal();
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-6 h-6 border-2 border-white/20 border-t-[#00C6A2] rounded-full animate-spin" />
+        <div
+          className="w-6 h-6 border-2 rounded-full animate-spin"
+          style={{ borderColor: "var(--border)", borderTopColor: "#00C6A2" }}
+        />
       </div>
     );
   }
@@ -146,8 +161,12 @@ export default function ProductsPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-white tracking-tight">Ürünler</h1>
-        <p className="text-sm text-white/40 mt-1">Tüm ürünleri yönet.</p>
+        <h1 className="text-2xl font-semibold tracking-tight" style={{ color: "var(--text-primary)" }}>
+          Ürünler
+        </h1>
+        <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
+          Tüm ürünleri yönet.
+        </p>
       </div>
 
       <DataTable
@@ -156,19 +175,38 @@ export default function ProductsPage() {
         showStatusFilter
         statusOptions={STATUS_OPTIONS}
         actions={(row) => (
+          <div className="flex items-center justify-end gap-2">
             <button
-            onClick={() => router.push(`/products/${row.id}`)}
-            className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors hover:bg-white/10"
-            style={{
-                background: "rgba(255,255,255,0.05)",
-                borderColor: "rgba(255,255,255,0.1)",
-                color: "rgba(255,255,255,0.4)",
-            }}
+              onClick={() => open(row as Product)}
+              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
+              style={{
+                background: "var(--background-card)",
+                borderColor: "var(--border)",
+                color: "var(--text-muted)",
+              }}
             >
-            <Eye size={14} />
+              <Pencil size={14} />
             </button>
+            <button
+              onClick={() => router.push(`/products/${row.id}`)}
+              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
+              style={{
+                background: "var(--background-card)",
+                borderColor: "var(--border)",
+                color: "var(--text-muted)",
+              }}
+            >
+              <Eye size={14} />
+            </button>
+          </div>
         )}
-        />
+      />
+
+      <ProductEditModal
+        open={isOpen}
+        onClose={close}
+        product={selectedProduct}
+      />
     </div>
   );
 }

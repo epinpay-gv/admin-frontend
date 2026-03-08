@@ -2,16 +2,15 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, ArrowRight } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Input from "@/components/common/input/Input";
 import { useLogin } from "@/features/auth/hooks/useLogin";
 import { LoginRequest } from "@/features/auth/types";
 
 export default function LoginForm() {
   const { login, error, loading } = useLogin();
   const [form, setForm] = useState<LoginRequest>({ email: "", password: "" });
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -19,54 +18,27 @@ export default function LoginForm() {
 
   return (
     <div className="space-y-4">
-      <div className="space-y-1.5">
-        <label className="text-[11px] font-semibold text-white/40 font-mono uppercase tracking-widest">
-          Email
-        </label>
-        <Input
-          name="email"
-          type="email"
-          placeholder="admin@epinpay.com"
-          value={form.email}
-          onChange={handleChange}
-          onKeyDown={(e) => e.key === "Enter" && login(form)}
-          className="h-11 bg-white/5 border-white/10 text-white/80 placeholder:text-white/20 focus-visible:ring-[#00C6A2]/30 focus-visible:border-[#00C6A2]/50 transition-colors"
-        />
-      </div>
+      <Input
+        name="email"
+        type="email"
+        label="Email"
+        placeholder="admin@epinpay.com"
+        value={form.email}
+        onChange={handleChange}
+        onKeyDown={(e) => e.key === "Enter" && login(form)}
+        error={error ? " " : undefined}
+      />
 
-      <div className="space-y-1.5">
-        <label className="text-[11px] font-semibold text-white/40 font-mono uppercase tracking-widest">
-          Şifre
-        </label>
-        <div className="relative">
-          <Input
-            name="password"
-            type={showPassword ? "text" : "password"}
-            placeholder="••••••••"
-            value={form.password}
-            onChange={handleChange}
-            onKeyDown={(e) => e.key === "Enter" && login(form)}
-            className="h-11 pr-11 bg-white/5 border-white/10 text-white/80 placeholder:text-white/20 focus-visible:ring-[#00C6A2]/30 focus-visible:border-[#00C6A2]/50 transition-colors"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword((p) => !p)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
-          >
-            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-          </button>
-        </div>
-      </div>
-
-      {error && (
-        <motion.p
-          initial={{ opacity: 0, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-xs text-red-400 font-mono bg-red-400/8 border border-red-400/15 px-3 py-2.5 rounded-lg"
-        >
-          {error}
-        </motion.p>
-      )}
+      <Input
+        name="password"
+        type="password"
+        label="Şifre"
+        placeholder="••••••••"
+        value={form.password}
+        onChange={handleChange}
+        onKeyDown={(e) => e.key === "Enter" && login(form)}
+        error={error || undefined}
+      />
 
       <Button
         onClick={() => login(form)}

@@ -17,8 +17,8 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
       className="relative hidden lg:flex flex-col h-full border-r overflow-hidden"
       style={{
-        background: "linear-gradient(180deg, #13151E 0%, #0F1117 100%)",
-        borderColor: "rgba(255,255,255,0.06)",
+        background: "var(--background-secondary)",
+        borderColor: "var(--border-subtle)",
         minWidth: collapsed ? 72 : 240,
       }}
     >
@@ -39,8 +39,11 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
       <button
         onClick={onToggle}
-        className="flex items-center gap-2 px-4 py-4 border-t text-white/30 hover:text-white/60 transition-colors"
-        style={{ borderColor: "rgba(255,255,255,0.06)" }}
+        className="flex items-center gap-2 px-4 py-4 border-t transition-colors"
+        style={{
+          borderColor: "var(--border-subtle)",
+          color: "var(--text-muted)",
+        }}
       >
         <motion.span
           animate={{ rotate: collapsed ? 0 : 180 }}

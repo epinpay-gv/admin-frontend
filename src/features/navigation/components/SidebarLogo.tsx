@@ -10,7 +10,7 @@ export default function SidebarLogo({ collapsed }: SidebarLogoProps) {
   return (
     <div
       className="flex items-center h-16 px-4 border-b shrink-0"
-      style={{ borderColor: "rgba(255,255,255,0.06)" }}
+      style={{ borderColor: "var(--border-subtle)" }}
     >
       <div className="flex items-center gap-3 overflow-hidden">
         <div
@@ -26,7 +26,8 @@ export default function SidebarLogo({ collapsed }: SidebarLogoProps) {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -8 }}
               transition={{ duration: 0.2 }}
-              className="text-white font-semibold text-base tracking-tight whitespace-nowrap"
+              className="font-semibold text-base tracking-tight whitespace-nowrap"
+              style={{ color: "var(--text-primary)" }}
             >
               epinpay
             </motion.span>

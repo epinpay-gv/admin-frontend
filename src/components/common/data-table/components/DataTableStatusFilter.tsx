@@ -23,8 +23,13 @@ export default function DataTableStatusFilter({
   options = DEFAULT_OPTIONS,
 }: DataTableStatusFilterProps) {
   return (
-    <div className="flex items-center gap-1 rounded-lg p-1 border border-white/10"
-      style={{ background: "rgba(255,255,255,0.03)" }}>
+    <div
+      className="flex items-center gap-1 rounded-lg p-1 border"
+      style={{
+        background: "var(--background-card)",
+        borderColor: "var(--border)",
+      }}
+    >
       {options.map((option) => (
         <button
           key={option.value}
@@ -34,8 +39,10 @@ export default function DataTableStatusFilter({
             background: value === option.value
               ? "linear-gradient(90deg, rgba(0,198,162,0.2) 0%, rgba(0,133,255,0.1) 100%)"
               : "transparent",
-            color: value === option.value ? "#00C6A2" : "rgba(255,255,255,0.4)",
-            border: value === option.value ? "1px solid rgba(0,198,162,0.2)" : "1px solid transparent",
+            color: value === option.value ? "#00C6A2" : "var(--text-muted)",
+            border: value === option.value
+              ? "1px solid rgba(0,198,162,0.2)"
+              : "1px solid transparent",
           }}
         >
           {option.label}

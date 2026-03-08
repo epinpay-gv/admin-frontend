@@ -52,11 +52,11 @@ function ColumnHeader<T>({
           {col.sortable ? (
             <button
               onClick={() => onSort(colKey)}
-              className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest font-mono hover:text-white/60 transition-colors group"
-              style={{ color: "rgba(255,255,255,0.35)" }}
+              className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest font-mono transition-colors group"
+              style={{ color: "var(--text-muted)" }}
             >
               {col.label}
-              <span className="text-white/20 group-hover:text-white/40 transition-colors">
+              <span>
                 {sort.column === colKey ? (
                   sort.direction === "asc" ? (
                     <ChevronUp size={12} className="text-[#00C6A2]" />
@@ -64,14 +64,14 @@ function ColumnHeader<T>({
                     <ChevronDown size={12} className="text-[#00C6A2]" />
                   )
                 ) : (
-                  <ChevronsUpDown size={12} />
+                  <ChevronsUpDown size={12} style={{ color: "var(--text-muted)" }} />
                 )}
               </span>
             </button>
           ) : (
             <span
               className="text-[11px] font-semibold uppercase tracking-widest font-mono"
-              style={{ color: "rgba(255,255,255,0.35)" }}
+              style={{ color: "var(--text-muted)" }}
             >
               {col.label}
             </span>
@@ -80,15 +80,13 @@ function ColumnHeader<T>({
           {col.searchable && (
             <button
               onClick={() => {
-                if (searchOpen && isFiltered) {
-                  onClearColumnFilter(colKey);
-                }
+                if (searchOpen && isFiltered) onClearColumnFilter(colKey);
                 setSearchOpen((p) => !p);
               }}
               className="w-5 h-5 rounded flex items-center justify-center transition-all"
               style={{
                 background: isFiltered ? "rgba(0,198,162,0.2)" : "transparent",
-                color: isFiltered ? "#00C6A2" : "rgba(255,255,255,0.2)",
+                color: isFiltered ? "#00C6A2" : "var(--text-muted)",
               }}
             >
               {isFiltered ? <X size={11} /> : <Search size={11} />}
@@ -129,7 +127,10 @@ export default function DataTableHeader<T>({
 }: DataTableHeaderProps<T>) {
   return (
     <thead>
-      <tr className="border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+      <tr
+        className="border-b"
+        style={{ borderColor: "var(--border-subtle)" }}
+      >
         {columns.map((col) => (
           <ColumnHeader
             key={String(col.key)}

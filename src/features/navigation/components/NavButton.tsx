@@ -20,13 +20,13 @@ export default function NavButton({ item, isActive, collapsed, onClick }: NavBut
       whileHover={{ x: collapsed ? 0 : 2 }}
       whileTap={{ scale: 0.98 }}
       className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors duration-150 relative
-        ${isActive ? "text-[#00C6A2]" : "text-white/50 hover:text-white/80 hover:bg-white/5"}
         ${collapsed ? "justify-center" : "justify-start"}
       `}
       style={{
         background: isActive
           ? "linear-gradient(90deg, rgba(0,198,162,0.15) 0%, rgba(0,133,255,0.08) 100%)"
-          : undefined,
+          : "transparent",
+        color: isActive ? "#00C6A2" : "var(--text-secondary)",
       }}
     >
       {isActive && (
@@ -35,7 +35,7 @@ export default function NavButton({ item, isActive, collapsed, onClick }: NavBut
           className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-[#00C6A2]"
         />
       )}
-      <Icon size={18} className="shrink-0" />
+      <Icon size={18} className="flex-shrink-0" />
       <AnimatePresence initial={false}>
         {!collapsed && (
           <motion.span
