@@ -1,8 +1,11 @@
+import { LucideIcon } from "lucide-react";
+
 export interface NavItem {
-  label: string;
-  icon: React.ElementType;
   href: string;
+  label: string;
+  icon: LucideIcon;
   badge?: number;
+  children?: NavItem[];
 }
 
 export interface NavGroup {
