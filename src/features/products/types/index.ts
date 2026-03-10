@@ -1,4 +1,3 @@
-
 export enum PRODUCT_STATUS {
   ACTIVE = "active",
   INACTIVE = "inactive",
@@ -29,9 +28,23 @@ export interface CheapestOffer {
   id: number;
 }
 
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+export interface Country {
+  code: string;
+  code3: string;
+  name: string;
+  region: string;
+}
+
 export interface Product {
   id: number;
   category_id: number;
+  category: Category;
   region_id: number;
   platform_id: number;
   type_id: number;
@@ -41,7 +54,7 @@ export interface Product {
   basePrice: number | null;
   epPrice: number | null;
   discountRate: number;
-  fakePrice: number |null;
+  fakePrice: number | null;
   isFavorite: boolean;
   genres: string[];
   region: string;
@@ -49,11 +62,8 @@ export interface Product {
   type: string;
   platform_icon: string;
   totalStock: number;
-}
+  forbiddenCountries: Country[];
 
-export interface Country {
-  code: string;
-  code3: string;
-  name: string;
-  region: string;
+  updatedAt: string;
+  createdAt: string;
 }
