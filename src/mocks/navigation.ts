@@ -1,22 +1,16 @@
 import {
   LayoutDashboard,
   Users,
-  ShoppingCart,
   Store,
-  Package,
-  Tag,
-  CreditCard,
-  Gift,
-  Megaphone,
-  HeadphonesIcon,
-  MessageSquare,
-  Star,
-  FileText,
-  ArrowLeftRight,
-  ScrollText,
   Globe,
   Wallet,
-  Settings,
+  PersonStanding,
+  HandCoins,
+  Handshake,
+  Package,
+  TrendingUp,
+  Ticket,
+  MessageSquare
 } from "lucide-react";
 import { NavGroup } from "@/features/navigation/types";
 
@@ -28,6 +22,9 @@ export const NAV_GROUPS: NavGroup[] = [
         href: "/dashboard",
         label: "Dashboard",
         icon: LayoutDashboard,
+        children:  [
+          // { href: "/dashboard/summary", label: "Genel Sistem Özeti", icon: Users },
+        ]
       },
     ],
   },
@@ -35,56 +32,83 @@ export const NAV_GROUPS: NavGroup[] = [
     title: "Yönetim",
     items: [
       {
-        href: "/hub/users",
-        label: "Kullanıcılar",
+        href: "/hub/admin/users",
+        label: "Kullanıcı Yönetimi",
         icon: Users,
         children: [
-          { href: "/users/list", label: "Kullanıcı Listesi", icon: Users },
-          { href: "/orders", label: "Siparişler", icon: ShoppingCart },
+          // { href: "/admin/users", label: "Kullanıcı Listesi & Detaylar", icon: Users },          
         ],
       },
       {
-        href: "/hub/store",
-        label: "Mağaza & Ürün",
-        icon: Store,
-        children: [
-          { href: "/stores", label: "Mağazalar", icon: Store },
-          { href: "/offers", label: "Teklifler & Stok", icon: Package },
-          { href: "/categories", label: "Kategoriler", icon: Tag },
-          { href: "/products", label: "Ürünler", icon: Package },
-        ],
-      },
-      {
-        href: "/hub/finance",
-        label: "Finans",
+        href: "/hub/admin/finance",
+        label: "Ödeme & Finans Ayarları",
         icon: Wallet,
-        children: [
-          { href: "/payment-methods", label: "Ödeme Yöntemleri", icon: CreditCard },
-          { href: "/referral", label: "Referans & Yayıncı", icon: Gift },
-          { href: "/campaigns", label: "Çekiliş & Kampanya", icon: Megaphone },
+        children: [          
         ],
       },
       {
-        href: "/hub/communication",
-        label: "İletişim",
-        icon: MessageSquare,
-        children: [
-          { href: "/support", label: "Destek Talepleri", icon: HeadphonesIcon },
-          { href: "/messages", label: "Mesajlaşma", icon: MessageSquare },
-          { href: "/reviews", label: "Yorumlar", icon: Star },
+        href: "/hub/admin/policy",
+        label: "Konum & Policy Yönetimi",
+        icon: Globe,
+        children: [      
         ],
       },
       {
-        href: "/hub/system",
-        label: "Sistem",
-        icon: Settings,
+        href: "/hub/admin/cms",
+        label: "İçerik ve SEO Yönetimi",
+        icon: PersonStanding,
         children: [
-          { href: "/blog", label: "Blog & Makaleler", icon: FileText },
-          { href: "/redirects", label: "Yönlendirmeler", icon: ArrowLeftRight },
-          { href: "/legal", label: "Yasal Sayfalar", icon: ScrollText },
-          { href: "/policy", label: "Konum & Policy", icon: Globe },
+          // { href: "/products", label: "Ürün Listesi & Detaylar", icon: Users },       
         ],
+      }     
+    ]
+  },
+  {
+    title: "Epinpay",
+    items: [
+      {
+        href: "/hub/epinpay/sales",
+        label: "Satış Operasyonları",
+        icon: HandCoins, 
+        children: [  
+        ]
       },
-    ],
+      {
+        href: "/hub/epinpay/store",
+        label: "Mağaza Yönetimi",
+        icon: Store, 
+        children: [  
+        ]
+      },
+      {
+        href: "/hub/epinpay/offers",
+        label: "Teklif & Stok Yönetimi",
+        icon: Handshake, 
+        children: [  
+        ]
+      },
+      {
+        href: "/hub/epinpay/products",
+        label: "Ürün & Katalog Yönetimi",
+        icon: Package, 
+        children: [  
+          { href: "/products", label: "Ürün Listesi & Detaylar", icon: Users }, 
+        ]
+      },
+      {
+        href: "/hub/epinpay/marketing",
+        label: "Pazarlama & Kampanya Yönetimi",
+        icon: TrendingUp, 
+        children: [  
+        ]
+      },      
+      {
+        href: "/hub/epinpay/support",
+        label: "Destek & İletişim Yönetimi",
+        icon: MessageSquare, 
+        children: [  
+        ]
+      },
+    ]
   },
 ];

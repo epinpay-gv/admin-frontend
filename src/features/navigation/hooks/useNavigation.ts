@@ -1,22 +1,23 @@
 "use client";
 
-import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { NAV_GROUPS } from "@/mocks/navigation";
+import { useNavigationMenu } from "./useNavigationMenu";
 
 export function useNavigation() {
   const pathname = usePathname();
   const router = useRouter();
-  const [activeHref, setActiveHref] = useState(pathname);
+  const { navGroups, loading, error } = useNavigationMenu();
+
+  const activeHref = navGroups
+    .flatMap((g) => g.items)
+    .find(
+      (item) =>
+        pathname === item.href || pathname.startsWith(item.href + "/")
+    )?.href ?? pathname;
 
   const navigate = (href: string) => {
-    setActiveHref(href);
     router.push(href);
   };
 
-  return {
-    navGroups: NAV_GROUPS,
-    activeHref,
-    navigate,
-  };
+  return { navGroups, activeHref, navigate, loading, error };
 }

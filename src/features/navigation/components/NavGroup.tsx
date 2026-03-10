@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePathname } from "next/navigation";
 import NavButton from "./NavButton";
 import { NavGroup as NavGroupType } from "@/features/navigation/types";
 
@@ -11,6 +9,7 @@ interface NavGroupProps {
   index: number;
   activeHref: string;
   collapsed: boolean;
+  openHref: string | null;
   onNavClick: (href: string) => void;
 }
 
@@ -19,21 +18,9 @@ export default function NavGroup({
   index,
   activeHref,
   collapsed,
+  openHref,
   onNavClick,
 }: NavGroupProps) {
-  const pathname = usePathname();
-  const [openHref, setOpenHref] = useState<string | null>(
-    () => group.items.find((item) => item.children?.some((c) => pathname.startsWith(c.href)))?.href ?? null
-  );
-
-  const handleNavClick = (href: string) => {
-    const item = group.items.find((i) => i.href === href);
-    if (item?.children?.length) {
-      setOpenHref((prev) => (prev === href ? null : href));
-    }
-    onNavClick(href);
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -62,7 +49,7 @@ export default function NavGroup({
               isActive={activeHref === item.href}
               collapsed={collapsed}
               open={openHref === item.href}
-              onClick={() => handleNavClick(item.href)}
+              onClick={() => onNavClick(item.href)}
               onChildClick={onNavClick}
             />
           </li>
