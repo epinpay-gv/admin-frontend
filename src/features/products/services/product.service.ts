@@ -1,6 +1,7 @@
-import { Product } from "@/features/products/types";
+import { Product, Country } from "@/features/products/types";
 
 const BASE_URL = "/api/products";
+const COUNTRIES_URL = "/api/countries";
 
 export const productService = {
   getAll: async (): Promise<Product[]> => {
@@ -38,5 +39,21 @@ export const productService = {
   delete: async (id: number): Promise<void> => {
     const res = await fetch(`${BASE_URL}/${id}`, { method: "DELETE" });
     if (!res.ok) throw new Error("Ürün silinemedi.");
+  },
+
+  updateForbiddenCountries: async (id: number, forbiddenCountries: Country[]): Promise<Product> => {
+    const res = await fetch(`${BASE_URL}/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ forbiddenCountries }),
+    });
+    if (!res.ok) throw new Error("Ülke kısıtlamaları güncellenemedi.");
+    return res.json();
+  },
+
+  getCountries: async (): Promise<Country[]> => {
+    const res = await fetch(COUNTRIES_URL);
+    if (!res.ok) throw new Error("Ülkeler getirilemedi.");
+    return res.json();
   },
 };

@@ -50,3 +50,10 @@ export interface Product {
   platform_icon: string;
   totalStock: number;
 }
+
+export interface Country {
+  code: string;
+  code3: string;
+  name: string;
+  region: string;
+}
