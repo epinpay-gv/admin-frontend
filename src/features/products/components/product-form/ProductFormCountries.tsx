@@ -61,7 +61,7 @@ export default function ProductFormCountries({
             </button>
           </PopoverTrigger>
           <PopoverContent
-            className="w-[500px] p-0 border"
+            className="w-full p-0 border"
             style={{
               background: "var(--background-secondary)",
               borderColor: "var(--border)",

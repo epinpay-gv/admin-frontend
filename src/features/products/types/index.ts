@@ -52,7 +52,7 @@ export interface Product {
   translation: ProductTranslation;
   cheapestOffer: CheapestOffer | null;
   basePrice: number | null;
-  epPrice: number | null;
+  spreadRate: number | null;
   discountRate: number;
   fakePrice: number | null;
   isFavorite: boolean;
@@ -63,7 +63,6 @@ export interface Product {
   platform_icon: string;
   totalStock: number;
   forbiddenCountries: Country[];
-
   updatedAt: string;
   createdAt: string;
 }

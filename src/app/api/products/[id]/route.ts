@@ -16,7 +16,7 @@ export async function GET(
   return NextResponse.json<Product>(product);
 }
 
-export async function PATCH(
+export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -28,7 +28,13 @@ export async function PATCH(
     return NextResponse.json({ message: "Ürün bulunamadı." }, { status: 404 });
   }
 
-  const updated = { ...mockProducts[index], ...body };
+  const updated: Product = {
+    ...mockProducts[index],
+    ...body,
+    id: Number(id),
+    updatedAt: new Date().toISOString(),
+  };
+
   mockProducts[index] = updated;
 
   return NextResponse.json<Product>(updated);

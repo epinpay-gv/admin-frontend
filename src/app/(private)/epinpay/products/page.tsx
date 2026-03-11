@@ -56,9 +56,9 @@ export default function ProductsPage() {
       render: (_, row) => {
         const translation = row.translation as Product["translation"];
         return (
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-[200px] items-center gap-3">
             <div
-              className="w-10 h-10 rounded-lg overflow-hidden shrink-0"
+              className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-[var(--border)]"
               style={{ background: "var(--background-secondary)" }}
             >
               <Image
@@ -69,11 +69,11 @@ export default function ProductsPage() {
                 className="object-cover w-full h-full"
               />
             </div>
-            <div>
-              <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+            <div className="min-w-0">
+              <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
                 {translation.name}
               </p>
-              <p className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
+              <p className="text-[11px] font-mono opacity-60 truncate" style={{ color: "var(--text-muted)" }}>
                 {translation.slug}
               </p>
             </div>
@@ -93,10 +93,11 @@ export default function ProductsPage() {
         if (!category) return <span style={{ color: "var(--text-muted)" }}>-</span>;
         return (
           <span
-            className="text-xs font-mono px-2 py-0.5 rounded-lg"
+            className="text-[11px] font-mono px-2 py-0.5 rounded-md"
             style={{
               background: "var(--background-secondary)",
               color: "var(--text-secondary)",
+              border: "1px solid var(--border)",
             }}
           >
             {category.name}
@@ -105,28 +106,12 @@ export default function ProductsPage() {
       },
     },
     {
-      key: "platform",
-      label: "Platform",
-      sortable: true,
-      searchable: true,
-    },
-    {
       key: "basePrice",
       label: "Fiyat",
       sortable: true,
       render: (value) => (
-        <span className="font-mono" style={{ color: "var(--text-secondary)" }}>
-          ₺ {Number(value).toFixed(2)}
-        </span>
-      ),
-    },
-    {
-      key: "totalStock",
-      label: "Stok",
-      sortable: true,
-      render: (value) => (
-        <span className="font-mono" style={{ color: "var(--text-secondary)" }}>
-          {String(value)}
+        <span className="font-mono text-sm" style={{ color: "var(--text-secondary)" }}>
+          ₺ {Number(value).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
         </span>
       ),
     },
@@ -135,23 +120,22 @@ export default function ProductsPage() {
       label: "Kısıtlama",
       render: (_, row) => {
         const forbidden = row.forbiddenCountries as Product["forbiddenCountries"];
+        const hasForbidden = forbidden?.length > 0;
         return (
           <button
             onClick={(e) => {
               e.stopPropagation();
               setForbiddenModal(row as Product);
             }}
-            className="flex items-center gap-1.5 text-xs font-mono px-2 py-1 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 text-[10px] font-mono px-2 py-1 rounded-lg transition-all hover:scale-105 active:scale-95"
             style={{
-              background: forbidden.length > 0
-                ? "rgba(255,80,80,0.1)"
-                : "var(--background-secondary)",
-              color: forbidden.length > 0 ? "#FF5050" : "var(--text-muted)",
-              border: `1px solid ${forbidden.length > 0 ? "rgba(255,80,80,0.2)" : "var(--border)"}`,
+              background: hasForbidden ? "rgba(255,80,80,0.1)" : "var(--background-secondary)",
+              color: hasForbidden ? "#FF5050" : "var(--text-muted)",
+              border: `1px solid ${hasForbidden ? "rgba(255,80,80,0.2)" : "var(--border)"}`,
             }}
           >
             <ShieldOff size={11} />
-            {forbidden.length > 0 ? `${forbidden.length} ülke` : "Kısıtlama yok"}
+            {hasForbidden ? `${forbidden.length} Ülke` : "Kısıtlama Yok"}
           </button>
         );
       },
@@ -165,7 +149,7 @@ export default function ProductsPage() {
         const colors = STATUS_COLORS[status];
         return (
           <span
-            className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
+            className="text-[10px] font-bold px-2 py-0.5 rounded-full font-mono uppercase tracking-wider"
             style={{ background: colors.bg, color: colors.color }}
           >
             {STATUS_LABELS[status]}
@@ -177,9 +161,9 @@ export default function ProductsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-full min-h-100">
         <div
-          className="w-6 h-6 border-2 rounded-full animate-spin"
+          className="w-8 h-8 border-2 rounded-full animate-spin"
           style={{ borderColor: "var(--border)", borderTopColor: "#00C6A2" }}
         />
       </div>
@@ -188,91 +172,95 @@ export default function ProductsPage() {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 gap-3">
-        <p className="text-red-400 text-sm font-mono">{error}</p>
+      <div className="flex flex-col items-center justify-center h-full min-h-100 gap-4">
+        <div className="p-4 rounded-full bg-red-500/10">
+           <ShieldOff className="text-red-500" size={32} />
+        </div>
+        <p className="text-red-400 text-sm font-mono max-w-md text-center">{error}</p>
         <Button
-          variant="ghost"
+          variant="outline"
           onClick={() => window.location.reload()}
-          style={{ color: "var(--text-muted)" }}
+          className="border-border"
         >
-          Tekrar dene
+          Sayfayı Yenile
         </Button>
       </div>
     );
   }
 
   return (
-    <div>
-      {/* Üst bar */}
-      <div className="flex items-center justify-between mb-6">
+    <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
+      <div className="shrink-0 flex items-center justify-between mb-6 pt-2">
         <div>
           <h1
-            className="text-xl font-semibold tracking-tight"
+            className="text-2xl font-bold tracking-tight"
             style={{ color: "var(--text-primary)" }}
           >
             Ürünler
           </h1>
           <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
-            {products.length} ürün listeleniyor
+            Toplam <span className="font-semibold text-(--text-primary)">{products.length}</span> ürün yönetiliyor
           </p>
         </div>
         <Button
           onClick={() => router.push("/epinpay/products/new")}
-          className="text-white flex items-center gap-2"
+          className="text-white flex items-center gap-2 px-6 h-11 shadow-lg shadow-emerald-500/20"
           style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
         >
-          <Plus size={14} />
-          Yeni Ürün
+          <Plus size={18} strokeWidth={2.5} />
+          <span className="font-semibold text-sm">Yeni Ürün Ekle</span>
         </Button>
       </div>
+      <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
+        <DataTable
+          data={products as ProductRow[]}
+          columns={COLUMNS}
+          showStatusFilter
+          statusOptions={STATUS_OPTIONS}
+          actions={(row) => (
+            <div className="flex items-center justify-end gap-2">
+              <button
+                onClick={() => open(row as Product)}
+                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-[var(--text-muted)]"
+                title="Hızlı Düzenle"
+                style={{
+                  background: "var(--background-card)",
+                  borderColor: "var(--border)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <Pencil size={14} />
+              </button>
+              <button
+                onClick={() => router.push(`/epinpay/products/copy-${row.id}`)}
+                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-[var(--text-muted)]"
+                title="Kopyasını Oluştur"
+                style={{
+                  background: "var(--background-card)",
+                  borderColor: "var(--border)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <Copy size={14} />
+              </button>
+              <button
+                onClick={() => router.push(`/epinpay/products/${row.id}`)}
+                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-[var(--text-muted)]"
+                title="Ürün Detayları"
+                style={{
+                  background: "var(--background-card)",
+                  borderColor: "var(--border)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <Eye size={14} />
+              </button>
+            </div>
+          )}
+        />
+      </div>
 
-      <DataTable
-        data={products as ProductRow[]}
-        columns={COLUMNS}
-        showStatusFilter
-        statusOptions={STATUS_OPTIONS}
-        actions={(row) => (
-          <div className="flex items-center justify-end gap-1.5">
-            <button
-              onClick={() => router.push(`/epinpay/products/${row.id}`)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-              title="Düzenle"
-              style={{
-                background: "var(--background-card)",
-                borderColor: "var(--border)",
-                color: "var(--text-muted)",
-              }}
-            >
-              <Pencil size={13} />
-            </button>
-            <button
-              onClick={() => router.push(`/epinpay/products/copy-${row.id}`)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-              title="Kopyala"
-              style={{
-                background: "var(--background-card)",
-                borderColor: "var(--border)",
-                color: "var(--text-muted)",
-              }}
-            >
-              <Copy size={13} />
-            </button>
-            <button
-              onClick={() => router.push(`/epinpay/products/${row.id}`)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-              title="Detay"
-              style={{
-                background: "var(--background-card)",
-                borderColor: "var(--border)",
-                color: "var(--text-muted)",
-              }}
-            >
-              <Eye size={13} />
-            </button>
-          </div>
-        )}
-      />
-
+      {/* Modallar */}
       <ProductEditModal
         open={isOpen}
         onClose={close}

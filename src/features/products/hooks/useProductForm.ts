@@ -19,7 +19,7 @@ export interface ProductFormData {
   basePrice: string;
   fakePrice: string;
   discountRate: string;
-  epPrice: string;
+  spreadRate: string;
   // SEO
   metaTitle: string;
   metaDescription: string;
@@ -37,7 +37,7 @@ const INITIAL_FORM: ProductFormData = {
   basePrice: "",
   fakePrice: "",
   discountRate: "",
-  epPrice: "",
+  spreadRate: "",
   metaTitle: "",
   metaDescription: "",
 };
@@ -78,7 +78,7 @@ export function useProductForm(product: Product | null, mode: "create" | "edit" 
         basePrice: String(product.basePrice ?? ""),
         fakePrice: String(product.fakePrice ?? ""),
         discountRate: String(product.discountRate ?? ""),
-        epPrice: String(product.epPrice ?? ""),
+        spreadRate: String(product.spreadRate ?? ""),
         metaTitle: product.translation.metaTitle,
         metaDescription: product.translation.metaDescription,
       };
@@ -143,7 +143,7 @@ export function useProductForm(product: Product | null, mode: "create" | "edit" 
         basePrice: Number(form.basePrice),
         fakePrice: form.fakePrice ? Number(form.fakePrice) : null,
         discountRate: Number(form.discountRate),
-        epPrice: form.epPrice ? Number(form.epPrice) : null,
+        spreadRate: form.spreadRate ? Number(form.spreadRate) : null,
         translation: {
             ...(product?.translation ?? {}),
             name: form.name,

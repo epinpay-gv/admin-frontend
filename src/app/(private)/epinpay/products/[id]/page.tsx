@@ -68,7 +68,7 @@ export default function ProductDetailPage({
 
   if (error || (numericId !== null && !product && !loading)) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 gap-3">
+      <div className="flex flex-col items-center justify-center h-64 gap-3 px-4 text-center">
         <p className="text-red-400 text-sm font-mono">
           {error ?? "Ürün bulunamadı."}
         </p>
@@ -87,10 +87,15 @@ export default function ProductDetailPage({
       : product?.translation.name ?? "";
 
   return (
-    <div>
-      {/* Üst bar */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
+    <div className="flex flex-col h-full overflow-hidden bg-background">   
+      <div
+        className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between  px-4 py-3 sm:px-6 sm:py-4 rounded-xl shadow-[0px_3px_3px_0px_oklch(0.6_0.118_184.704)] gap-4 mx-4"
+        style={{
+          background: "var(--background-card)",
+          border: "1px solid var(--border)",
+        }}
+      >
+        <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={() => {
               if (isDirty) {
@@ -101,130 +106,111 @@ export default function ProductDetailPage({
                 router.back();
               }
             }}
-            className="w-9 h-9 rounded-lg flex items-center justify-center border transition-colors"
+            className="w-9 h-9 shrink-0 rounded-lg flex items-center justify-center border transition-colors hover:bg-black/5"
             style={{
-              background: "var(--background-card)",
+              background: "var(--background-secondary)",
               borderColor: "var(--border)",
               color: "var(--text-muted)",
             }}
           >
             <ArrowLeft size={16} />
           </button>
-          <div>
-            <div className="flex items-center gap-2">
+          
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
               <h1
-                className="text-xl font-semibold tracking-tight"
+                className="text-base sm:text-lg md:text-xl font-semibold tracking-tight truncate max-w-[180px] sm:max-w-none"
                 style={{ color: "var(--text-primary)" }}
               >
                 {pageTitle}
               </h1>
-              {product && mode === "edit" && (
-                <span
-                  className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                  style={{
-                    background: STATUS_COLORS[product.status].bg,
-                    color: STATUS_COLORS[product.status].color,
-                  }}
-                >
-                  {STATUS_LABELS[product.status]}
-                </span>
-              )}
-              {mode === "create" && (
-                <span
-                  className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                  style={{
-                    background: "rgba(255,180,0,0.15)",
-                    color: "#FFB400",
-                  }}
-                >
-                  Yeni
-                </span>
-              )}
-              {mode === "duplicate" && (
-                <span
-                  className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                  style={{
-                    background: "rgba(0,133,255,0.15)",
-                    color: "#0085FF",
-                  }}
-                >
-                  Kopya
-                </span>
-              )}
-              {isDirty && (
-                <span
-                  className="text-[11px] font-mono px-2 py-0.5 rounded-full"
-                  style={{
-                    background: "rgba(255,180,0,0.15)",
-                    color: "#FFB400",
-                  }}
-                >
-                  Kaydedilmemiş değişiklikler
-                </span>
-              )}
+              
+              <div className="flex flex-wrap gap-1.5">
+                {product && mode === "edit" && (
+                  <span
+                    className="text-[10px] font-bold px-2 py-0.5 rounded-full font-mono whitespace-nowrap"
+                    style={{
+                      background: STATUS_COLORS[product.status].bg,
+                      color: STATUS_COLORS[product.status].color,
+                    }}
+                  >
+                    {STATUS_LABELS[product.status]}
+                  </span>
+                )}
+                {mode === "create" && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full font-mono bg-[rgba(255,180,0,0.15)] text-[#FFB400]">
+                    Yeni
+                  </span>
+                )}
+                {isDirty && (
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[rgba(255,180,0,0.15)] text-[#FFB400]">
+                    <span className="hidden xs:inline">Değişiklikler var</span>
+                    <span className="xs:hidden">Düzenlendi</span>
+                  </span>
+                )}
+              </div>
             </div>
             {product && (
-              <p
-                className="text-xs font-mono mt-0.5"
-                style={{ color: "var(--text-muted)" }}
-              >
+              <p className="text-[10px] sm:text-xs font-mono mt-0.5 opacity-70 truncate" style={{ color: "var(--text-muted)" }}>
                 #{product.id} · {product.translation.slug}
               </p>
             )}
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Sağ Kısım: Aksiyon Butonları */}
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           {mode === "edit" && product && (
             <Button
               variant="ghost"
               onClick={() => router.push(`/epinpay/products/copy-${product.id}`)}
-              className="flex items-center gap-2 text-sm"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 text-sm h-10 px-3 border border-transparent hover:border-[var(--border)]"
               style={{ color: "var(--text-muted)" }}
             >
               <Copy size={14} />
-              Kopyala
+              <span className="hidden xs:inline">Kopyala</span>
             </Button>
           )}
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="text-white flex items-center gap-2"
+            className="flex-1 sm:flex-none text-white flex items-center justify-center gap-2 h-10 px-4 min-w-[110px]"
             style={{
               background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)",
             }}
           >
             {saving ? (
-              <span className="flex items-center gap-2">
+              <>
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Kaydediliyor...
-              </span>
+                <span className="text-xs">Kaydediliyor</span>
+              </>
             ) : (
               <>
                 <Save size={14} />
-                {mode === "create"
-                  ? "Oluştur"
-                  : mode === "duplicate"
-                  ? "Kopyayı Kaydet"
-                  : "Kaydet"}
+                <span className="text-xs sm:text-sm">
+                  {mode === "create" ? "Oluştur" : mode === "duplicate" ? "Kopyayı Kaydet" : "Kaydet"}
+                </span>
               </>
             )}
           </Button>
         </div>
+      </div>    
+      <div className="flex-1 mt-4 overflow-y-auto px-4 ">
+        <div className=" mx-auto">
+          <ProductForm
+            product={product ?? null}
+            mode={mode}
+            saving={saving}
+            form={form}
+            errors={errors}
+            handleChange={handleChange}
+            handleSelect={handleSelect}
+            onSuccess={(saved) => {
+              router.push(`/epinpay/products/${saved.id}`);
+            }}
+          />
+        </div>
       </div>
-
-      <ProductForm
-        product={product ?? null}
-        mode={mode}
-        saving={saving}
-        form={form}
-        errors={errors}
-        handleChange={handleChange}
-        handleSelect={handleSelect}
-        onSuccess={(saved) => {
-          router.push(`/epinpay/products/${saved.id}`);
-        }}
-      />
     </div>
   );
 }
