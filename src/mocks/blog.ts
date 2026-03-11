@@ -1,5 +1,3 @@
-// src/features/blog/mocks/blog.mock.ts
-
 import { Blog, BLOG_TRANSLATION_STATUS } from "@/features/blog/types";
 import { LANGUAGE } from "@/types";
 

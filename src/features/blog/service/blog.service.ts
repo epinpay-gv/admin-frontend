@@ -1,10 +1,6 @@
-// src/features/blog/services/blog.service.ts
-
 import { Blog, BlogTranslation } from "../types";
 
-
-
-const BASE_URL = "/api/blogs";
+const BASE_URL = "/api/blog";
 
 export const blogService = {
 

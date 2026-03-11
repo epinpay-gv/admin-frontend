@@ -111,7 +111,7 @@ export const HUB_PAGES: Record<string, HubPage> = {
       {
         title: "Blog & Makaleler",
         description: "Blog yazılarını oluştur, düzenle ve yayınla.",
-        href: "/admin/cms/blog",
+        href: "/blog",
         icon: FileText,
         color: "#00C6A2",
       },

@@ -1,5 +1,7 @@
 'use client';
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useState, useEffect } from 'react';
+
+// ─── Types 
 
 interface RichTextEditorProps {
   value?: string;
@@ -7,53 +9,126 @@ interface RichTextEditorProps {
   placeholder?: string;
 }
 
-type ToolItem =
-  | { type: 'command'; label: string; cmd: string; val?: string; title: string; className?: string }
-  | { type: 'divider' }
-  | { type: 'action'; label: string; title: string; onClick: () => void; className?: string };
+type CommandTool = {
+  type: 'command';
+  label: string;
+  cmd: string;
+  val?: string;
+  title: string;
+  className?: string;
+  stateKey?: string;
+};
 
-const BTN_BASE = 'px-2 py-1 text-sm rounded hover:bg-gray-200 transition-colors';
+type ActionTool = {
+  type: 'action';
+  label: string;
+  title: string;
+  onClick: () => void;
+  className?: string;
+};
+
+type DividerTool = { type: 'divider' };
+
+type ToolItem = CommandTool | ActionTool | DividerTool;
+
+// ─── Constants 
+const BTN_BASE =
+  'px-2 py-1 text-sm rounded transition-colors duration-100 select-none';
+
+const BTN_IDLE   = 'hover:bg-gray-700 text-gray-200';
+const BTN_ACTIVE = 'bg-gray-600 text-white shadow-inner';
+
+// ─── Helpers 
+
+const isCommandActive = (cmd: string): boolean => {
+  try {
+    return document.queryCommandState(cmd);
+  } catch {
+    return false;
+  }
+};
+
+const currentBlockFormat = (): string => {
+  try {
+    return document.queryCommandValue('formatBlock').toUpperCase();
+  } catch {
+    return '';
+  }
+};
+
+// ─── Component 
 
 export default function RichTextEditor({
   value,
   onChange,
   placeholder = 'İçerik girin...',
 }: RichTextEditorProps) {
-  const editorRef = useRef<HTMLDivElement>(null);
+  const editorRef    = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  /**
+   * Tracks which commands are currently active so toolbar buttons can reflect
+   * the state of the caret / selection.
+   */
+  const [activeCommands, setActiveCommands] = useState<Set<string>>(new Set());
+
+  // ── Active-state detection 
+
+  const refreshActiveCommands = useCallback(() => {
+    const toggled: string[] = [
+      'bold', 'italic', 'underline', 'strikeThrough',
+      'insertUnorderedList', 'insertOrderedList',
+      'justifyLeft', 'justifyCenter', 'justifyRight',
+    ];
+
+    const next = new Set<string>(toggled.filter(isCommandActive));
+
+    const block = currentBlockFormat();
+    if (block) next.add(`formatBlock:${block}`);
+
+    setActiveCommands(next);
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('selectionchange', refreshActiveCommands);
+    return () => document.removeEventListener('selectionchange', refreshActiveCommands);
+  }, [refreshActiveCommands]);
+
+  // ── Core exec helper 
 
   const exec = useCallback(
     (command: string, val?: string) => {
       document.execCommand(command, false, val);
       editorRef.current?.focus();
+      refreshActiveCommands();
       if (onChange && editorRef.current) {
         onChange(editorRef.current.innerHTML);
       }
     },
-    [onChange]
+    [onChange, refreshActiveCommands],
   );
 
+  // ── Event handlers 
   const handleInput = useCallback(() => {
+    refreshActiveCommands();
     if (onChange && editorRef.current) {
       onChange(editorRef.current.innerHTML);
     }
-  }, [onChange]);
+  }, [onChange, refreshActiveCommands]);
 
   const promptAndExec = useCallback(
     (command: string, promptText: string) => {
       const val = prompt(promptText);
       if (val) exec(command, val);
     },
-    [exec]
+    [exec],
   );
 
-  // Görseli base64 olarak editöre göm
   const handleImageUpload = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
 
-      // Sadece resim dosyaları
       if (!file.type.startsWith('image/')) {
         alert('Lütfen geçerli bir resim dosyası seçin.');
         return;
@@ -61,20 +136,19 @@ export default function RichTextEditor({
 
       const reader = new FileReader();
       reader.onload = () => {
-        const dataUrl = reader.result as string;
         editorRef.current?.focus();
-        document.execCommand('insertImage', false, dataUrl);
+        document.execCommand('insertImage', false, reader.result as string);
         if (onChange && editorRef.current) {
           onChange(editorRef.current.innerHTML);
         }
       };
       reader.readAsDataURL(file);
-
-      // Input'u sıfırla — aynı dosya tekrar seçilebilsin
       e.target.value = '';
     },
-    [onChange]
+    [onChange],
   );
+
+  // ── Toolbar definition 
 
   const toolGroups: ToolItem[][] = [
     [
@@ -84,9 +158,9 @@ export default function RichTextEditor({
       { type: 'command', label: 'S', cmd: 'strikeThrough', title: 'Üstü Çizili', className: 'line-through' },
     ],
     [
-      { type: 'command', label: 'H1', cmd: 'formatBlock', val: 'H1', title: 'Başlık 1', className: 'font-mono' },
-      { type: 'command', label: 'H2', cmd: 'formatBlock', val: 'H2', title: 'Başlık 2', className: 'font-mono' },
-      { type: 'command', label: 'P',  cmd: 'formatBlock', val: 'P',  title: 'Paragraf', className: 'font-mono' },
+      { type: 'command', label: 'H1', cmd: 'formatBlock', val: 'H1', title: 'Başlık 1', className: 'font-mono', stateKey: 'formatBlock:H1' },
+      { type: 'command', label: 'H2', cmd: 'formatBlock', val: 'H2', title: 'Başlık 2', className: 'font-mono', stateKey: 'formatBlock:H2' },
+      { type: 'command', label: 'P',  cmd: 'formatBlock', val: 'P',  title: 'Paragraf', className: 'font-mono', stateKey: 'formatBlock:P'  },
     ],
     [
       { type: 'command', label: '≡',  cmd: 'insertUnorderedList', title: 'Madde listesi' },
@@ -102,13 +176,13 @@ export default function RichTextEditor({
         type: 'action',
         label: '🔗',
         title: 'Link ekle',
-        className: 'text-blue-600',
+        className: 'text-blue-400',
         onClick: () => promptAndExec('createLink', 'URL girin:'),
       },
       {
         type: 'action',
         label: '🖼️',
-        title: 'Resim yükle (dosya veya URL)',
+        title: 'Resim yükle (dosya)',
         onClick: () => fileInputRef.current?.click(),
       },
     ],
@@ -118,9 +192,54 @@ export default function RichTextEditor({
     ],
   ];
 
+  // ── Render helpers 
+
+  const isActive = (tool: CommandTool): boolean =>
+    activeCommands.has(tool.stateKey ?? tool.cmd);
+
+  const renderTool = (tool: ToolItem, index: number) => {
+    if (tool.type === 'divider') {
+      return <span key={index} className="w-px self-stretch bg-gray-600 mx-1" />;
+    }
+
+    if (tool.type === 'action') {
+      return (
+        <button
+          key={index}
+          type="button"
+          title={tool.title}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            tool.onClick();
+          }}
+          className={`${BTN_BASE} ${BTN_IDLE} ${tool.className ?? ''}`}
+        >
+          {tool.label}
+        </button>
+      );
+    }
+
+    const active = isActive(tool);
+    return (
+      <button
+        key={index}
+        type="button"
+        title={tool.title}
+        aria-pressed={active}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          exec(tool.cmd, tool.val);
+        }}
+        className={`${BTN_BASE} ${active ? BTN_ACTIVE : BTN_IDLE} ${tool.className ?? ''}`}
+      >
+        {tool.label}
+      </button>
+    );
+  };
+
   return (
     <div className="border border-gray-700 rounded-lg overflow-hidden shadow-sm">
-      {/* Gizli dosya input'u */}
+      {/* Hidden file input */}
       <input
         ref={fileInputRef}
         type="file"
@@ -130,59 +249,29 @@ export default function RichTextEditor({
       />
 
       {/* Toolbar */}
-      <div className="flex flex-wrap gap-1 p-2 bg-[#0F1117] border-b border-gray-700">
+      <div
+        role="toolbar"
+        aria-label="Metin biçimlendirme araçları"
+        className="flex flex-wrap gap-1 p-2 bg-[#0F1117] border-b border-gray-700"
+      >
         {toolGroups.map((group, gi) => (
           <span key={gi} className="flex items-center gap-1">
-            {gi > 0 && <span className="w-px self-stretch bg-gray-300 mx-1" />}
-            {group.map((tool, ti) => {
-              if (tool.type === 'divider') return <span key={ti} className="w-px self-stretch bg-gray-300 mx-1" />;
-
-              if (tool.type === 'action')
-                return (
-                  <button
-                    key={ti}
-                    type="button"
-                    title={tool.title}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      tool.onClick();
-                    }}
-                    className={`${BTN_BASE} ${tool.className ?? ''}`}
-                  >
-                    {tool.label}
-                  </button>
-                );
-
-              return (
-                <button
-                  key={ti}
-                  type="button"
-                  title={tool.title}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    exec(tool.cmd, tool.val);
-                  }}
-                  className={`${BTN_BASE} ${tool.className ?? ''}`}
-                >
-                  {tool.label}
-                </button>
-              );
-            })}
+            {gi > 0 && <span className="w-px self-stretch bg-gray-600 mx-1" />}
+            {group.map((tool, ti) => renderTool(tool, ti))}
           </span>
         ))}
       </div>
 
-      {/* Editör alanı — dir="ltr" imleci sola sabitler */}
+      
       <div
         ref={editorRef}
         contentEditable
-        dir="ltr"                          // ← imleç düzeltmesi
+        dir="auto"
         suppressContentEditableWarning
         onInput={handleInput}
-        dangerouslySetInnerHTML={value ? { __html: value } : undefined}
         data-placeholder={placeholder}
         className="min-h-50 p-4 outline-none prose prose-sm max-w-none
-          text-left                        
+          text-left
           [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded
           empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400"
       />
