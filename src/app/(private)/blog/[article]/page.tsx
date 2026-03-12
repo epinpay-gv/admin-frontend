@@ -16,7 +16,6 @@ import RichTextEditor from "@/components/common/rick-test/contentEditable";
 import LocaleSelector from "@/components/common/locale-selector/LocaleSelector";
 import { Locale } from "@/components/common/locale-selector/locale.service";
 
-
 const STATUS_LABELS: Record<BLOG_TRANSLATION_STATUS, string> = {
   [BLOG_TRANSLATION_STATUS.PUBLISHED]: "Yayında",
   [BLOG_TRANSLATION_STATUS.DRAFT]: "Taslak",
@@ -51,6 +50,16 @@ const EMPTY_FORM: BlogTranslationForm = {
   categoryId: null,
 };
 
+type PageMode = "create" | "edit";
+
+function resolveMode(article: string): PageMode {
+  return article === "new" ? "create" : "edit";
+}
+
+function resolveArticleId(article: string): number | null {
+  return article === "new" ? null : Number(article);
+}
+
 export default function BlogDetailPage({
   params,
 }: {
@@ -58,13 +67,16 @@ export default function BlogDetailPage({
 }) {
   const { article } = use(params);
   const router = useRouter();
-  const { blog, loading, error } = useBlog(Number(article));
+  const mode = resolveMode(article);
+  const numericId = resolveArticleId(article);
+
+  const { blog, loading, error } = useBlog(numericId!);
   const [saving, setSaving] = useState(false);
   const [activeLocale, setActiveLocale] = useState<string>("");
   const [enabledLocales, setEnabledLocales] = useState<string[]>([]);
   const [form, setForm] = useState<BlogTranslationForm>(EMPTY_FORM);
 
-  // Blog gelince enabled locale listesini ayarla
+
   useEffect(() => {
     if (blog && enabledLocales.length === 0) {
       const locales = blog.translations.map((t) => t.language as string);
@@ -72,7 +84,7 @@ export default function BlogDetailPage({
     }
   }, [blog]);
 
-  // Locale değişince formu o translation'ın verisiyle doldur
+
   useEffect(() => {
     if (blog && activeLocale) {
       const translation = blog.translations.find(
@@ -106,20 +118,21 @@ export default function BlogDetailPage({
 
   const handleLocaleRemove = (code: string) => {
     setEnabledLocales((prev) => prev.filter((l) => l !== code));
-    // Eğer silinen aktif locale ise kaynak dile dön
-    if (activeLocale === code && blog) {
-      setActiveLocale(blog.sourceLanguage as string);
+    if (activeLocale === code) {
+      setActiveLocale(enabledLocales.find((l) => l !== code) ?? "");
     }
   };
 
   const handleSave = async () => {
-    if (!blog || !activeLocale) return;
     setSaving(true);
     try {
-      const updatedTranslations = blog.translations.map((t) =>
-        t.language === activeLocale
-          ? {
-              ...t,
+      if (mode === "create") {
+        const newBlog = await blogService.create({
+          category_id: form.categoryId ?? undefined,
+          translations: [
+            {
+              id: 0,
+              language: activeLocale as LANGUAGE,
               title: form.title,
               slug: form.slug,
               body: form.body,
@@ -127,22 +140,44 @@ export default function BlogDetailPage({
               metaTitle: form.metaTitle,
               metaDescription: form.metaDescription,
               status: form.status,
-            }
-          : t
-      );
-      await blogService.update(blog.id, {
-        category_id: form.categoryId ?? undefined,
-        translations: updatedTranslations,
-      });
-      toast.success("Blog güncellendi", `${form.title} başarıyla güncellendi.`);
+              imgUrl: "",
+              imgAlt: "",
+            },
+          ],
+        });
+        toast.success("Blog oluşturuldu", `${form.title} başarıyla oluşturuldu.`);
+        router.push(`/blog/${newBlog.id}`);
+      } else {
+        if (!blog || !activeLocale) return;
+        const updatedTranslations = blog.translations.map((t) =>
+          t.language === activeLocale
+            ? {
+                ...t,
+                title: form.title,
+                slug: form.slug,
+                body: form.body,
+                shortDescription: form.shortDescription,
+                metaTitle: form.metaTitle,
+                metaDescription: form.metaDescription,
+                status: form.status,
+              }
+            : t
+        );
+        await blogService.update(blog.id, {
+          category_id: form.categoryId ?? undefined,
+          translations: updatedTranslations,
+        });
+        toast.success("Blog güncellendi", `${form.title} başarıyla güncellendi.`);
+      }
     } catch {
-      toast.error("Hata oluştu", "Blog güncellenirken bir hata oluştu.");
+      toast.error("Hata oluştu", "İşlem sırasında bir hata oluştu.");
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) {
+  // Create modunda loading/error gösterme
+  if (mode === "edit" && loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div
@@ -153,7 +188,7 @@ export default function BlogDetailPage({
     );
   }
 
-  if (error || !blog) {
+  if (mode === "edit" && (error || !blog)) {
     return (
       <div className="flex items-center justify-center h-64">
         <p className="text-red-400 text-sm font-mono">
@@ -163,7 +198,7 @@ export default function BlogDetailPage({
     );
   }
 
-  const activeTranslation = blog.translations.find(
+  const activeTranslation = blog?.translations.find(
     (t) => t.language === activeLocale
   );
 
@@ -188,11 +223,13 @@ export default function BlogDetailPage({
               className="text-xl font-semibold tracking-tight"
               style={{ color: "var(--text-primary)" }}
             >
-              {form.title || "Blog Yazısı"}
+              {mode === "create" ? "Yeni Blog Yazısı" : form.title || "Blog Yazısı"}
             </h1>
-            <p className="text-xs font-mono mt-0.5" style={{ color: "var(--text-muted)" }}>
-              #{blog.id} · {form.slug}
-            </p>
+            {mode === "edit" && blog && (
+              <p className="text-xs font-mono mt-0.5" style={{ color: "var(--text-muted)" }}>
+                #{blog.id} · {form.slug}
+              </p>
+            )}
           </div>
         </div>
         <Button
@@ -204,12 +241,12 @@ export default function BlogDetailPage({
           {saving ? (
             <span className="flex items-center gap-2">
               <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Kaydediliyor...
+              {mode === "create" ? "Oluşturuluyor..." : "Kaydediliyor..."}
             </span>
           ) : (
             <>
               <Save size={14} />
-              Kaydet
+              {mode === "create" ? "Oluştur" : "Kaydet"}
             </>
           )}
         </Button>
@@ -352,8 +389,7 @@ export default function BlogDetailPage({
 
           {/* Kategori */}
           {/* TODO: CategorySelect component'i hazır olduğunda bu Input kaldırılıp
-              <CategorySelect value={form.categoryId} onChange={(id) => setForm(prev => ({ ...prev, categoryId: id }))} />
-              ile değiştirilecek. */}
+              Category componentiyle değiştirilecek.*/}
           <div
             className="pt-4 border-t"
             style={{ borderColor: "var(--border-subtle)" }}
@@ -373,38 +409,42 @@ export default function BlogDetailPage({
           </div>
 
           {/* Kaynak dil bilgisi */}
-          <div
-            className="pt-4 border-t"
-            style={{ borderColor: "var(--border-subtle)" }}
-          >
-            <p
-              className="text-[11px] font-semibold uppercase tracking-widest font-mono mb-1"
-              style={{ color: "var(--text-muted)" }}
+          {mode === "edit" && blog && (
+            <div
+              className="pt-4 border-t"
+              style={{ borderColor: "var(--border-subtle)" }}
             >
-              Kaynak Dil
-            </p>
-            <span
-              className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono uppercase"
-              style={{ background: "rgba(0,133,255,0.15)", color: "#0085FF" }}
-            >
-              {blog.sourceLanguage}
-            </span>
-          </div>
+              <p
+                className="text-[11px] font-semibold uppercase tracking-widest font-mono mb-1"
+                style={{ color: "var(--text-muted)" }}
+              >
+                Kaynak Dil
+              </p>
+              <span
+                className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono uppercase"
+                style={{ background: "rgba(0,133,255,0.15)", color: "#0085FF" }}
+              >
+                {blog.sourceLanguage}
+              </span>
+            </div>
+          )}
 
           {/* Yayın tarihi */}
-          <div>
-            <p
-              className="text-[11px] font-semibold uppercase tracking-widest font-mono mb-1"
-              style={{ color: "var(--text-muted)" }}
-            >
-              Yayın Tarihi
-            </p>
-            <p className="text-sm" style={{ color: "var(--text-primary)" }}>
-              {blog.publishedAt
-                ? new Date(blog.publishedAt).toLocaleDateString("tr-TR")
-                : "-"}
-            </p>
-          </div>
+          {mode === "edit" && blog && (
+            <div>
+              <p
+                className="text-[11px] font-semibold uppercase tracking-widest font-mono mb-1"
+                style={{ color: "var(--text-muted)" }}
+              >
+                Yayın Tarihi
+              </p>
+              <p className="text-sm" style={{ color: "var(--text-primary)" }}>
+                {blog.publishedAt
+                  ? new Date(blog.publishedAt).toLocaleDateString("tr-TR")
+                  : "-"}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

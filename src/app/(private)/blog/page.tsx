@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Eye, Pencil } from "lucide-react";
+import { Eye, Pencil, Plus } from "lucide-react";
 import { DataTable } from "@/components/common/data-table";
 import { ColumnDef } from "@/components/common/data-table";
 import { LANGUAGE } from "@/types";
@@ -9,6 +9,7 @@ import { Blog, BLOG_TRANSLATION_STATUS } from "@/features/blog/types";
 import { useBlogs } from "@/features/blog/hooks/useBlogs";
 import { useBlogModal } from "@/features/blog/hooks/useBlogModal";
 import BlogEditModal from "@/features/blog/components/BlogEditModal";
+import { Button } from "@/components/ui/button";
 
 const STATUS_LABELS: Record<BLOG_TRANSLATION_STATUS, string> = {
   [BLOG_TRANSLATION_STATUS.PUBLISHED]: "Yayında",
@@ -173,7 +174,7 @@ export default function BlogPage() {
   const { blogs, loading, error } = useBlogs();
   const { isOpen, selectedBlog, open, close } = useBlogModal();
 
-  // Blog verisini DataTable'ın anlayacağı düz yapıya çevirdik
+  // Blog verisini DataTable'ın anlayacağı düz yapıya çevir
   const blogRows: BlogRow[] = blogs.map((blog) => {
     const sourceTranslation = blog.translations.find(
       (t) => t.language === blog.sourceLanguage
@@ -215,16 +216,26 @@ export default function BlogPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1
-          className="text-2xl font-semibold tracking-tight"
-          style={{ color: "var(--text-primary)" }}
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1
+            className="text-2xl font-semibold tracking-tight"
+            style={{ color: "var(--text-primary)" }}
+          >
+            Blog Yazıları
+          </h1>
+          <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
+            Toplam <span className="font-semibold" style={{ color: "var(--text-primary)" }}>{blogs.length}</span> blog yazısı yönetiliyor.
+          </p>
+        </div>
+        <Button
+          onClick={() => router.push("/blog/new")}
+          className="text-white flex items-center gap-2 px-6 h-11 shadow-lg shadow-emerald-500/20"
+          style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
         >
-          Blog Yazıları
-        </h1>
-        <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
-          Tüm blog yazılarını yönet.
-        </p>
+          <Plus size={18} strokeWidth={2.5} />
+          <span className="font-semibold text-sm">Yeni Blog Ekle</span>
+        </Button>
       </div>
 
       <DataTable
