@@ -13,6 +13,9 @@ import { toast } from "@/components/common/toast/toast";
 import { BLOG_TRANSLATION_STATUS } from "@/features/blog/types";
 import { blogService } from "@/features/blog/service/blog.service";
 import RichTextEditor from "@/components/common/rick-test/contentEditable";
+import LocaleSelector from "@/components/common/locale-selector/LocaleSelector";
+import { Locale } from "@/components/common/locale-selector/locale.service";
+
 
 const STATUS_LABELS: Record<BLOG_TRANSLATION_STATUS, string> = {
   [BLOG_TRANSLATION_STATUS.PUBLISHED]: "Yayında",
@@ -26,12 +29,6 @@ const STATUS_COLORS: Record<BLOG_TRANSLATION_STATUS, { bg: string; color: string
   [BLOG_TRANSLATION_STATUS.INACTIVE]: { bg: "rgba(255,80,80,0.15)", color: "#FF5050" },
 };
 
-const LANGUAGE_LABELS: Record<LANGUAGE, string> = {
-  [LANGUAGE.TR]: "TR",
-  [LANGUAGE.EN]: "EN",
-  [LANGUAGE.ES]: "ES",
-};
-
 interface BlogTranslationForm {
   title: string;
   slug: string;
@@ -40,6 +37,7 @@ interface BlogTranslationForm {
   metaTitle: string;
   metaDescription: string;
   status: BLOG_TRANSLATION_STATUS;
+  categoryId: number | null;
 }
 
 const EMPTY_FORM: BlogTranslationForm = {
@@ -50,6 +48,7 @@ const EMPTY_FORM: BlogTranslationForm = {
   metaTitle: "",
   metaDescription: "",
   status: BLOG_TRANSLATION_STATUS.DRAFT,
+  categoryId: null,
 };
 
 export default function BlogDetailPage({
@@ -61,21 +60,24 @@ export default function BlogDetailPage({
   const router = useRouter();
   const { blog, loading, error } = useBlog(Number(article));
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<LANGUAGE | null>(null);
+  const [activeLocale, setActiveLocale] = useState<string>("");
+  const [enabledLocales, setEnabledLocales] = useState<string[]>([]);
   const [form, setForm] = useState<BlogTranslationForm>(EMPTY_FORM);
 
-
-  // Blog gelince aktif tab'ı kaynak dile ayarla
+  // Blog gelince enabled locale listesini ayarla
   useEffect(() => {
-    if (blog && !activeTab) {
-      setActiveTab(blog.sourceLanguage);
+    if (blog && enabledLocales.length === 0) {
+      const locales = blog.translations.map((t) => t.language as string);
+      setEnabledLocales(locales);
     }
   }, [blog]);
 
-  // Tab değişince formu o translation'ın verisiyle doldur
+  // Locale değişince formu o translation'ın verisiyle doldur
   useEffect(() => {
-    if (blog && activeTab) {
-      const translation = blog.translations.find((t) => t.language === activeTab);
+    if (blog && activeLocale) {
+      const translation = blog.translations.find(
+        (t) => t.language === activeLocale
+      );
       if (translation) {
         setForm({
           title: translation.title,
@@ -85,37 +87,53 @@ export default function BlogDetailPage({
           metaTitle: translation.metaTitle ?? "",
           metaDescription: translation.metaDescription ?? "",
           status: translation.status,
+          categoryId: blog.category_id ?? null,
         });
       } else {
-        // Bu dilde henüz translation yok
         setForm(EMPTY_FORM);
       }
     }
-  }, [blog, activeTab]);
+  }, [blog, activeLocale]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const handleLocaleAdd = (locale: Locale) => {
+    setEnabledLocales((prev) => [...prev, locale.code]);
+    setActiveLocale(locale.code);
+  };
+
+  const handleLocaleRemove = (code: string) => {
+    setEnabledLocales((prev) => prev.filter((l) => l !== code));
+    // Eğer silinen aktif locale ise kaynak dile dön
+    if (activeLocale === code && blog) {
+      setActiveLocale(blog.sourceLanguage as string);
+    }
+  };
+
   const handleSave = async () => {
-    if (!blog || !activeTab) return;
+    if (!blog || !activeLocale) return;
     setSaving(true);
     try {
       const updatedTranslations = blog.translations.map((t) =>
-        t.language === activeTab
+        t.language === activeLocale
           ? {
-            ...t,
-            title: form.title,
-            slug: form.slug,
-            body: form.body,
-            shortDescription: form.shortDescription,
-            metaTitle: form.metaTitle,
-            metaDescription: form.metaDescription,
-            status: form.status,
-          }
+              ...t,
+              title: form.title,
+              slug: form.slug,
+              body: form.body,
+              shortDescription: form.shortDescription,
+              metaTitle: form.metaTitle,
+              metaDescription: form.metaDescription,
+              status: form.status,
+            }
           : t
       );
-      await blogService.update(blog.id, { translations: updatedTranslations });
+      await blogService.update(blog.id, {
+        category_id: form.categoryId ?? undefined,
+        translations: updatedTranslations,
+      });
       toast.success("Blog güncellendi", `${form.title} başarıyla güncellendi.`);
     } catch {
       toast.error("Hata oluştu", "Blog güncellenirken bir hata oluştu.");
@@ -145,10 +163,9 @@ export default function BlogDetailPage({
     );
   }
 
-  const activeTranslation = blog.translations.find((t) => t.language === activeTab);
-  const statusColors = activeTranslation
-    ? STATUS_COLORS[activeTranslation.status]
-    : STATUS_COLORS[BLOG_TRANSLATION_STATUS.DRAFT];
+  const activeTranslation = blog.translations.find(
+    (t) => t.language === activeLocale
+  );
 
   return (
     <div>
@@ -198,32 +215,15 @@ export default function BlogDetailPage({
         </Button>
       </div>
 
-      {/* Dil Tab'ları */}
-      <div className="flex items-center gap-2 mb-6">
-        {blog.translations.map((t) => {
-          const isActive = activeTab === t.language;
-          const colors = STATUS_COLORS[t.status];
-          return (
-            <button
-              key={t.language}
-              onClick={() => setActiveTab(t.language)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-all"
-              style={{
-                background: isActive ? "var(--background-card)" : "transparent",
-                borderColor: isActive ? "var(--border)" : "transparent",
-                color: isActive ? "var(--text-primary)" : "var(--text-muted)",
-              }}
-            >
-              {LANGUAGE_LABELS[t.language]}
-              <span
-                className="text-[10px] font-bold px-1.5 py-0.5 rounded-full font-mono"
-                style={{ background: colors.bg, color: colors.color }}
-              >
-                {STATUS_LABELS[t.status]}
-              </span>
-            </button>
-          );
-        })}
+      {/* LocaleSelector */}
+      <div className="mb-6">
+        <LocaleSelector
+          activeLocale={activeLocale}
+          enabledLocales={enabledLocales}
+          onLocaleChange={setActiveLocale}
+          onLocaleAdd={handleLocaleAdd}
+          onLocaleRemove={handleLocaleRemove}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -270,7 +270,7 @@ export default function BlogDetailPage({
               onChange={(html) => setForm((prev) => ({ ...prev, body: html }))}
               placeholder="İçerik yazısını giriniz..."
             />
-            {/* <div>{form.body}</div> */}
+
             {/* SEO */}
             <div
               className="pt-4 border-t space-y-4"
@@ -350,6 +350,28 @@ export default function BlogDetailPage({
             </div>
           </div>
 
+          {/* Kategori */}
+          {/* TODO: CategorySelect component'i hazır olduğunda bu Input kaldırılıp
+              <CategorySelect value={form.categoryId} onChange={(id) => setForm(prev => ({ ...prev, categoryId: id }))} />
+              ile değiştirilecek. */}
+          <div
+            className="pt-4 border-t"
+            style={{ borderColor: "var(--border-subtle)" }}
+          >
+            <Input
+              name="categoryId"
+              label="Kategori ID"
+              value={form.categoryId?.toString() ?? ""}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  categoryId: e.target.value ? Number(e.target.value) : null,
+                }))
+              }
+              placeholder="Kategori ID"
+            />
+          </div>
+
           {/* Kaynak dil bilgisi */}
           <div
             className="pt-4 border-t"
@@ -362,10 +384,10 @@ export default function BlogDetailPage({
               Kaynak Dil
             </p>
             <span
-              className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
+              className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono uppercase"
               style={{ background: "rgba(0,133,255,0.15)", color: "#0085FF" }}
             >
-              {LANGUAGE_LABELS[blog.sourceLanguage]}
+              {blog.sourceLanguage}
             </span>
           </div>
 

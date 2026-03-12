@@ -33,6 +33,7 @@ type BlogRow = {
   id: number;
   title: string;
   slug: string;
+  categoryId: number | null;
   sourceLanguage: LANGUAGE;
   status: BLOG_TRANSLATION_STATUS;
   publishedTranslations: { language: LANGUAGE }[];
@@ -63,6 +64,25 @@ const COLUMNS: ColumnDef<BlogRow>[] = [
           {row.slug as string}
         </p>
       </div>
+    ),
+  },
+  {
+    key: "categoryId",
+    label: "Kategori",
+    sortable: true,
+    // TODO: Kategori sayfası hazır olduğunda bu render,
+    // ID yerine kategori adını gösterecek şekilde güncellenecek.
+    render: (value) => (
+      <span
+        className="text-[11px] font-mono px-2 py-0.5 rounded-full border"
+        style={{
+          background: "rgba(255,255,255,0.04)",
+          borderColor: "var(--border)",
+          color: "var(--text-muted)",
+        }}
+      >
+
+      </span>
     ),
   },
   {
@@ -153,7 +173,7 @@ export default function BlogPage() {
   const { blogs, loading, error } = useBlogs();
   const { isOpen, selectedBlog, open, close } = useBlogModal();
 
-  // Blog verisini DataTable'ın anlayacağı düz yapıya çevir
+  // Blog verisini DataTable'ın anlayacağı düz yapıya çevirdik
   const blogRows: BlogRow[] = blogs.map((blog) => {
     const sourceTranslation = blog.translations.find(
       (t) => t.language === blog.sourceLanguage
@@ -162,6 +182,7 @@ export default function BlogPage() {
       id: blog.id,
       title: sourceTranslation?.title ?? "-",
       slug: sourceTranslation?.slug ?? "-",
+      categoryId: blog.category_id ?? null,
       sourceLanguage: blog.sourceLanguage,
       status: sourceTranslation?.status ?? BLOG_TRANSLATION_STATUS.DRAFT,
       publishedTranslations: blog.translations.filter(
