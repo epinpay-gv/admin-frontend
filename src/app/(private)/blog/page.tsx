@@ -81,7 +81,7 @@ const COLUMNS: ColumnDef<BlogRow>[] = [
           color: "var(--text-muted)",
         }}
       >
-
+        #{value != null ? String(value) : "-"}
       </span>
     ),
   },
