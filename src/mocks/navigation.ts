@@ -10,7 +10,8 @@ import {
   Package,
   TrendingUp,
   Ticket,
-  MessageSquare
+  MessageSquare,
+  Newspaper
 } from "lucide-react";
 import { NavGroup } from "@/features/navigation/types";
 
@@ -58,7 +59,7 @@ export const NAV_GROUPS: NavGroup[] = [
         label: "İçerik ve SEO Yönetimi",
         icon: PersonStanding,
         children: [
-          // { href: "/products", label: "Ürün Listesi & Detaylar", icon: Users },       
+           { href: "/blog", label: "Blog Yönetimi", icon: Newspaper },   
         ],
       }     
     ]
