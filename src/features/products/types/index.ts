@@ -50,6 +50,8 @@ export interface Product {
   type_id: number;
   status: PRODUCT_STATUS;
   translation: ProductTranslation;
+  translations?: Record<string, ProductTranslation>;
+  availableLocales: string[];
   cheapestOffer: CheapestOffer | null;
   basePrice: number | null;
   spreadRate: number | null;

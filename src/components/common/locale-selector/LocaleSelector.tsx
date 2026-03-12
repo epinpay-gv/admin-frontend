@@ -66,7 +66,7 @@ export default function LocaleSelector({
                 activeLocale === locale.code
                   ? "#00C6A2"
                   : "var(--text-secondary)",
-              borderRight: "none",
+              borderRightWidth: "0",
             }}
           >
             <span>{locale.flag}</span>

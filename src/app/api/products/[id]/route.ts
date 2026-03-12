@@ -14,14 +14,20 @@ export async function GET(
     return NextResponse.json({ message: "Ürün bulunamadı." }, { status: 404 });
   }
 
-  // Gerçek backend'de locale'e göre translation gelecek
-  // Şimdilik mock translation'ı locale ile döndürüyoruz
+  const translation = product.translations?.[locale] ?? {
+    ...product.translation,
+    locale,
+    name: "",
+    slug: "",
+    description: "",
+    metaTitle: "",
+    metaDescription: "",
+  };
+
   return NextResponse.json<Product>({
     ...product,
-    translation: {
-      ...product.translation,
-      locale,
-    },
+    translation,
+    availableLocales: product.availableLocales ?? ["tr"],
   });
 }
 
@@ -30,6 +36,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  const locale = req.nextUrl.searchParams.get("locale") ?? "en";
   const body = await req.json();
   const index = mockProducts.findIndex((p) => p.id === Number(id));
 
@@ -37,10 +44,26 @@ export async function PUT(
     return NextResponse.json({ message: "Ürün bulunamadı." }, { status: 404 });
   }
 
+  const updatedTranslations = {
+    ...mockProducts[index].translations,
+    [locale]: {
+      ...mockProducts[index].translations?.[locale],
+      ...body.translation,
+      locale,
+    },
+  };
+
+  const availableLocales = Array.from(
+    new Set([...(mockProducts[index].availableLocales ?? []), locale])
+  );
+
   const updated: Product = {
     ...mockProducts[index],
     ...body,
     id: Number(id),
+    translations: updatedTranslations,
+    translation: updatedTranslations[locale],
+    availableLocales,
     updatedAt: new Date().toISOString(),
   };
 

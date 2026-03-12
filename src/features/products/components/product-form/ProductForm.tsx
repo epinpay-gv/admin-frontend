@@ -51,7 +51,7 @@ export default function ProductForm({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Formlar */}
-      <div className="lg:col-span-2 pt-6 pb-2 space-y-6">
+      <div className="lg:col-span-2 pt-6 space-y-6">
 
 
         {/* Genel Bilgiler */}
