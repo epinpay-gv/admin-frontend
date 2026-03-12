@@ -108,7 +108,42 @@ export default function ProductFormGeneral({
           hint="Ürün adından otomatik oluşturulur."
         />
       </div>
-
+      {/* Tip, Platform, Bölge */}
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <SelectField
+          label="Kategori"
+          value={form.category_id}
+          options={regions}
+          onChange={(val) => onSelect("category_id", val)}
+          loading={loading}
+          error={errors.category_id}
+        />
+        <SelectField
+          label="Ürün Tipi"
+          value={form.type_id}
+          options={types}
+          onChange={(val) => onSelect("type_id", val)}
+          loading={loading}
+          error={errors.type_id}
+        />
+        <SelectField
+          label="Platform"
+          value={form.platform_id}
+          options={platforms}
+          onChange={(val) => onSelect("platform_id", val)}
+          loading={loading}
+          error={errors.platform_id}
+        />
+        <SelectField
+          label="Bölge"
+          value={form.region_id}
+          options={regions}
+          onChange={(val) => onSelect("region_id", val)}
+          loading={loading}
+          error={errors.region_id}
+        />
+        
+      </div>
       {/* Açıklama */}
       <div className="flex flex-col gap-1.5">
         <label
@@ -132,33 +167,7 @@ export default function ProductFormGeneral({
         />
       </div>
 
-      {/* Tip, Platform, Bölge */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <SelectField
-          label="Ürün Tipi"
-          value={form.type}
-          options={types}
-          onChange={(val) => onSelect("type", val)}
-          loading={loading}
-          error={errors.type}
-        />
-        <SelectField
-          label="Platform"
-          value={form.platform}
-          options={platforms}
-          onChange={(val) => onSelect("platform", val)}
-          loading={loading}
-          error={errors.platform}
-        />
-        <SelectField
-          label="Bölge"
-          value={form.region}
-          options={regions}
-          onChange={(val) => onSelect("region", val)}
-          loading={loading}
-          error={errors.region}
-        />
-      </div>
+      
 
       {/* Durum */}
       <div className="flex flex-col gap-1.5">

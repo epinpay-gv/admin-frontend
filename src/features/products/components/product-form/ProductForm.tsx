@@ -9,6 +9,7 @@ import ProductFormSeo from "./ProductFormSeo";
 import ProductFormMedia from "./ProductFormMedia";
 import ProductFormCountries from "./ProductFormCountries";
 import Input from "@/components/common/input/Input";
+import ProductFormFaq from "./ProductFormFaq";
 
 interface ProductFormProps {
   product: Product | null;
@@ -51,6 +52,8 @@ export default function ProductForm({
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Formlar */}
       <div className="lg:col-span-2 pt-6 pb-2 space-y-6">
+
+
         {/* Genel Bilgiler */}
         <div
           className="rounded-xl border p-6"
@@ -118,6 +121,19 @@ export default function ProductForm({
           <div className="mt-4">
             <ProductFormCountries product={product} />
           </div>
+        </div>
+
+        {/* Sıkça Sorulan Sorular */}
+        <div className="rounded-xl border p-6"
+          style={{
+            background: "var(--background-card)",
+            borderColor: "var(--border)",
+          }}>
+            <SectionDivider title="Sıkça Sorulan Sorular" />
+            <div className="mt-4">
+              <ProductFormFaq initialFaqs={product?.translation.faq ?? []} />
+            </div>
+  
         </div>
       </div>
 

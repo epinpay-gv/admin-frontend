@@ -3,17 +3,26 @@ import { mockProducts } from "@/mocks/products";
 import { Product } from "@/features/products/types";
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  const locale = req.nextUrl.searchParams.get("locale") ?? "en";
   const product = mockProducts.find((p) => p.id === Number(id));
 
   if (!product) {
     return NextResponse.json({ message: "Ürün bulunamadı." }, { status: 404 });
   }
 
-  return NextResponse.json<Product>(product);
+  // Gerçek backend'de locale'e göre translation gelecek
+  // Şimdilik mock translation'ı locale ile döndürüyoruz
+  return NextResponse.json<Product>({
+    ...product,
+    translation: {
+      ...product.translation,
+      locale,
+    },
+  });
 }
 
 export async function PUT(

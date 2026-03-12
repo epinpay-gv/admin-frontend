@@ -23,13 +23,8 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-
-  // Gerçek CDN entegrasyonu burada yapılacak
-  // Şimdilik mock CDN URL dönüyoruz
   const fileName = `${Date.now()}-${file.name.replace(/\s/g, "-")}`;
   const mockCdnUrl = `https://cdn.epinpay.com/products/${fileName}`;
-
-  // Simüle edilmiş gecikme
   await new Promise((resolve) => setTimeout(resolve, 800));
 
   return NextResponse.json({

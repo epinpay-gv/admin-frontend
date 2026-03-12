@@ -20,6 +20,7 @@ export default function ProductFormMedia({
         hint="PNG, JPG, WEBP · Maks 10MB"
         maxSizeMB={10}
       />
+      {imgUrl}
     </div>
   );
 }

@@ -36,7 +36,7 @@ export const mockProducts: Product[] = [
       id: 442,
     },
     basePrice: 365.95,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 10,
     fakePrice: 418,
 
@@ -76,7 +76,7 @@ export const mockProducts: Product[] = [
       id: 877,
     },
     basePrice: 915,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 15,
     fakePrice: 1000,
 
@@ -115,7 +115,7 @@ export const mockProducts: Product[] = [
       id: 1011,
     },
     basePrice: 1829.5,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 15,
     fakePrice: 2030,
     isFavorite: false,
@@ -153,7 +153,7 @@ export const mockProducts: Product[] = [
       id: 447,
     },
     basePrice: 3659,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 15,
     fakePrice: 4035,
     isFavorite: false,
@@ -191,7 +191,7 @@ export const mockProducts: Product[] = [
       id: 1011,
     },
     basePrice: 1829.5,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 15,
     fakePrice: 2030,
     isFavorite: false,
@@ -229,7 +229,7 @@ export const mockProducts: Product[] = [
       id: 447,
     },
     basePrice: 3659,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 15,
     fakePrice: 4035,
     isFavorite: false,
@@ -267,7 +267,7 @@ export const mockProducts: Product[] = [
       id: 876,
     },
     basePrice: 182.95,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 15,
     fakePrice: 210,
     isFavorite: false,
@@ -305,7 +305,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: { id: 1067 },
     basePrice: 40,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 0,
     fakePrice: null,
 
@@ -342,7 +342,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: { id: 1068 },
     basePrice: 185,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 0,
     fakePrice: null,
 
@@ -379,7 +379,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: { id: 1069 },
     basePrice: 370,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 0,
     fakePrice: null,
 
@@ -416,7 +416,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: { id: 1070 },
     basePrice: 920,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 0,
     fakePrice: null,
 
@@ -453,7 +453,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: { id: 1071 },
     basePrice: 1835,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 0,
     fakePrice: null,
 
@@ -492,7 +492,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: { id: 866 },
     basePrice: 231,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 18,
     fakePrice: 281.6,
 
@@ -529,7 +529,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: { id: 868 },
     basePrice: 462,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 18,
     fakePrice: 562.2,
 
@@ -566,7 +566,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: { id: 527 },
     basePrice: 785.4,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 18,
     fakePrice: 954.5,
 
@@ -603,7 +603,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: { id: 97 },
     basePrice: 110,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 18,
     fakePrice: 134.4,
 
@@ -640,7 +640,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: { id: 871 },
     basePrice: 1182,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 14,
     fakePrice: 1380,
 
@@ -677,7 +677,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: { id: 543 },
     basePrice: 239.95,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 0,
     fakePrice: null,
 
@@ -714,7 +714,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: { id: 872 },
     basePrice: 2355,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 18,
     fakePrice: 2875,
 
@@ -751,7 +751,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: { id: 545 },
     basePrice: 479.95,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 0,
     fakePrice: null,
 
@@ -790,7 +790,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: { id: 819 },
     basePrice: 228,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 0,
     fakePrice: null,
 
@@ -827,7 +827,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: { id: 820 },
     basePrice: 450,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 0,
     fakePrice: null,
 
@@ -864,7 +864,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: { id: 821 },
     basePrice: 920,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 0,
     fakePrice: null,
 
@@ -901,7 +901,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: { id: 822 },
     basePrice: 1150,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 0,
     fakePrice: null,
 
@@ -938,7 +938,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: null,
     basePrice: null,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 0,
     fakePrice: null,
 
@@ -975,7 +975,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: null,
     basePrice: null,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 0,
     fakePrice: null,
 
@@ -1012,7 +1012,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: null,
     basePrice: null,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 0,
     fakePrice: null,
 
@@ -1052,7 +1052,7 @@ export const mockProducts: Product[] = [
     },
     cheapestOffer: null,
     basePrice: null,
-    epPrice: null,
+    spreadRate: 10,
     discountRate: 0,
     fakePrice: null,
 

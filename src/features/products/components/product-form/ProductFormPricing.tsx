@@ -60,8 +60,8 @@ export default function ProductFormPricing({
           {[
             { label: "Satış Fiyatı", value: `₺ ${basePrice.toFixed(2)}`, color: "#00C6A2" },
             { label: "Makas Oranı", value: form.spreadRate ? `%${form.spreadRate}` : "-", color: "#0085FF" },
-            { label: "Minimum Fiyat", value: basePrice - (basePrice * (Number(form.spreadRate) / 100)) > 0 ? `₺ ${basePrice - (basePrice * (Number(form.spreadRate) / 100))}` : "-", color: "var(--text-secondary)" },
-            { label: "Maksimum Fiyat", value: basePrice + (basePrice * (Number(form.spreadRate) / 100)) > 0 ? `₺ ${basePrice + (basePrice * (Number(form.spreadRate) / 100))}` : "-", color: "#FFB400" },
+            { label: "Minimum Fiyat", value: basePrice - (basePrice * (Number(form.spreadRate) / 100)) > 0 ? `₺ ${(basePrice - basePrice * (Number(form.spreadRate) / 100)).toFixed(2)}` : "-", color: "var(--text-secondary)" },
+            { label: "Maksimum Fiyat", value: (basePrice + (basePrice * (Number(form.spreadRate) / 100))) > 0  ? `₺ ${(basePrice + (basePrice * (Number(form.spreadRate) / 100))).toFixed(2)}` : "-", color: "#FFB400" }
           ].map((item) => (
             <div key={item.label}>
               <p
