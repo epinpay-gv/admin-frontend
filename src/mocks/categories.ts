@@ -1,0 +1,83 @@
+import { Category, CATEGORY_STATUS } from "@/features/categories/types";
+
+export const mockCategories: Category[] = [
+  {
+    id: 1,
+    slug: "pubg-mobile",
+    status: CATEGORY_STATUS.ACTIVE,
+    productCount: 3,
+    translation: {
+      id: 1,
+      locale: "tr",
+      name: "PUBG Mobile",
+      slug: "pubg-mobile",
+      description: "PUBG Mobile kategorisi",
+      metaTitle: "PUBG Mobile",
+      metaDescription: "PUBG Mobile meta açıklaması",
+    },
+    forbiddenCountries: [
+      { code: "GB", code3: "GBR", name: "İngiltere", region: "Europe" },
+    ],
+    createdAt: "2025-01-01T10:00:00Z",
+    updatedAt: "2025-03-08T10:00:00Z",
+  },
+  {
+    id: 2,
+    slug: "valorant",
+    status: CATEGORY_STATUS.ACTIVE,
+    productCount: 2,
+    translation: {
+      id: 2,
+      locale: "tr",
+      name: "Valorant",
+      slug: "valorant",
+      description: "Valorant kategorisi",
+      metaTitle: "Valorant",
+      metaDescription: "Valorant meta açıklaması",
+    },
+    forbiddenCountries: [
+      { code: "DE", code3: "DEU", name: "Almanya", region: "Europe" },
+      { code: "AE", code3: "ARE", name: "BAE", region: "Asia" },
+    ],
+    createdAt: "2025-01-02T10:00:00Z",
+    updatedAt: "2025-03-07T10:00:00Z",
+  },
+  {
+    id: 3,
+    slug: "league-of-legends",
+    status: CATEGORY_STATUS.ACTIVE,
+    productCount: 5,
+    translation: {
+      id: 3,
+      locale: "tr",
+      name: "League of Legends",
+      slug: "league-of-legends",
+      description: "League of Legends kategorisi",
+      metaTitle: "League of Legends",
+      metaDescription: "League of Legends meta açıklaması",
+    },
+    forbiddenCountries: [
+      { code: "AE", code3: "ARE", name: "BAE", region: "Asia" },
+    ],
+    createdAt: "2025-01-03T10:00:00Z",
+    updatedAt: "2025-03-06T10:00:00Z",
+  },
+  {
+    id: 4,
+    slug: "fifa",
+    status: CATEGORY_STATUS.INACTIVE,
+    productCount: 1,
+    translation: {
+      id: 4,
+      locale: "tr",
+      name: "FIFA",
+      slug: "fifa",
+      description: "FIFA kategorisi",
+      metaTitle: "FIFA",
+      metaDescription: "FIFA meta açıklaması",
+    },
+    forbiddenCountries: [],
+    createdAt: "2025-01-04T10:00:00Z",
+    updatedAt: "2025-03-05T10:00:00Z",
+  },
+];

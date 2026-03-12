@@ -10,6 +10,7 @@ import { Product, PRODUCT_STATUS } from "@/features/products";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import ForbiddenCountriesModal from "@/features/products/components/ForbiddenCountriesModal";
+import PageHeader from "@/components/common/page-header/PageHeader";
 
 const STATUS_LABELS: Record<PRODUCT_STATUS, string> = {
   [PRODUCT_STATUS.ACTIVE]: "Aktif",
@@ -190,27 +191,22 @@ export default function ProductsPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
-      <div className="shrink-0 flex items-center justify-between mb-6 pt-2">
-        <div>
-          <h1
-            className="text-2xl font-bold tracking-tight"
-            style={{ color: "var(--text-primary)" }}
-          >
-            Ürünler
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
-            Toplam <span className="font-semibold text-(--text-primary)">{products.length}</span> ürün yönetiliyor
-          </p>
-        </div>
-        <Button
-          onClick={() => router.push("/epinpay/products/new")}
-          className="text-white flex items-center gap-2 px-6 h-11 shadow-lg shadow-emerald-500/20"
-          style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
-        >
-          <Plus size={18} strokeWidth={2.5} />
-          <span className="font-semibold text-sm">Yeni Ürün Ekle</span>
-        </Button>
-      </div>
+      <PageHeader
+        title="Ürünler"
+        count={products.length}
+        countLabel="ürün"
+        actions={
+            <Button
+            onClick={() => router.push("/epinpay/products/new")}
+            className="text-white flex items-center gap-2"
+            style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
+            >
+            <Plus size={18} strokeWidth={2.5} />
+            <span className="font-semibold text-sm">Yeni Ürün Ekle</span>
+            </Button>
+        }
+           />
+      
       <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
         <DataTable
           data={products as ProductRow[]}
