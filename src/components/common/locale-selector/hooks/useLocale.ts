@@ -18,3 +18,4 @@ export function useLocales() {
 
   return { locales, loading, error };
 }
+

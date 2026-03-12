@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save, Copy } from "lucide-react";
 import { useProduct } from "@/features/products";
@@ -8,7 +8,6 @@ import { PRODUCT_STATUS } from "@/features/products";
 import { useProductForm } from "@/features/products/hooks/useProductForm";
 import ProductForm from "@/features/products/components/product-form/ProductForm";
 import LocaleSelector from "@/components/common/locale-selector/LocaleSelector";
-import { useLocales } from "@/components/common/locale-selector/hooks/useLocale";
 import { Locale } from "@/components/common/locale-selector/locale.service";
 import { Button } from "@/components/ui/button";
 
@@ -54,6 +53,17 @@ export default function ProductDetailPage({
   const { product, loading, error } = useProduct(numericId, activeLocale);
   const { form, errors, saving, isDirty, handleChange, handleSelect, save } =
     useProductForm(product, mode);
+
+  // Ürün yüklenince mevcut dilleri set et
+  useEffect(() => {
+    if (product?.availableLocales?.length) {
+      setEnabledLocales(product.availableLocales);
+      if (!product.availableLocales.includes(activeLocale)) {
+        setActiveLocale(product.availableLocales[0]);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product?.id]);
 
   const handleLocaleChange = (code: string) => {
     setActiveLocale(code);
@@ -116,8 +126,8 @@ export default function ProductDetailPage({
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="pb-4">    
-      {/* Üst bar */}
+      <div className="pb-4">
+        {/* Üst bar */}
         <div
           className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 mb-4 rounded-xl border gap-4"
           style={{
@@ -190,19 +200,24 @@ export default function ProductDetailPage({
                 )}
               </div>
               {product && (
-                <p className="text-xs font-mono mt-0.5" style={{ color: "var(--text-muted)" }}>
+                <p
+                  className="text-xs font-mono mt-0.5"
+                  style={{ color: "var(--text-muted)" }}
+                >
                   #{product.id} · {product.translation.slug}
                 </p>
               )}
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">         
+          <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
               {mode === "edit" && product && (
                 <Button
                   variant="ghost"
-                  onClick={() => router.push(`/epinpay/products/copy-${product.id}`)}
+                  onClick={() =>
+                    router.push(`/epinpay/products/copy-${product.id}`)
+                  }
                   className="flex items-center gap-2 text-sm"
                   style={{ color: "var(--text-muted)" }}
                 >
@@ -215,7 +230,8 @@ export default function ProductDetailPage({
                 disabled={saving}
                 className="text-white flex items-center gap-2"
                 style={{
-                  background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)",
+                  background:
+                    "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)",
                 }}
               >
                 {saving ? (
@@ -226,24 +242,36 @@ export default function ProductDetailPage({
                 ) : (
                   <>
                     <Save size={14} />
-                    {mode === "create" ? "Oluştur" : mode === "duplicate" ? "Kopyayı Kaydet" : "Kaydet"}
+                    {mode === "create"
+                      ? "Oluştur"
+                      : mode === "duplicate"
+                      ? "Kopyayı Kaydet"
+                      : "Kaydet"}
                   </>
                 )}
               </Button>
             </div>
           </div>
         </div>
-        <div className="p-4 bg-(--background-card) rounded-lg border border-(--border)" >
+
         {/* Locale Selector */}
+        <div
+          className="p-4 rounded-lg border"
+          style={{
+            background: "var(--background-card)",
+            borderColor: "var(--border)",
+          }}
+        >
           <LocaleSelector
             activeLocale={activeLocale}
             enabledLocales={enabledLocales}
             onLocaleChange={handleLocaleChange}
             onLocaleAdd={handleLocaleAdd}
             onLocaleRemove={handleLocaleRemove}
-            />
+          />
         </div>
       </div>
+
       {/* Form */}
       <div className="flex-1 overflow-y-auto">
         <ProductForm
