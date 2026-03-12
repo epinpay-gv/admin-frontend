@@ -20,6 +20,7 @@ interface ProductEditForm {
   discountRate: string;
   totalStock: string;
   isActive: boolean;
+  spreadRate: string;
 }
 
 export default function ProductEditModal({
@@ -33,6 +34,7 @@ export default function ProductEditModal({
     discountRate: "",
     totalStock: "",
     isActive: true,
+    spreadRate: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -44,6 +46,7 @@ export default function ProductEditModal({
         discountRate: String(product.discountRate),
         totalStock: String(product.totalStock),
         isActive: product.status === PRODUCT_STATUS.ACTIVE,
+        spreadRate: String(product.spreadRate)
       });
     }
   }, [product]);
@@ -119,23 +122,17 @@ export default function ProductEditModal({
             leftIcon={<span className="text-xs">₺</span>}
           />
           <Input
-            name="discountRate"
-            label="İndirim Oranı"
+            name="spreadRate"
+            label="Makas Oranı"
             type="number"
-            value={form.discountRate}
+            value={form.spreadRate}
             onChange={handleChange}
-            placeholder="0"
+            placeholder="0.00"
             leftIcon={<span className="text-xs">%</span>}
           />
+         
         </div>
-        <Input
-          name="totalStock"
-          label="Stok"
-          type="number"
-          value={form.totalStock}
-          onChange={handleChange}
-          placeholder="0"
-        />
+        
         <Switch
           checked={form.isActive}
           onCheckedChange={(val) => setForm((prev) => ({ ...prev, isActive: val }))}

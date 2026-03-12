@@ -93,7 +93,7 @@ export const NAV_GROUPS: NavGroup[] = [
         label: "Ürün & Katalog Yönetimi",
         icon: Package, 
         children: [  
-          { href: "/products", label: "Ürün Listesi & Detaylar", icon: Users }, 
+          { href: "/epinpay/products", label: "Ürün Listesi & Detaylar", icon: Users }, 
         ]
       },
       {
