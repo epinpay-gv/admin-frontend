@@ -8,11 +8,9 @@ export async function GET(
 ) {
   const { id } = await params;
   const category = mockCategories.find((c) => c.id === Number(id));
-
   if (!category) {
     return NextResponse.json({ message: "Kategori bulunamadı." }, { status: 404 });
   }
-
   return NextResponse.json<Category>(category);
 }
 
@@ -28,6 +26,19 @@ export async function PUT(
     return NextResponse.json({ message: "Kategori bulunamadı." }, { status: 404 });
   }
 
+  // Slug çakışma kontrolü (kendi id'si hariç)
+  if (body.slug) {
+    const slugExists = mockCategories.some(
+      (c) => c.slug === body.slug && c.id !== Number(id)
+    );
+    if (slugExists) {
+      return NextResponse.json(
+        { message: "Bu URL zaten kullanılıyor." },
+        { status: 409 }
+      );
+    }
+  }
+
   const updated: Category = {
     ...mockCategories[index],
     ...body,
@@ -36,7 +47,6 @@ export async function PUT(
   };
 
   mockCategories[index] = updated;
-
   return NextResponse.json<Category>(updated);
 }
 
@@ -46,12 +56,9 @@ export async function DELETE(
 ) {
   const { id } = await params;
   const index = mockCategories.findIndex((c) => c.id === Number(id));
-
   if (index === -1) {
     return NextResponse.json({ message: "Kategori bulunamadı." }, { status: 404 });
   }
-
   mockCategories.splice(index, 1);
-
   return NextResponse.json({ message: "Kategori silindi." });
 }

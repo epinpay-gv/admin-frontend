@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Eye, Pencil, Copy, Plus, ShieldOff } from "lucide-react";
+import { Eye, Pencil, Copy, Plus, ShieldOff, Shield } from "lucide-react";
 import { DataTable } from "@/components/common/data-table";
 import { ColumnDef } from "@/components/common/data-table";
 import { useProducts, useProductModal, ProductEditModal } from "@/features/products";

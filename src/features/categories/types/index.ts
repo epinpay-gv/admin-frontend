@@ -18,6 +18,17 @@ export interface CategoryTranslation {
   description?: string;
   metaTitle?: string;
   metaDescription?: string;
+  imgUrl?: string;
+  imgAlt?: string;
+  content?: string;
+}
+
+export interface CategoryFaq {
+  id: number;
+  name: string;
+  description: string;
+  order: number;
+  isActive: boolean;
 }
 
 export interface Category {
@@ -25,8 +36,12 @@ export interface Category {
   slug: string;
   status: CATEGORY_STATUS;
   productCount: number;
+  genres: string[];
   translation: CategoryTranslation;
+  translations?: Record<string, CategoryTranslation>;
+  availableLocales: string[];
   forbiddenCountries: CategoryCountry[];
+  faqs: CategoryFaq[];
   createdAt: string;
   updatedAt: string;
 }

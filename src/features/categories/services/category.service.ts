@@ -21,7 +21,10 @@ export const categoryService = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error("Kategori oluşturulamadı.");
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message ?? `${res.status} Kategori oluşturulamadı.`);
+    }
     return res.json();
   },
 
@@ -31,7 +34,10 @@ export const categoryService = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error("Kategori güncellenemedi.");
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message ?? `${res.status} Kategori güncellenemedi.`);
+    }
     return res.json();
   },
 

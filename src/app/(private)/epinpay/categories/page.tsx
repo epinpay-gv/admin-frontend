@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Pencil, Copy, Plus, ShieldOff, Package } from "lucide-react";
+import { Pencil, Copy, Plus, ShieldOff, Package, Eye } from "lucide-react";
 import { DataTable } from "@/components/common/data-table";
 import { ColumnDef } from "@/components/common/data-table";
-import { useCategories, CategoryCountryStatusModal, CATEGORY_STATUS } from "@/features/categories";
+import { useCategories, CategoryEditModal, CategoryCountryStatusModal, CATEGORY_STATUS } from "@/features/categories";
 import { Category } from "@/features/categories";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
@@ -32,6 +32,7 @@ export default function CategoriesPage() {
   const router = useRouter();
   const { categories, loading, error, updateCategory } = useCategories();
   const [countryModal, setCountryModal] = useState<Category | null>(null);
+  const [editModal, setEditModal] = useState<Category | null>(null);
 
   const COLUMNS: ColumnDef<CategoryRow>[] = [
     {
@@ -186,9 +187,9 @@ export default function CategoriesPage() {
         actions={(row) => (
           <div className="flex items-center justify-end gap-1.5">
             <button
-              onClick={() => router.push(`/epinpay/categories/${row.id}`)}
+              onClick={() => setEditModal(row as Category)}
               className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-              title="Düzenle"
+              title="Hızlı Düzenle"
               style={{
                 background: "var(--background-card)",
                 borderColor: "var(--border)",
@@ -209,6 +210,20 @@ export default function CategoriesPage() {
             >
               <Copy size={13} />
             </button>
+            
+            <button
+              onClick={() => router.push(`/epinpay/categories/${row.id}`)}
+              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
+              title="Düzenle"
+              style={{
+                background: "var(--background-card)",
+                borderColor: "var(--border)",
+                color: "var(--text-muted)",
+              }}
+            >
+              <Eye size={13} />
+            </button>
+            
           </div>
         )}
       />
@@ -220,6 +235,16 @@ export default function CategoriesPage() {
         onUpdate={(updated) => {
           updateCategory(updated);
           setCountryModal(null);
+        }}
+      />
+
+      <CategoryEditModal
+        open={!!editModal}
+        onClose={() => setEditModal(null)}
+        category={editModal}
+        onUpdate={(updated) => {
+          updateCategory(updated);
+          setEditModal(null);
         }}
       />
     </div>
