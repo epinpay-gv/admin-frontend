@@ -10,6 +10,7 @@ import CategoryFormGenres from "./CategoryFormGenres";
 import CategoryFormContent from "./CategoryFormContent";
 import CategoryFormFaq from "./CategoryFormFaq";
 import CategoryFormCountries from "./CategoryFormCountries";
+import { Suspense } from "react";
 
 interface CategoryFormProps {
   product: Category | null;
@@ -144,6 +145,8 @@ export default function CategoryForm({
       </div>
 
       {/* Sağ: Medya */}
+      
+      <Suspense fallback={null}>
       <div className="space-y-4 pt-6">
         <div
           className="rounded-xl border p-6 sticky top-6"
@@ -151,6 +154,7 @@ export default function CategoryForm({
         >
           <SectionDivider title="Medya" />
           <div className="mt-4">
+            
             <CategoryFormMedia
               imgUrl={imgUrl}
               form={form}
@@ -161,6 +165,8 @@ export default function CategoryForm({
           </div>
         </div>
       </div>
+</Suspense>
+
     </div>
   );
 }

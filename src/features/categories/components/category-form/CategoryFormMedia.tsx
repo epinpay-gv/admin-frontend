@@ -22,7 +22,7 @@ export default function CategoryFormMedia({
   return (
     <div className="space-y-4">
       <FileUpload
-        value={imgUrl ?? undefined}
+        value={imgUrl}
         onChange={onFileChange}
         label="Kategori Görseli"
         hint="PNG, JPG, WEBP · Maks 10MB"

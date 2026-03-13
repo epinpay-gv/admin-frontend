@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { Pencil, Copy, Plus, ShieldOff, Package, Eye } from "lucide-react";
 import { DataTable } from "@/components/common/data-table";
 import { ColumnDef } from "@/components/common/data-table";
-import { useCategories, CategoryEditModal, CategoryCountryStatusModal, CATEGORY_STATUS } from "@/features/categories";
+import { useCategories, CategoryEditModal, CategoryCountryStatusModal, CategoryProductsModal, CATEGORY_STATUS } from "@/features/categories";
 import { Category } from "@/features/categories";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
+import Image from "next/image";
+
 
 const STATUS_LABELS: Record<CATEGORY_STATUS, string> = {
   [CATEGORY_STATUS.ACTIVE]: "Aktif",
@@ -33,6 +35,7 @@ export default function CategoriesPage() {
   const { categories, loading, error, updateCategory } = useCategories();
   const [countryModal, setCountryModal] = useState<Category | null>(null);
   const [editModal, setEditModal] = useState<Category | null>(null);
+  const [productsModal, setProductsModal] = useState<Category | null>(null);
 
   const COLUMNS: ColumnDef<CategoryRow>[] = [
     {
@@ -40,6 +43,41 @@ export default function CategoriesPage() {
       label: "ID",
       sortable: true,
       width: "60px",
+    },
+    {
+      key: "image",
+      label: "Ürün",
+      sortable: true,
+      searchable: true,
+      searchKey: "translation.name",
+      sortKey: "translation.name",
+      render: (_, row) => {
+        const translation = row.translation as Category["translation"];
+        return (
+          <div className="flex min-w-[200px] items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-[var(--border)]"
+              style={{ background: "var(--background-secondary)" }}
+            >
+              <Image
+                src={translation.imgUrl || ""}
+                alt={translation.imgAlt || "Kategori Görseli"}
+                width={40}
+                height={40}
+                className="object-cover w-full h-full"
+              />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
+                {translation.name}
+              </p>
+              <p className="text-[11px] font-mono opacity-60 truncate" style={{ color: "var(--text-muted)" }}>
+                {translation.slug}
+              </p>
+            </div>
+          </div>
+        );
+      },
     },
     {
       key: "translation",
@@ -74,7 +112,10 @@ export default function CategoriesPage() {
       sortable: true,
       render: (value, row) => (
         <button
-          onClick={() => router.push(`/epinpay/products?category=${row.id}`)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setProductsModal(row as Category);
+          }}
           className="flex items-center gap-1.5 text-xs font-mono px-2 py-1 rounded-lg transition-all"
           style={{
             background: "var(--background-secondary)",
@@ -246,6 +287,12 @@ export default function CategoriesPage() {
           updateCategory(updated);
           setEditModal(null);
         }}
+      />
+
+      <CategoryProductsModal
+        open={!!productsModal}
+        onClose={() => setProductsModal(null)}
+        category={productsModal}
       />
     </div>
   );
