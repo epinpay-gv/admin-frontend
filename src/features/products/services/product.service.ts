@@ -10,17 +10,17 @@ export const productService = {
     return res.json();
   },
 
-  getById: async (id: number): Promise<Product> => {
-    const res = await fetch(`${BASE_URL}/${id}`);
+  getById: async (id: number, locale: string = "en"): Promise<Product> => {
+    const res = await fetch(`${BASE_URL}/${id}?locale=${locale}`);
     if (!res.ok) throw new Error("Ürün bulunamadı.");
     return res.json();
   },
 
-  update: async (id: number, data: Partial<Product>): Promise<Product> => {
-    const res = await fetch(`${BASE_URL}/${id}`, {
-      method: "PATCH",
+  update: async (id: number, data: Partial<Product>, locale: string = "en"): Promise<Product> => {
+    const res = await fetch(`${BASE_URL}/${id}?locale=${locale}`, {
+      method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ ...data, locale }),
     });
     if (!res.ok) throw new Error("Ürün güncellenemedi.");
     return res.json();

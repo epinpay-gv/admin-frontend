@@ -10,7 +10,10 @@ import {
   Package,
   TrendingUp,
   Ticket,
-  MessageSquare
+  MessageSquare,
+  Newspaper,
+  List,
+  LayoutGrid
 } from "lucide-react";
 import { NavGroup } from "@/features/navigation/types";
 
@@ -58,7 +61,7 @@ export const NAV_GROUPS: NavGroup[] = [
         label: "İçerik ve SEO Yönetimi",
         icon: PersonStanding,
         children: [
-          // { href: "/products", label: "Ürün Listesi & Detaylar", icon: Users },       
+           { href: "/blog", label: "Blog Yönetimi", icon: Newspaper },   
         ],
       }     
     ]
@@ -92,7 +95,8 @@ export const NAV_GROUPS: NavGroup[] = [
         label: "Ürün & Katalog Yönetimi",
         icon: Package, 
         children: [  
-          { href: "/products", label: "Ürün Listesi & Detaylar", icon: Users }, 
+          { href: "/epinpay/products", label: "Ürün Listesi & Detaylar", icon: List }, 
+          { href: "/epinpay/categories", label: "Kategori Listesi & Detaylar", icon: LayoutGrid }
         ]
       },
       {

@@ -72,7 +72,6 @@ export function useDataTable<T extends Record<string, unknown>>({
   const filtered = useMemo(() => {
     let result = [...data];
 
-    // Header search — tüm searchable sütunlarda ara
     if (search) {
         const lower = search.toLowerCase();
         result = result.filter((row) =>
@@ -85,8 +84,6 @@ export function useDataTable<T extends Record<string, unknown>>({
             })
         );
     }
-
-    // Sütun bazlı filtreler
     Object.entries(columnFilters).forEach(([colKey, val]) => {
         if (!val) return;
         const lower = val.toLowerCase();
