@@ -140,26 +140,10 @@ export const HUB_PAGES: Record<string, HubPage> = {
       {
         title: "Siparişler",
         description: "Tüm siparişleri görüntüle ve yönet.",
-        href: "/epinpay/sales/orders",
+        href: "/epinpay/orders",
         icon: ShoppingCart,
-        badge: 12,
         color: "#00C6A2",
-      },
-      {
-        title: "Teslimat Logları",
-        description: "Teslimat durumlarını ve logları takip et.",
-        href: "/epinpay/sales/delivery",
-        icon: HandCoins,
-        color: "#0085FF",
-      },
-      {
-        title: "Problemli Siparişler",
-        description: "İptal edilen ve problemli siparişleri yönet.",
-        href: "/epinpay/sales/issues",
-        icon: HeadphonesIcon,
-        badge: 5,
-        color: "#FF5050",
-      },
+      },  
     ],
   },
   "epinpay/store": {
