@@ -73,7 +73,7 @@ export default function OrdersPage() {
         }
         return (
           <button
-            onClick={() => router.push(`/epinpay/users/${order.user!.id}`)}
+            onClick={() => router.push(`/users/${order.user!.id}`)}
             className="flex flex-col items-start transition-colors"
           >
             <span className="text-sm font-medium" style={{ color: "#0085FF" }}>
