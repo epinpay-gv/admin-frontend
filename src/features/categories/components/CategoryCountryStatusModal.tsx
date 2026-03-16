@@ -154,7 +154,7 @@ export default function CategoryCountryStatusModal({
             </button>
           </PopoverTrigger>
           <PopoverContent
-            className="w-[462px] p-0 border"
+            className="w-115.5 p-0 border"
             style={{
               background: "var(--background-secondary)",
               borderColor: "var(--border)",
