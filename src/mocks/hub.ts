@@ -216,7 +216,7 @@ export const HUB_PAGES: Record<string, HubPage> = {
       {
         title: "Kategoriler",
         description: "Ürün kategorilerini ve tag'leri yönet.",
-        href: "/epinpay/products/categories",
+        href: "/epinpay/categories",
         icon: Tag,
         color: "#0085FF",
       },
