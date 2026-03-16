@@ -36,7 +36,7 @@ export const NAV_GROUPS: NavGroup[] = [
         label: "Kullanıcı Yönetimi",
         icon: Users,
         children: [
-          // { href: "/admin/users", label: "Kullanıcı Listesi & Detaylar", icon: Users },          
+           { href: "/users", label: "Kullanıcı Listesi & Detaylar", icon: Users },          
         ],
       },
       {
