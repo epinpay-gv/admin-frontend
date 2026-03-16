@@ -44,7 +44,7 @@ export const HUB_PAGES: Record<string, HubPage> = {
       {
         title: "Kullanıcı Listesi & Detaylar",
         description: "Tüm kullanıcıları görüntüle, filtrele ve yönet.",
-        href: "/admin/users",
+        href: "/users",
         icon: Users,
         color: "#00C6A2",
       },
