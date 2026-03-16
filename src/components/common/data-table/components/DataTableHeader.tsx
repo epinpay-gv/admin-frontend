@@ -4,7 +4,10 @@ import { useState } from "react";
 import { ChevronUp, ChevronDown, ChevronsUpDown, X, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import SearchInput from "@/components/common/search-input/SearchInput";
-import { SortState } from "../hooks/useDataTable";
+import { SortState, DateRangeFilter } from "../hooks/useDataTable";
+import DataTableDatePicker from "../components/DataTableDatePicker";
+import { format } from "date-fns";
+import { tr } from "date-fns/locale";
 
 export interface ColumnDef<T> {
   key: keyof T;
@@ -13,6 +16,7 @@ export interface ColumnDef<T> {
   searchable?: boolean;
   searchKey?: string;
   sortKey?: string;
+  datepicker?: boolean; // ← YENİ: bu kolona datepicker ekle
   render?: (value: T[keyof T], row: T) => React.ReactNode;
   width?: string;
 }
@@ -24,6 +28,10 @@ interface DataTableHeaderProps<T> {
   columnFilters: Record<string, string>;
   onColumnFilter: (column: string, value: string) => void;
   onClearColumnFilter: (column: string) => void;
+  // datepicker
+  dateRange?: DateRangeFilter;
+  onDateRangeChange?: (range: DateRangeFilter) => void;
+  onDateRangeClear?: () => void;
 }
 
 function ColumnHeader<T>({
@@ -33,6 +41,9 @@ function ColumnHeader<T>({
   columnFilters,
   onColumnFilter,
   onClearColumnFilter,
+  dateRange,
+  onDateRangeChange,
+  onDateRangeClear,
 }: {
   col: ColumnDef<T>;
   sort: SortState;
@@ -40,14 +51,27 @@ function ColumnHeader<T>({
   columnFilters: Record<string, string>;
   onColumnFilter: (column: string, value: string) => void;
   onClearColumnFilter: (column: string) => void;
+  dateRange?: DateRangeFilter;
+  onDateRangeChange?: (range: DateRangeFilter) => void;
+  onDateRangeClear?: () => void;
 }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const colKey = String(col.key);
   const isFiltered = !!columnFilters[colKey];
+  const hasDateRange = !!(dateRange?.from || dateRange?.to);
+
+  // Tek tarih seçilmişse "from → bugün", iki tarih seçilmişse "from → to"
+  let dateBadgeLabel = "";
+  if (dateRange?.from && dateRange?.to) {
+    dateBadgeLabel = `${format(dateRange.from, "dd MMM", { locale: tr })} – ${format(dateRange.to, "dd MMM", { locale: tr })}`;
+  } else if (dateRange?.from) {
+    dateBadgeLabel = `${format(dateRange.from, "dd MMM", { locale: tr })} – bugün`;
+  }
 
   return (
     <th className="px-4 py-3 text-left" style={{ width: col.width }}>
       <div className="flex flex-col gap-1">
+        {/* Başlık satırı */}
         <div className="flex items-center gap-1.5">
           {col.sortable ? (
             <button
@@ -77,6 +101,7 @@ function ColumnHeader<T>({
             </span>
           )}
 
+          {/* Search ikonu */}
           {col.searchable && (
             <button
               onClick={() => {
@@ -92,8 +117,18 @@ function ColumnHeader<T>({
               {isFiltered ? <X size={11} /> : <Search size={11} />}
             </button>
           )}
+
+          {/* Datepicker ikonu */}
+          {col.datepicker && dateRange && onDateRangeChange && onDateRangeClear && (
+            <DataTableDatePicker
+              value={dateRange}
+              onChange={onDateRangeChange}
+              onClear={onDateRangeClear}
+            />
+          )}
         </div>
 
+        {/* Search input — slide down */}
         <AnimatePresence initial={false}>
           {col.searchable && searchOpen && (
             <motion.div
@@ -112,6 +147,39 @@ function ColumnHeader<T>({
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Tarih badge — slide down */}
+        <AnimatePresence initial={false}>
+          {col.datepicker && hasDateRange && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.15 }}
+              className="overflow-hidden"
+            >
+              <div className="flex items-center gap-1 mt-0.5">
+                <span
+                  className="flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-md"
+                  style={{
+                    background: "rgba(0,198,162,0.12)",
+                    color: "#00C6A2",
+                    border: "1px solid rgba(0,198,162,0.25)",
+                  }}
+                >
+                  {dateBadgeLabel}
+                </span>
+                <button
+                  onClick={onDateRangeClear}
+                  className="w-4 h-4 rounded flex items-center justify-center transition-opacity hover:opacity-70"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  <X size={9} />
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </th>
   );
@@ -124,6 +192,9 @@ export default function DataTableHeader<T>({
   columnFilters,
   onColumnFilter,
   onClearColumnFilter,
+  dateRange,
+  onDateRangeChange,
+  onDateRangeClear,
 }: DataTableHeaderProps<T>) {
   return (
     <thead>
@@ -140,6 +211,9 @@ export default function DataTableHeader<T>({
             columnFilters={columnFilters}
             onColumnFilter={onColumnFilter}
             onClearColumnFilter={onClearColumnFilter}
+            dateRange={col.datepicker ? dateRange : undefined}
+            onDateRangeChange={col.datepicker ? onDateRangeChange : undefined}
+            onDateRangeClear={col.datepicker ? onDateRangeClear : undefined}
           />
         ))}
       </tr>
