@@ -246,7 +246,7 @@ export default function CategoryCountryStatusModal({
             >
               Yasaklı Ülkeler
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 max-h-20 overflow-y-auto">
               {forbidden.map((c) => (
                 <span
                   key={c.code}
