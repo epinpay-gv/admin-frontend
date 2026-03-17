@@ -9,11 +9,13 @@ import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import { useOffers } from "@/features/store/hooks/useOffers";
 import { useOfferToggle } from "@/features/store/hooks/useOfferToggle";
+<<<<<<< HEAD
 import Image from "next/image";
 import Spinner from "@/components/common/spinner/Spinner";
+=======
+>>>>>>> b5a8186ac9a9622265f67ccd0d9edbd0d55f1e35
 
 // Sabitler 
-
 const STATUS_LABELS: Record<OFFER_STATUS, string> = {
   [OFFER_STATUS.ACTIVE]:  "Aktif",
   [OFFER_STATUS.PASSIVE]: "Pasif",

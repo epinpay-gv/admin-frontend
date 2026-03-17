@@ -11,7 +11,7 @@ import OfferForm from "@/features/store/components/OfferForm";
 import Spinner from "@/components/common/spinner/Spinner";
 
 
-// ─── Sabitler ──────────────────────────────────────────────
+// Sabitler 
 
 const STATUS_COLORS: Record<OFFER_STATUS, { bg: string; color: string }> = {
   [OFFER_STATUS.ACTIVE]:  { bg: "rgba(0,198,162,0.15)",  color: "#00C6A2" },
@@ -31,8 +31,6 @@ const DELIVERY_LABELS: Record<DELIVERY_TYPE, string> = {
   [DELIVERY_TYPE.DROPSHIPPING]: "Stoksuz",
 };
 
-// ─── Mode yardımcıları — product kalıbıyla aynı ───────────
-
 type PageMode = "create" | "edit";
 
 function resolveMode(id: string): PageMode {
@@ -43,7 +41,7 @@ function resolveOfferId(id: string): number | null {
   return id === "new" ? null : Number(id);
 }
 
-// ─── Sayfa ─────────────────────────────────────────────────
+// Sayfa
 
 export default function OfferDetailPage({
   params,

@@ -78,7 +78,7 @@ export default function OfferForm({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-      {/* Sol — ana form */}
+      {/* ana form */}
       <div className="lg:col-span-2 pt-6 space-y-6">
 
         {/* Temel bilgiler */}
@@ -131,7 +131,7 @@ export default function OfferForm({
 
       </div>
 
-      {/* Sağ — özet panel */}
+      {/* özet  */}
       <div className="space-y-4">
         <div
           className="rounded-xl border p-6 sticky top-6"
