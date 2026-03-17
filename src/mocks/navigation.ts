@@ -9,7 +9,7 @@ import {
   Handshake,
   Package,
   TrendingUp,
-  Ticket,
+  Gift,
   MessageSquare,
   Newspaper,
   List,
@@ -106,6 +106,7 @@ export const NAV_GROUPS: NavGroup[] = [
         label: "Pazarlama & Kampanya Yönetimi",
         icon: TrendingUp, 
         children: [  
+          { href: "/epinpay/raffles", label: "Çekiliş Listesi & Detaylar", icon: Gift }
         ]
       },      
       {
