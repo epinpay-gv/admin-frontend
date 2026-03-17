@@ -63,7 +63,13 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
            { href: "/blog", label: "Blog Yönetimi", icon: Newspaper },   
         ],
-      }     
+      },   
+      {
+        href: "/store",
+        label: "Epinpay Mağazaları",
+        icon: Store,
+        
+      }  
     ]
   },
   {
