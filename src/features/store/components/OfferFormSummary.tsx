@@ -36,7 +36,7 @@ export default function OfferFormSummary({ values, saving, onSubmit }: Props) {
         </div>
       ))}
 
-      {/* Teslimat süresi — sadece ID_UPLOAD */}
+      {/* Teslimat süresi  */}
       {values.deliveryType === DELIVERY_TYPE.ID_UPLOAD && (
         <div className="flex justify-between items-center">
           <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>
