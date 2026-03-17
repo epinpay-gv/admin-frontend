@@ -13,7 +13,8 @@ import {
   MessageSquare,
   Newspaper,
   List,
-  LayoutGrid
+  LayoutGrid,
+  ShoppingCart
 } from "lucide-react";
 import { NavGroup } from "@/features/navigation/types";
 
@@ -80,6 +81,7 @@ export const NAV_GROUPS: NavGroup[] = [
         label: "Satış Operasyonları",
         icon: HandCoins, 
         children: [  
+          { href: "/epinpay/orders", label: "Sipariş Listesi & Detaylar", icon: ShoppingCart }, 
         ]
       },
       {

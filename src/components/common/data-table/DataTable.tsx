@@ -15,7 +15,9 @@ interface DataTableProps<T extends Record<string, unknown>> {
   columns: ColumnDef<T>[];
   statusOptions?: StatusOption[];
   showStatusFilter?: boolean;
+  dateKey?: string;
   actions?: (row: T) => React.ReactNode;
+  onFilteredDataChange?: (filtered: T[]) => void;
 }
 
 export default function DataTable<T extends Record<string, unknown>>({
@@ -23,10 +25,13 @@ export default function DataTable<T extends Record<string, unknown>>({
   columns,
   statusOptions,
   showStatusFilter = false,
+  dateKey = "createdAt",
   actions,
+  onFilteredDataChange,
 }: DataTableProps<T>) {
   const {
     rows,
+    filteredRows,
     totalRows,
     sort,
     handleSort,
@@ -35,10 +40,15 @@ export default function DataTable<T extends Record<string, unknown>>({
     clearColumnFilter,
     statusFilter,
     setStatusFilter,
+    dateRange,
+    handleDateRangeChange,
+    clearDateRange,
     pagination,
     setPagination,
     totalPages,
-  } = useDataTable({ data, columns });
+  } = useDataTable({ data, columns, dateKey });
+
+  onFilteredDataChange?.(filteredRows);
 
   return (
     <div
@@ -73,6 +83,15 @@ export default function DataTable<T extends Record<string, unknown>>({
             columnFilters={columnFilters}
             onColumnFilter={setColumnFilter}
             onClearColumnFilter={clearColumnFilter}
+            dateRange={dateRange}
+            onDateRangeChange={(range) => {
+              handleDateRangeChange(range);
+              setPagination((prev) => ({ ...prev, page: 1 }));
+            }}
+            onDateRangeClear={() => {
+              clearDateRange();
+              setPagination((prev) => ({ ...prev, page: 1 }));
+            }}
           />
           <tbody>
             {rows.length === 0 ? (
@@ -125,3 +144,5 @@ export default function DataTable<T extends Record<string, unknown>>({
     </div>
   );
 }
+
+export type { ColumnDef };
