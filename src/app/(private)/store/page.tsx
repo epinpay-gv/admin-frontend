@@ -10,6 +10,7 @@ import PageHeader from "@/components/common/page-header/PageHeader";
 import { useOffers } from "@/features/store/hooks/useOffers";
 import { useOfferToggle } from "@/features/store/hooks/useOfferToggle";
 import Image from "next/image";
+import Spinner from "@/components/common/spinner/Spinner";
 
 // Sabitler 
 
@@ -156,12 +157,9 @@ const { toggle, loadingId } = useOfferToggle((id, status) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full min-h-100">
-        <div
-          className="w-8 h-8 border-2 rounded-full animate-spin"
-          style={{ borderColor: "var(--border)", borderTopColor: "#00C6A2" }}
-        />
-      </div>
+     <div className="flex items-center justify-center h-64">
+             <Spinner />
+           </div>
     );
   }
 

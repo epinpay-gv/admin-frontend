@@ -18,6 +18,7 @@ import {
 } from "@/features/raffles";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
+import Spinner from "@/components/common/spinner/Spinner";
 
 const STATUS_COLORS: Record<RAFFLE_STATUS, { bg: string; color: string }> = {
   [RAFFLE_STATUS.DRAFT]: { bg: "rgba(255,180,0,0.15)", color: "#FFB400" },
@@ -211,11 +212,8 @@ export default function RafflesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div
-          className="w-6 h-6 border-2 rounded-full animate-spin"
-          style={{ borderColor: "var(--border)", borderTopColor: "#00C6A2" }}
-        />
-      </div>
+              <Spinner />
+            </div>
     );
   }
 

@@ -6,6 +6,7 @@ import { Eye } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/common/data-table";
 import { useUsers } from "@/features/users/hooks/useUsers";
 import { UserListItem, USER_STATUS, UserFilters } from "@/features/users/types";
+import Spinner from "@/components/common/spinner/Spinner";
 
 // Sabit etiket ve renk tanımları 
 
@@ -163,11 +164,8 @@ export default function UsersPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div
-          className="w-6 h-6 border-2 rounded-full animate-spin"
-          style={{ borderColor: "var(--border)", borderTopColor: "#00C6A2" }}
-        />
-      </div>
+              <Spinner />
+            </div>
     );
   }
 

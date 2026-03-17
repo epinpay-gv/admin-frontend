@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import ForbiddenCountriesModal from "@/features/products/components/ForbiddenCountriesModal";
 import PageHeader from "@/components/common/page-header/PageHeader";
+import Spinner from "@/components/common/spinner/Spinner";
 
 const STATUS_LABELS: Record<PRODUCT_STATUS, string> = {
   [PRODUCT_STATUS.ACTIVE]: "Aktif",
@@ -162,12 +163,9 @@ export default function ProductsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full min-h-100">
-        <div
-          className="w-8 h-8 border-2 rounded-full animate-spin"
-          style={{ borderColor: "var(--border)", borderTopColor: "#00C6A2" }}
-        />
-      </div>
+      <div className="flex items-center justify-center h-64">
+              <Spinner />
+            </div>
     );
   }
 

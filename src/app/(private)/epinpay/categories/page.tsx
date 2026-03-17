@@ -10,6 +10,7 @@ import { Category } from "@/features/categories";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import Image from "next/image";
+import Spinner from "@/components/common/spinner/Spinner";
 
 
 const STATUS_LABELS: Record<CATEGORY_STATUS, string> = {
@@ -178,11 +179,8 @@ export default function CategoriesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div
-          className="w-6 h-6 border-2 rounded-full animate-spin"
-          style={{ borderColor: "var(--border)", borderTopColor: "#00C6A2" }}
-        />
-      </div>
+              <Spinner />
+            </div>
     );
   }
 

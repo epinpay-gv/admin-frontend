@@ -7,6 +7,7 @@ import { useOrder, OrderStatusBadge, OrderMemberTypeBadge, OrderCancelModal, ORD
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Order, DELIVERY_TYPE, SLA_STATUS } from "@/features/orders/types";
+import Spinner from "@/components/common/spinner/Spinner";
 
 const DELIVERY_TYPE_LABELS: Record<DELIVERY_TYPE, string> = {
   [DELIVERY_TYPE.EPIN]: "E-Pin",
@@ -45,8 +46,8 @@ export default function OrderDetailPage({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-6 h-6 border-2 rounded-full animate-spin" style={{ borderTopColor: "#00C6A2", borderRightColor: "var(--border)", borderBottomColor: "var(--border)", borderLeftColor: "var(--border)" }} />
-      </div>
+              <Spinner />
+            </div>
     );
   }
 

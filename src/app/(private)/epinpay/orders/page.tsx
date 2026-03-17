@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import { useOrderExport } from "@/features/orders/hooks/useOrderExport";
 import OrderProductsModal from "@/features/orders/components/OrderProductsModal";
+import Spinner from "@/components/common/spinner/Spinner";
 
 type OrderRow = Order & Record<string, unknown>;
 
@@ -168,16 +169,8 @@ export default function OrdersPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div
-          className="w-6 h-6 border-2 rounded-full animate-spin"
-          style={{
-            borderTopColor: "#00C6A2",
-            borderRightColor: "var(--border)",
-            borderBottomColor: "var(--border)",
-            borderLeftColor: "var(--border)",
-          }}
-        />
-      </div>
+              <Spinner />
+            </div>
     );
   }
 

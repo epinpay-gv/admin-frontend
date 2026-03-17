@@ -8,6 +8,7 @@ import { useOfferForm } from "@/features/store/hooks/useOfferForm";
 import { OFFER_STATUS, DELIVERY_TYPE } from "@/features/store/types";
 import { Button } from "@/components/ui/button";
 import OfferForm from "@/features/store/components/OfferForm";
+import Spinner from "@/components/common/spinner/Spinner";
 
 
 // ─── Sabitler ──────────────────────────────────────────────
@@ -74,11 +75,8 @@ export default function OfferDetailPage({
   if (loading && numericId !== null) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div
-          className="w-6 h-6 border-2 rounded-full animate-spin"
-          style={{ borderColor: "var(--border)", borderTopColor: "#00C6A2" }}
-        />
-      </div>
+              <Spinner />
+            </div>
     );
   }
 

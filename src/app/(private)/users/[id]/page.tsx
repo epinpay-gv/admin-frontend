@@ -16,6 +16,7 @@ import { useEPLedger } from "@/features/users/hooks/useEpLedger";
 import { useAdminNotes } from "@/features/users/hooks/useAdminNotes";
 import { useUser } from "@/features/users/hooks/useUser";
 import { useSuspend } from "@/features/users/hooks/useSuspend";
+import Spinner from "@/components/common/spinner/Spinner";
 
 // ─── Tab tanımları ────────────────────────────────────────────────────────────
 
@@ -381,12 +382,9 @@ function EmptyState({ message }: { message: string }) {
 
 function LoadingSpinner() {
   return (
-    <div className="flex items-center justify-center h-32">
-      <div
-        className="w-6 h-6 border-2 rounded-full animate-spin"
-        style={{ borderColor: "var(--border)", borderTopColor: "#00C6A2" }}
-      />
-    </div>
+    <div className="flex items-center justify-center h-64">
+            <Spinner />
+          </div>
   );
 }
 

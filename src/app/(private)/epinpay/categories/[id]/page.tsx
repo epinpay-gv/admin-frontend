@@ -8,6 +8,7 @@ import { CategoryCountry } from "@/features/categories/types";
 import LocaleSelector from "@/components/common/locale-selector/LocaleSelector";
 import { Locale } from "@/components/common/locale-selector/locale.service";
 import { Button } from "@/components/ui/button";
+import Spinner from "@/components/common/spinner/Spinner";
 
 const STATUS_COLORS: Record<CATEGORY_STATUS, { bg: string; color: string }> = {
   [CATEGORY_STATUS.ACTIVE]: { bg: "rgba(0,198,162,0.15)", color: "#00C6A2" },
@@ -102,10 +103,7 @@ export default function CategoryDetailPage({
   if (loading && numericId !== null) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div
-          className="w-6 h-6 border-2 rounded-full animate-spin"
-          style={{ borderColor: "var(--border)", borderTopColor: "#00C6A2" }}
-        />
+        <Spinner />
       </div>
     );
   }
