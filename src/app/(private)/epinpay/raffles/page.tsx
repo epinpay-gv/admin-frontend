@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, RefreshCw, Filter, X } from "lucide-react";
+import { Eye, Filter, X, RefreshCw } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/common/data-table";
+import { useRaffles } from "@/features/raffles";
 import {
-  useRaffles,
   Raffle,
   RAFFLE_STATUS,
   RAFFLE_STATUS_LABELS,
@@ -15,7 +15,7 @@ import {
   RAFFLE_CREATOR_TYPE_LABELS,
   PARTICIPATION_RESTRICTION_LABELS,
   RaffleFilters,
-} from "@/features/raffles";
+} from "@/features/raffles/types";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import Spinner from "@/components/common/spinner/Spinner";
@@ -41,7 +41,7 @@ const TYPE_COLORS: Record<RAFFLE_TYPE, { bg: string; color: string }> = {
 };
 
 const STATUS_OPTIONS = [
-  { label: "Tüm Durumlar", value: "all" },
+  { label: "Tümü", value: "all" },
   ...Object.entries(RAFFLE_STATUS_LABELS).map(([value, label]) => ({ label, value })),
 ];
 
@@ -94,7 +94,7 @@ export default function RafflesPage() {
       key: "id",
       label: "Çekiliş ID",
       sortable: true,
-      width: "110px",
+      width: "100px",
       render: (value) => (
         <span className="font-mono text-xs font-bold" style={{ color: "#0085FF" }}>
           {String(value)}
@@ -111,8 +111,8 @@ export default function RafflesPage() {
           <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
             {row.name as string}
           </p>
-          <p className="text-[11px] font-mono mt-0.5 truncate" style={{ color: "var(--text-muted)" }}>
-            {PARTICIPATION_RESTRICTION_LABELS[row.participationRestriction as Raffle["participationRestriction"]]}
+          <p className="text-[11px] font-mono mt-0.5 truncate max-w-[250px]" style={{ color: "var(--text-muted)" }}>
+            {row.description as string}
           </p>
         </div>
       ),
@@ -122,17 +122,17 @@ export default function RafflesPage() {
       label: "Oluşturan",
       sortable: true,
       render: (_, row) => {
-        const ct = row.creatorType as RAFFLE_CREATOR_TYPE;
-        const colors = CREATOR_COLORS[ct];
+        const creatorType = row.creatorType as RAFFLE_CREATOR_TYPE;
+        const colors = CREATOR_COLORS[creatorType];
         return (
           <div>
             <span
               className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
               style={{ background: colors.bg, color: colors.color }}
             >
-              {RAFFLE_CREATOR_TYPE_LABELS[ct]}
+              {RAFFLE_CREATOR_TYPE_LABELS[creatorType]}
             </span>
-            <p className="text-[11px] font-mono mt-1" style={{ color: "var(--text-muted)" }}>
+            <p className="text-[11px] font-mono mt-0.5" style={{ color: "var(--text-muted)" }}>
               {row.creatorName as string}
             </p>
           </div>
@@ -157,12 +157,28 @@ export default function RafflesPage() {
       },
     },
     {
+      key: "participationRestriction",
+      label: "Katılım",
+      render: (value) => (
+        <span
+          className="text-[11px] font-mono px-2 py-0.5 rounded-md"
+          style={{
+            background: "var(--background-secondary)",
+            color: "var(--text-muted)",
+            border: "1px solid var(--border)",
+          }}
+        >
+          {PARTICIPATION_RESTRICTION_LABELS[value as keyof typeof PARTICIPATION_RESTRICTION_LABELS]}
+        </span>
+      ),
+    },
+    {
       key: "participantCount",
       label: "Katılımcı",
       sortable: true,
       render: (value) => (
-        <span className="text-xs font-mono" style={{ color: "var(--text-secondary)" }}>
-          {String(value)} kişi
+        <span className="text-sm font-mono font-semibold" style={{ color: "var(--text-primary)" }}>
+          {String(value)}
         </span>
       ),
     },
@@ -170,18 +186,19 @@ export default function RafflesPage() {
       key: "winnerCount",
       label: "Kazanan",
       sortable: true,
-      render: (value) => (
-        <span className="text-xs font-mono" style={{ color: "var(--text-secondary)" }}>
-          {String(value)} kişi
+      render: (_, row) => (
+        <span className="text-sm font-mono font-semibold" style={{ color: "var(--text-primary)" }}>
+          {String(row.winnerCount)} asil / {String(row.backupCount)} yedek
         </span>
       ),
     },
     {
       key: "startDate",
       label: "Tarihler",
+      sortable: true,
       render: (_, row) => (
         <div>
-          <p className="text-[11px] font-mono" style={{ color: "var(--text-secondary)" }}>
+          <p className="text-xs font-mono" style={{ color: "var(--text-secondary)" }}>
             {new Date(row.startDate as string).toLocaleDateString("tr-TR")}
           </p>
           <p className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
@@ -212,8 +229,8 @@ export default function RafflesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-              <Spinner />
-            </div>
+        <Spinner />
+      </div>
     );
   }
 
@@ -282,6 +299,7 @@ export default function RafflesPage() {
                 style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
               />
             </div>
+
             <div className="flex flex-col gap-1">
               <label className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
                 Oluşturan Türü
@@ -298,6 +316,7 @@ export default function RafflesPage() {
                 ))}
               </select>
             </div>
+
             <div className="flex flex-col gap-1">
               <label className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
                 Çekiliş Türü
@@ -314,6 +333,7 @@ export default function RafflesPage() {
                 ))}
               </select>
             </div>
+
             <div className="flex flex-col gap-1">
               <label className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
                 Durum
@@ -329,6 +349,7 @@ export default function RafflesPage() {
                 ))}
               </select>
             </div>
+
             <div className="flex flex-col gap-1">
               <label className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
                 Başlangıç Tarihi
@@ -341,6 +362,7 @@ export default function RafflesPage() {
                 style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
               />
             </div>
+
             <div className="flex flex-col gap-1">
               <label className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
                 Bitiş Tarihi
@@ -354,6 +376,7 @@ export default function RafflesPage() {
               />
             </div>
           </div>
+
           <div className="flex items-center justify-end gap-2 pt-1">
             <button
               onClick={handleReset}
@@ -386,7 +409,11 @@ export default function RafflesPage() {
               onClick={() => router.push(`/epinpay/raffles/${row.id}`)}
               className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
               title="Detay"
-              style={{ background: "var(--background-card)", borderColor: "var(--border)", color: "var(--text-muted)" }}
+              style={{
+                background: "var(--background-card)",
+                borderColor: "var(--border)",
+                color: "var(--text-muted)",
+              }}
             >
               <Eye size={13} />
             </button>

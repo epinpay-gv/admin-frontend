@@ -1,39 +1,33 @@
+import { api } from "@/lib/api/baseFetcher";
 import { Raffle, RaffleFilters } from "@/features/raffles/types";
+import { FetcherConfig } from "@/lib/api/types";
 
 const BASE_URL = "/api/raffles";
 
-function buildQueryString(filters: RaffleFilters & {
+type RaffleListParams = RaffleFilters & {
   sortKey?: string;
   sortDir?: string;
-}): string {
-  const params = new URLSearchParams();
-  if (filters.search) params.set("search", filters.search);
-  if (filters.creatorType && filters.creatorType !== "all")
-    params.set("creatorType", filters.creatorType);
-  if (filters.type && filters.type !== "all")
-    params.set("type", filters.type);
-  if (filters.status && filters.status !== "all")
-    params.set("status", filters.status);
-  if (filters.startDate) params.set("startDate", filters.startDate);
-  if (filters.endDate) params.set("endDate", filters.endDate);
-  if (filters.sortKey) params.set("sortKey", filters.sortKey);
-  if (filters.sortDir) params.set("sortDir", filters.sortDir);
-  return params.toString();
+};
+
+function buildParams(
+  filters: RaffleListParams
+): FetcherConfig["params"] {
+  return {
+    search: filters.search,
+    creatorType: filters.creatorType !== "all" ? filters.creatorType : undefined,
+    type: filters.type !== "all" ? filters.type : undefined,
+    status: filters.status !== "all" ? filters.status : undefined,
+    startDate: filters.startDate,
+    endDate: filters.endDate,
+    sortKey: filters.sortKey,
+    sortDir: filters.sortDir,
+  };
 }
 
 export const raffleService = {
-  getAll: async (
-    filters: RaffleFilters & { sortKey?: string; sortDir?: string } = {}
-  ): Promise<Raffle[]> => {
-    const qs = buildQueryString(filters);
-    const res = await fetch(`${BASE_URL}?${qs}`);
-    if (!res.ok) throw new Error("Çekiliş listesi yüklenemedi.");
-    return res.json();
-  },
+  getAll: (filters: RaffleListParams = {}): Promise<Raffle[]> =>
+    api.get<Raffle[]>(BASE_URL, buildParams(filters)),
 
-  getById: async (id: string): Promise<Raffle> => {
-    const res = await fetch(`${BASE_URL}/${id}`);
-    if (!res.ok) throw new Error("Çekiliş bulunamadı.");
-    return res.json();
-  },
+  getById: (id: string): Promise<Raffle> =>
+    api.get<Raffle>(`${BASE_URL}/${id}`),
 };

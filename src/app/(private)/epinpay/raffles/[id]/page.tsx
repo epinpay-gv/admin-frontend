@@ -1,4 +1,3 @@
-
 "use client";
 
 import { use } from "react";
@@ -50,8 +49,8 @@ export default function RaffleDetailPage({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Spinner />
-      </div>
+                    <Spinner />
+                  </div>
     );
   }
 
@@ -75,13 +74,20 @@ export default function RaffleDetailPage({
       {/* Üst bar */}
       <div
         className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 mb-4 rounded-xl border gap-4"
-        style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
+        style={{
+          background: "var(--background-card)",
+          borderColor: "var(--border)",
+        }}
       >
         <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={() => router.back()}
             className="w-9 h-9 shrink-0 rounded-lg flex items-center justify-center border transition-colors"
-            style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-muted)" }}
+            style={{
+              background: "var(--background-secondary)",
+              borderColor: "var(--border)",
+              color: "var(--text-muted)",
+            }}
           >
             <ArrowLeft size={16} />
           </button>
@@ -95,19 +101,19 @@ export default function RaffleDetailPage({
               </h1>
               <span
                 className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                style={{ background: statusColors.bg, color: statusColors.color }}
+                style={{
+                  background: statusColors.bg,
+                  color: statusColors.color,
+                }}
               >
                 {RAFFLE_STATUS_LABELS[raffle.status]}
               </span>
-              <span
-                className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                style={{ background: "var(--background-secondary)", color: "var(--text-muted)", border: "1px solid var(--border)" }}
-              >
-                {RAFFLE_TYPE_LABELS[raffle.type]}
-              </span>
             </div>
-            <p className="text-xs font-mono mt-0.5" style={{ color: "var(--text-muted)" }}>
-              {raffle.id} · {RAFFLE_CREATOR_TYPE_LABELS[raffle.creatorType]}: {raffle.creatorName}
+            <p
+              className="text-xs font-mono mt-0.5"
+              style={{ color: "var(--text-muted)" }}
+            >
+              #{raffle.id} · {RAFFLE_CREATOR_TYPE_LABELS[raffle.creatorType]} — {raffle.creatorName}
             </p>
           </div>
         </div>
@@ -115,8 +121,8 @@ export default function RaffleDetailPage({
 
       {/* İçerik */}
       <div className="flex-1 overflow-y-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-10">
-          {/* Sol: Ana bilgiler */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Sol */}
           <div className="lg:col-span-2 space-y-6">
 
             {/* Genel Bilgiler */}
@@ -125,16 +131,16 @@ export default function RaffleDetailPage({
               style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
             >
               <SectionDivider title="Genel Bilgiler" />
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {[
-                  { label: "Açıklama", value: raffle.description },
-                  { label: "Katılım Kısıtı", value: PARTICIPATION_RESTRICTION_LABELS[raffle.participationRestriction] },
-                  { label: "Asil Kazanan", value: `${raffle.winnerCount} kişi` },
-                  { label: "Yedek Kazanan", value: `${raffle.backupCount} kişi` },
-                  { label: "Katılımcı Sayısı", value: `${raffle.participantCount} kişi` },
-                  { label: "Başlangıç", value: new Date(raffle.startDate).toLocaleString("tr-TR") },
-                  { label: "Bitiş", value: new Date(raffle.endDate).toLocaleString("tr-TR") },
-                  { label: "Oluşturulma", value: new Date(raffle.createdAt).toLocaleString("tr-TR") },
+                  { label: "Çekiliş Türü", value: RAFFLE_TYPE_LABELS[raffle.type] },
+                  { label: "Katılım", value: PARTICIPATION_RESTRICTION_LABELS[raffle.participationRestriction] },
+                  { label: "Katılımcı", value: String(raffle.participantCount) },
+                  { label: "Asil Kazanan", value: String(raffle.winnerCount) },
+                  { label: "Yedek Kazanan", value: String(raffle.backupCount) },
+                  { label: "Başlangıç", value: new Date(raffle.startDate).toLocaleDateString("tr-TR") },
+                  { label: "Bitiş", value: new Date(raffle.endDate).toLocaleDateString("tr-TR") },
+                  { label: "Oluşturulma", value: new Date(raffle.createdAt).toLocaleDateString("tr-TR") },
                 ].map((item) => (
                   <div key={item.label}>
                     <p
@@ -143,69 +149,51 @@ export default function RaffleDetailPage({
                     >
                       {item.label}
                     </p>
-                    <p className="text-sm" style={{ color: "var(--text-primary)" }}>
+                    <p
+                      className="text-sm font-medium"
+                      style={{ color: "var(--text-primary)" }}
+                    >
                       {item.value}
                     </p>
                   </div>
                 ))}
-                {raffle.cancelReason && (
-                  <div className="sm:col-span-2">
-                    <p
-                      className="text-[11px] font-semibold uppercase tracking-widest font-mono mb-1"
-                      style={{ color: "#FF5050" }}
-                    >
-                      İptal Nedeni
-                    </p>
-                    <p className="text-sm" style={{ color: "#FF5050" }}>
-                      {raffle.cancelReason}
-                    </p>
-                  </div>
-                )}
               </div>
+              {raffle.description && (
+                <div className="mt-4 pt-4" style={{ borderTop: "1px solid var(--border)" }}>
+                  <p
+                    className="text-[11px] font-semibold uppercase tracking-widest font-mono mb-1"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    Açıklama
+                  </p>
+                  <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                    {raffle.description}
+                  </p>
+                </div>
+              )}
+              {raffle.cancelReason && (
+                <div
+                  className="mt-4 p-3 rounded-lg"
+                  style={{ background: "rgba(255,80,80,0.1)", border: "1px solid rgba(255,80,80,0.2)" }}
+                >
+                  <p className="text-xs font-semibold font-mono mb-1" style={{ color: "#FF5050" }}>
+                    İptal Nedeni
+                  </p>
+                  <p className="text-sm" style={{ color: "#FF5050" }}>
+                    {raffle.cancelReason}
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* Ödüller */}
+            {/* Katılımcılar */}
             <div
               className="rounded-xl border p-6"
               style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
             >
-              <SectionDivider title="Ödüller" />
-              <div className="mt-4 space-y-2">
-                {raffle.rewards.length === 0 ? (
-                  <p className="text-sm font-mono text-center py-4" style={{ color: "var(--text-muted)" }}>
-                    Ödül tanımlanmamış.
-                  </p>
-                ) : (
-                  raffle.rewards.map((reward) => (
-                    <div
-                      key={reward.id}
-                      className="flex items-center justify-between p-3 rounded-lg border"
-                      style={{ background: "var(--background-secondary)", borderColor: "var(--border)" }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Gift size={14} style={{ color: "#00C6A2" }} />
-                        <div>
-                          <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
-                            {reward.name}
-                          </p>
-                          {reward.description && (
-                            <p className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
-                              {reward.description}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="text-right shrink-0 ml-3">
-                        <p className="text-xs font-mono font-semibold" style={{ color: "var(--text-primary)" }}>
-                          {reward.assignedCount}/{reward.quantity}
-                        </p>
-                        <p className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
-                          atandı
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                )}
+              <SectionDivider title={`Katılımcılar (${raffle.participantCount})`} />
+              <div className="mt-4">
+                <RaffleParticipants participants={raffle.participants} />
               </div>
             </div>
 
@@ -214,58 +202,9 @@ export default function RaffleDetailPage({
               className="rounded-xl border p-6"
               style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
             >
-              <SectionDivider title="Kazananlar" />
+              <SectionDivider title={`Kazananlar (${raffle.winners.length})`} />
               <div className="mt-4">
                 <RaffleWinners winners={raffle.winners} />
-              </div>
-            </div>
-
-            {/* Katılımcılar */}
-            <div
-              className="rounded-xl border p-6"
-              style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
-            >
-              <SectionDivider title="Katılımcılar" />
-              <div className="mt-4">
-                <RaffleParticipants
-                  participants={raffle.participants}
-                  totalCount={raffle.participantCount}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Sağ: İstatistik + Audit Log */}
-          <div className="space-y-6">
-            {/* İstatistikler */}
-            <div
-              className="rounded-xl border p-6"
-              style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
-            >
-              <SectionDivider title="İstatistikler" />
-              <div className="mt-4 space-y-3">
-                {[
-                  { icon: <Users size={14} />, label: "Katılımcı", value: raffle.participantCount, color: "#0085FF" },
-                  { icon: <Trophy size={14} />, label: "Kazanan", value: raffle.winnerCount, color: "#FFB400" },
-                  { icon: <Gift size={14} />, label: "Ödül Türü", value: raffle.rewards.length, color: "#00C6A2" },
-                  { icon: <ScrollText size={14} />, label: "Log Kaydı", value: raffle.auditLogs.length, color: "#A050FF" },
-                ].map((stat) => (
-                  <div
-                    key={stat.label}
-                    className="flex items-center justify-between p-3 rounded-lg border"
-                    style={{ background: "var(--background-secondary)", borderColor: "var(--border)" }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span style={{ color: stat.color }}>{stat.icon}</span>
-                      <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>
-                        {stat.label}
-                      </span>
-                    </div>
-                    <span className="text-sm font-bold font-mono" style={{ color: "var(--text-primary)" }}>
-                      {stat.value}
-                    </span>
-                  </div>
-                ))}
               </div>
             </div>
 
@@ -277,6 +216,84 @@ export default function RaffleDetailPage({
               <SectionDivider title="Audit Log" />
               <div className="mt-4">
                 <RaffleAuditLog logs={raffle.auditLogs} />
+              </div>
+            </div>
+          </div>
+
+          {/* Sağ: Ödüller */}
+          <div className="space-y-6">
+            <div
+              className="rounded-xl border p-6 sticky top-6"
+              style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
+            >
+              <SectionDivider title="Ödüller" />
+              <div className="mt-4 space-y-3">
+                {raffle.rewards.length === 0 ? (
+                  <p className="text-sm font-mono text-center py-6" style={{ color: "var(--text-muted)" }}>
+                    Ödül tanımlanmamış
+                  </p>
+                ) : (
+                  raffle.rewards.map((reward) => (
+                    <div
+                      key={reward.id}
+                      className="rounded-xl border p-4"
+                      style={{
+                        background: "var(--background-secondary)",
+                        borderColor: "var(--border)",
+                      }}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                          style={{ background: "rgba(0,198,162,0.1)", color: "#00C6A2" }}
+                        >
+                          <Gift size={16} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                            {reward.name}
+                          </p>
+                          {reward.description && (
+                            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+                              {reward.description}
+                            </p>
+                          )}
+                          <div className="flex items-center gap-2 mt-2">
+                            <span
+                              className="text-[11px] font-mono px-2 py-0.5 rounded-md"
+                              style={{
+                                background: "var(--background-card)",
+                                color: "var(--text-muted)",
+                                border: "1px solid var(--border)",
+                              }}
+                            >
+                              {reward.assignedCount}/{reward.quantity} atandı
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Özet istatistikler */}
+              <div className="mt-6 space-y-3" style={{ borderTop: "1px solid var(--border)", paddingTop: "16px" }}>
+                {[
+                  { icon: <Users size={14} />, label: "Toplam Katılımcı", value: String(raffle.participantCount) },
+                  { icon: <Trophy size={14} />, label: "Kazanan Sayısı", value: String(raffle.winners.length) },
+                  { icon: <ScrollText size={14} />, label: "Log Kaydı", value: String(raffle.auditLogs.length) },
+                ].map((stat) => (
+                  <div key={stat.label} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2" style={{ color: "var(--text-muted)" }}>
+                      {stat.icon}
+                      <span className="text-xs font-mono">{stat.label}</span>
+                    </div>
+                    <span className="text-sm font-semibold font-mono" style={{ color: "var(--text-primary)" }}>
+                      {stat.value}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

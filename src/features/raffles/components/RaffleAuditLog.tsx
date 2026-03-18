@@ -1,6 +1,7 @@
 "use client";
 
 import { RaffleAuditLog as RaffleAuditLogType, AUDIT_ACTION, AUDIT_ACTION_LABELS } from "@/features/raffles/types";
+import { AUDIT_ACTION_ICONS } from "@/features/raffles/constants/auditIcons";
 
 const ACTION_COLORS: Record<AUDIT_ACTION, { bg: string; color: string }> = {
   [AUDIT_ACTION.CREATED]: { bg: "rgba(0,133,255,0.15)", color: "#0085FF" },
@@ -19,49 +20,74 @@ interface RaffleAuditLogProps {
 export default function RaffleAuditLog({ logs }: RaffleAuditLogProps) {
   if (logs.length === 0) {
     return (
-      <p className="text-sm font-mono text-center py-6" style={{ color: "var(--text-muted)" }}>
-        Henüz log kaydı yok.
-      </p>
+      <div
+        className="flex items-center justify-center py-10 rounded-xl border border-dashed"
+        style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}
+      >
+        <p className="text-sm font-mono">Log kaydı bulunamadı</p>
+      </div>
     );
   }
 
   return (
-    <div className="space-y-3">
-      {[...logs].reverse().map((log) => {
-        const colors = ACTION_COLORS[log.action];
-        return (
-          <div
-            key={log.id}
-            className="flex items-start gap-3 p-3 rounded-lg border"
-            style={{
-              background: "var(--background-secondary)",
-              borderColor: "var(--border)",
-            }}
-          >
-            <span
-              className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono whitespace-nowrap shrink-0 mt-0.5"
-              style={{ background: colors.bg, color: colors.color }}
-            >
-              {AUDIT_ACTION_LABELS[log.action]}
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>
-                  {log.adminName}
-                </p>
-                <p className="text-[11px] font-mono shrink-0" style={{ color: "var(--text-muted)" }}>
-                  {new Date(log.createdAt).toLocaleString("tr-TR")}
-                </p>
+    <div className="relative">
+      <div
+        className="absolute left-4.75 top-0 bottom-0 w-px"
+        style={{ background: "var(--border)" }}
+      />
+      <div className="space-y-4">
+        {[...logs].reverse().map((log) => {
+          const colors = ACTION_COLORS[log.action];
+          return (
+            <div key={log.id} className="flex items-center gap-4 relative">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 z-10 border-2"
+                  style={{ background: colors.bg, borderColor: colors.color }}
+                >
+                  {AUDIT_ACTION_ICONS[log.action]}
+                </div>
+
+              <div
+                className="flex-1 rounded-xl border p-3"
+                style={{
+                  background: "var(--background-card)",
+                  borderColor: "var(--border)",
+                }}
+              >
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
+                      style={{ background: colors.bg, color: colors.color }}
+                    >
+                      {AUDIT_ACTION_LABELS[log.action]}
+                    </span>
+                    <span
+                      className="text-xs font-mono"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      {log.adminName}
+                    </span>
+                  </div>
+                  <span
+                    className="text-[11px] font-mono"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    {new Date(log.createdAt).toLocaleString("tr-TR")}
+                  </span>
+                </div>
+                {log.description && (
+                  <p
+                    className="text-xs mt-1.5"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    {log.description}
+                  </p>
+                )}
               </div>
-              {log.description && (
-                <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
-                  {log.description}
-                </p>
-              )}
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
