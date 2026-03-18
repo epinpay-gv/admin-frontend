@@ -58,11 +58,13 @@ export default function ProductsPage() {
       render: (_, row) => {
         const translation = row.translation as Product["translation"];
         return (
-          <div className="flex min-w-[200px] items-center gap-3">
+          <div className="flex min-w-50 items-center gap-3">
+            
             <div
-              className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-[var(--border)]"
+              className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-border"
               style={{ background: "var(--background-secondary)" }}
             >
+              
               <Image
                 src={translation.imgUrl}
                 alt={translation.imgAlt}
@@ -164,8 +166,8 @@ export default function ProductsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-              <Spinner />
-            </div>
+        <Spinner />
+      </div>
     );
   }
 
@@ -253,8 +255,7 @@ export default function ProductsPage() {
           )}
         />
       </div>
-
-      {/* Modallar */}
+      
       <ProductEditModal
         open={isOpen}
         onClose={close}

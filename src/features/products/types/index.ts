@@ -8,6 +8,8 @@ export interface ProductFaq {
   id: number;
   name: string;
   description: string;
+  order: number;   
+  isActive: boolean;
 }
 
 export interface ProductTranslation {
