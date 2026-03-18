@@ -1,3 +1,5 @@
+import { api } from "@/lib/api/baseFetcher";
+
 export interface ProductType {
   id: number;
   value: string;
@@ -26,9 +28,6 @@ export interface ProductMeta {
 const BASE_URL = "/api/product-meta";
 
 export const productMetaService = {
-  getAll: async (): Promise<ProductMeta> => {
-    const res = await fetch(BASE_URL);
-    if (!res.ok) throw new Error("Ürün meta verileri yüklenemedi.");
-    return res.json();
-  },
+  getAll: (): Promise<ProductMeta> =>
+    api.get<ProductMeta>(BASE_URL),
 };

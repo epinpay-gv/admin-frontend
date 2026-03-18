@@ -108,9 +108,17 @@ export interface Order {
 }
 
 export interface OrderFilters {
-  dateFrom?: string;
-  dateTo?: string;
+  search?: string;
+  userId?: string;
   memberType?: MEMBER_TYPE | "all";
   status?: ORDER_STATUS | "all";
-  userId?: number | null;
+  startDate?: string;
+  endDate?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export interface OrderExportParams extends OrderFilters {
+  sortKey?: string;
+  sortDir?: "asc" | "desc";
 }
