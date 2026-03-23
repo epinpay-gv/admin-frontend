@@ -181,3 +181,10 @@ body {
   color: var(--text-primary);
 }
 
+:root {
+  --logo-url: url('/epinpay-with-text-dark.png');
+}
+
+[data-theme='dark'], .dark {
+  --logo-url: url('/epinpay-with-text.png');
+}
