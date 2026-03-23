@@ -13,12 +13,12 @@ export function useProductFaq(initialFaqs: ProductFaq[] = []) {
   const addFaq = useCallback(() => {
     setFaqs((prev) => [
       ...prev,
-      { id: generateId(), name: "", description: "" },
+      { id: generateId(), name: "", description: "", order: prev.length + 1, isActive: true },
     ]);
   }, []);
 
   const updateFaq = useCallback(
-    (id: number, field: "name" | "description", value: string) => {
+    (id: number, field: "name" | "description" | "order" | "isActive", value: string | number | boolean) => {
       setFaqs((prev) =>
         prev.map((faq) => (faq.id === id ? { ...faq, [field]: value } : faq))
       );
@@ -42,5 +42,5 @@ export function useProductFaq(initialFaqs: ProductFaq[] = []) {
     });
   }, []);
 
-  return { faqs, addFaq, updateFaq, removeFaq, moveFaq };
+  return { faqs, setFaqs, addFaq, updateFaq, removeFaq, moveFaq };
 }

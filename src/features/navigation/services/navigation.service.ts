@@ -1,3 +1,4 @@
+import { api } from "@/lib/api/baseFetcher";
 import { NavGroup } from "@/features/navigation/types";
 import * as Icons from "lucide-react";
 import { LucideIcon } from "lucide-react";
@@ -24,9 +25,7 @@ function deserializeNavGroups(data: NavGroup[]): NavGroup[] {
 
 export const navigationService = {
   getNavigation: async (): Promise<NavGroup[]> => {
-    const res = await fetch(BASE_URL);
-    if (!res.ok) throw new Error("Navigasyon yüklenemedi.");
-    const data = await res.json();
+    const data = await api.get<NavGroup[]>(BASE_URL);
     return deserializeNavGroups(data);
   },
 };

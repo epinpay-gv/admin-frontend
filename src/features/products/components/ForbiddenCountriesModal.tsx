@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Country, Product } from "@/features/products/types";
 import { useCountries } from "@/features/products/hooks/useCountries";
 import { useForbiddenCountries } from "@/features/products/hooks/useForbiddenCountries";
-import { ShieldOff, X, ChevronsUpDown, Check } from "lucide-react";
+import { ShieldOff, X, ChevronsUpDown, Check, LucideInfo } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -89,7 +89,15 @@ export default function ForbiddenCountriesModal({
       }
     >
       <div className="space-y-4">
-        {/* Combobox */}
+        <div className="text-xs p-2 flex items-center gap-2 rounded-lg" 
+          style={{
+            background: "var(--background-secondary)",
+            color: "rgb(0, 133, 255)",
+            border: "1px solid rgba(0, 133, 255, 0.2)",
+          }}>
+            <span><LucideInfo size={24}/></span>
+          Yasaklı olmayan tüm ülkeler satışa açıktır. Ülke kısıtlaması eklemek, ürünün o ülkede görünmemesine ve satın alınamamasına neden olur.
+        </div>
         <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
           <PopoverTrigger asChild>
             <button
@@ -109,7 +117,7 @@ export default function ForbiddenCountriesModal({
             </button>
           </PopoverTrigger>
           <PopoverContent
-            className="w-[462px] p-0 border"
+            className="w-115.5 p-0 border"
             style={{
               background: "var(--background-secondary)",
               borderColor: "var(--border)",

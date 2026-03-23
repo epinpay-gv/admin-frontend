@@ -173,6 +173,18 @@ export const mockProducts: Product[] = [
         imgUrl: "https://cdn.epinpay.com/image/ep/2025/6/product/pubg-mobile-325-uc-tr-15.webp?width=400/height=400/format=webp",
         imgAlt: "PUBG Mobile 325 UC",
       },
+      en: {
+        id: 3,
+        locale: "en",
+        name: "PUBG Mobile 325 UC",
+        slug: "pubg-mobile-325-uc",
+        category_slug: "pubg-mobile",
+        description: "PUBG Mobile 325 UC English description",
+        metaTitle: "PUBG Mobile 325 UC",
+        metaDescription: "PUBG Mobile 325 UC meta description",
+        imgUrl: "https://cdn.epinpay.com/image/ep/2025/6/product/pubg-mobile-325-uc-tr-15.webp?width=400/height=400/format=webp",
+        imgAlt: "PUBG Mobile 325 UC",
+      }
     },
     translation: {
       id: 3,

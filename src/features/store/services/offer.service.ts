@@ -1,3 +1,4 @@
+import { api } from "@/lib/api/baseFetcher";
 import {
   Offer,
   OfferListItem,
@@ -9,52 +10,25 @@ import {
 const BASE_URL = "/api/store";
 
 export const offerService = {
+  getAll: (filters?: OfferFilters): Promise<OfferListItem[]> =>
+    api.get<OfferListItem[]>(
+      BASE_URL,
+      filters
+        ? Object.fromEntries(
+            Object.entries(filters).filter(([, v]) => v !== undefined && v !== null && v !== "")
+          )
+        : undefined
+    ),
 
-  getAll: async (filters?: OfferFilters): Promise<OfferListItem[]> => {
-    const params = new URLSearchParams(
-      Object.entries(filters ?? {})
-        .filter(([, v]) => v !== undefined && v !== null && v !== "")
-        .map(([k, v]) => [k, String(v)])
-    );
+  getById: (id: number): Promise<Offer> =>
+    api.get<Offer>(`${BASE_URL}/${id}`),
 
-    const res = await fetch(params.size ? `${BASE_URL}?${params}` : BASE_URL);
-    if (!res.ok) throw new Error("Teklifler yüklenemedi.");
-    return res.json();
-  },
+  create: (data: OfferFormValues): Promise<Offer> =>
+    api.post<Offer, OfferFormValues>(BASE_URL, data),
 
-  getById: async (id: number): Promise<Offer> => {
-    const res = await fetch(`${BASE_URL}/${id}`);
-    if (!res.ok) throw new Error("Teklif bulunamadı.");
-    return res.json();
-  },
+  update: (id: number, data: Partial<OfferFormValues>): Promise<Offer> =>
+    api.put<Offer, Partial<OfferFormValues>>(`${BASE_URL}/${id}`, data),
 
-  create: async (data: OfferFormValues): Promise<Offer> => {
-    const res = await fetch(BASE_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error("Teklif oluşturulamadı.");
-    return res.json();
-  },
-
-  update: async (id: number, data: Partial<OfferFormValues>): Promise<Offer> => {
-    const res = await fetch(`${BASE_URL}/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error("Teklif güncellenemedi.");
-    return res.json();
-  },
-
-  toggleStatus: async (id: number, status: OFFER_STATUS): Promise<Offer> => {
-    const res = await fetch(`${BASE_URL}/${id}/status`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    if (!res.ok) throw new Error("Teklif durumu güncellenemedi.");
-    return res.json();
-  },
+  toggleStatus: (id: number, status: OFFER_STATUS): Promise<Offer> =>
+    api.patch<Offer, { status: OFFER_STATUS }>(`${BASE_URL}/${id}/status`, { status }),
 };

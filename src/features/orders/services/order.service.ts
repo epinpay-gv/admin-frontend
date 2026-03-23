@@ -1,48 +1,76 @@
-import { Order, OrderFilters } from "@/features/orders/types";
+import { api } from "@/lib/api/baseFetcher";
+import { FetcherError } from "@/lib/api/types";
+import { Order, OrderFilters, OrderExportParams } from "@/features/orders/types";
 
 const BASE_URL = "/api/orders";
 
-function buildQuery(filters?: OrderFilters): string {
-  if (!filters) return "";
-  const params = new URLSearchParams();
-  if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
-  if (filters.dateTo) params.set("dateTo", filters.dateTo);
-  if (filters.memberType && filters.memberType !== "all") params.set("memberType", filters.memberType);
-  if (filters.status && filters.status !== "all") params.set("status", filters.status);
-  if (filters.userId) params.set("userId", String(filters.userId));
-  const q = params.toString();
-  return q ? `?${q}` : "";
+function buildParams(filters?: OrderFilters): Record<string, string | number | boolean | undefined | null> {
+  if (!filters) return {};
+  return {
+    search: filters.search,
+    userId: filters.userId,
+    memberType: filters.memberType !== "all" ? filters.memberType : undefined,
+    status: filters.status !== "all" ? filters.status : undefined,
+    startDate: filters.startDate,
+    endDate: filters.endDate,
+    dateFrom: filters.dateFrom,
+    dateTo: filters.dateTo,
+  };
+}
+
+function createBlobError(message: string, statusCode: number, code?: string): FetcherError {
+  const error = new Error(message) as FetcherError;
+  error.statusCode = statusCode;
+  error.code = code;
+  return error;
 }
 
 export const orderService = {
-  getAll: async (filters?: OrderFilters): Promise<Order[]> => {
-    const res = await fetch(`${BASE_URL}${buildQuery(filters)}`);
-    if (!res.ok) throw new Error("Siparişler yüklenemedi.");
-    return res.json();
-  },
+  getAll: (filters?: OrderFilters): Promise<Order[]> =>
+    api.get<Order[]>(BASE_URL, buildParams(filters)),
 
-  getById: async (id: number): Promise<Order> => {
-    const res = await fetch(`${BASE_URL}/${id}`);
-    if (!res.ok) throw new Error("Sipariş bulunamadı.");
-    return res.json();
-  },
+  getById: (id: number): Promise<Order> =>
+    api.get<Order>(`${BASE_URL}/${id}`),
 
-  cancel: async (id: number, reason?: string): Promise<Order> => {
-    const res = await fetch(`${BASE_URL}/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "cancel", cancelReason: reason }),
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.message ?? "Sipariş iptal edilemedi.");
+  cancel: (id: number, reason?: string): Promise<Order> =>
+    api.put<Order, { action: string; cancelReason?: string }>(
+      `${BASE_URL}/${id}`,
+      { action: "cancel", cancelReason: reason }
+    ),
+
+  // exportExcel blob döndürdüğü için baseFetcher yerine fetch kullanıldı
+  exportExcel: async (params?: OrderExportParams): Promise<Blob> => {
+    const searchParams = new URLSearchParams();
+
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "" && value !== "all") {
+          searchParams.set(key, String(value));
+        }
+      });
     }
-    return res.json();
-  },
 
-  exportExcel: async (filters?: OrderFilters): Promise<Blob> => {
-    const res = await fetch(`${BASE_URL}/export${buildQuery(filters)}`);
-    if (!res.ok) throw new Error("Excel dosyası oluşturulamadı.");
-    return res.blob();
+    const qs = searchParams.toString();
+    let response: Response;
+
+    try {
+      response = await fetch(
+        `${BASE_URL}/export${qs ? `?${qs}` : ""}`,
+        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(params ?? {}) }
+      );
+    } catch {
+      throw createBlobError("Sunucuya bağlanılamadı.", 0, "NETWORK_ERROR");
+    }
+
+    if (response.status === 422) {
+      const err = await response.json().catch(() => ({}));
+      throw createBlobError(err.message ?? "Export limiti aşıldı.", 422, "LIMIT_EXCEEDED");
+    }
+
+    if (!response.ok) {
+      throw createBlobError("Excel dosyası oluşturulamadı. Lütfen tekrar deneyin.", response.status);
+    }
+
+    return response.blob();
   },
 };
