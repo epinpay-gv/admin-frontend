@@ -10,6 +10,7 @@ import { useBlogs } from "@/features/blog/hooks/useBlogs";
 import { useBlogModal } from "@/features/blog/hooks/useBlogModal";
 import BlogEditModal from "@/features/blog/components/BlogEditModal";
 import { Button } from "@/components/ui/button";
+import Spinner from "@/components/common/spinner/Spinner";
 
 const STATUS_LABELS: Record<BLOG_TRANSLATION_STATUS, string> = {
   [BLOG_TRANSLATION_STATUS.PUBLISHED]: "Yayında",
@@ -197,12 +198,9 @@ export default function BlogPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div
-          className="w-6 h-6 border-2 rounded-full animate-spin"
-          style={{ borderColor: "var(--border)", borderTopColor: "#00C6A2" }}
-        />
-      </div>
+    <div className="flex items-center justify-center h-64">
+              <Spinner />
+            </div>
     );
   }
 

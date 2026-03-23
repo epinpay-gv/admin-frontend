@@ -14,7 +14,8 @@ import {
   Newspaper,
   List,
   LayoutGrid,
-  ShoppingCart
+  ShoppingCart,
+  Gamepad
 } from "lucide-react";
 import { NavGroup } from "@/features/navigation/types";
 
@@ -122,6 +123,11 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [  
         ]
       },
+{
+  href: "/streamers",
+  label: "Yayıncılar",
+  icon: Gamepad,
+},
     ]
   },
 ];
