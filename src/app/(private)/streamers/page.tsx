@@ -1,7 +1,5 @@
 "use client";
 
-// src/app/(private)/streamers/page.tsx
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, RefreshCw, Users, Package, Globe, ClipboardList } from "lucide-react";
@@ -35,9 +33,7 @@ import {
 
 type TabKey = "streamers" | "templates" | "variants" | "requests";
 
-
 type Row = Record<string, any>;
-
 
 const STATUS_COLOR = {
   green:  { bg: "rgba(0,198,162,0.15)",   color: "#00C6A2" },
@@ -102,6 +98,7 @@ function DateText({ value }: { value: string | undefined }) {
     </span>
   );
 }
+
 
 
 const STREAMER_COLUMNS: ColumnDef<Row>[] = [
@@ -348,7 +345,7 @@ const DETAIL_ROUTE: Record<TabKey, string> = {
   streamers: "/streamers",
   templates: "/streamers/package-templates",
   variants:  "/streamers/country-variants",
-  requests:  "/streamers/package-requests",
+  requests:  "/streamers", 
 };
 
 const COUNT_LABEL: Record<TabKey, string> = {
@@ -358,6 +355,11 @@ const COUNT_LABEL: Record<TabKey, string> = {
   requests:  "talep",
 };
 
+
+function getDetailId(tab: TabKey, row: Row): number {
+  if (tab === "requests") return row.publisherId as number;
+  return row.id as number;
+}
 
 export default function StreamersPage() {
   const router = useRouter();
@@ -436,7 +438,7 @@ export default function StreamersPage() {
           actions={(row) => (
             <div className="flex items-center justify-end">
               <button
-                onClick={() => router.push(`${DETAIL_ROUTE[activeTab]}/${row.id}`)}
+                onClick={() => router.push(`${DETAIL_ROUTE[activeTab]}/${getDetailId(activeTab, row)}`)}
                 className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5"
                 title="Detay"
                 style={{ background: "var(--background-card)", borderColor: "var(--border)", color: "var(--text-muted)" }}

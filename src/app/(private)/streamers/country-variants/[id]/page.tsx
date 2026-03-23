@@ -1,7 +1,5 @@
 "use client";
 
-// src/app/(private)/streamers/country-variants/[id]/page.tsx
-
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
@@ -39,7 +37,7 @@ export default function VariantDetailPage({
   // Şablonun içeriklerini çek — VariantContentList için gerekli
   const { template: templateData } = usePackageTemplate(variant?.templateId ?? null);
 
-  // Form'u variant yüklenince doldur
+
   if (variant && !dirty && form.currency === "") {
     setForm({
       currency:    variant.currency,
@@ -64,7 +62,7 @@ export default function VariantDetailPage({
     setDirty(false);
   };
 
-  // Override kaydetme — variant contents array'ini günceller
+
   const handleSaveOverride = async (
     templateContentId: number,
     value: string | number | boolean | null
@@ -78,14 +76,14 @@ export default function VariantDetailPage({
     let updatedContents;
 
     if (existingIndex >= 0) {
-      // Mevcut override'ı güncelle
+ 
       updatedContents = variant.contents.map((c) =>
         c.templateContentId === templateContentId
           ? { ...c, overrideValue: value, updatedAt: new Date().toISOString() }
           : c
       );
     } else {
-      // Yeni override ekle
+
       updatedContents = [
         ...variant.contents,
         {

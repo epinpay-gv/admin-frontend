@@ -7,7 +7,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const streamer = mockStreamers.find((s) => s.id === Number(id));
+const streamer = mockStreamers.find(
+  (s) => s.id === Number(id) || s.userId === Number(id)
+);
 
   if (!streamer) {
     return NextResponse.json(
@@ -24,7 +26,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const index = mockStreamers.findIndex((s) => s.id === Number(id));
+const index = mockStreamers.findIndex(
+  (s) => s.id === Number(id) || s.userId === Number(id)
+);
 
   if (index === -1) {
     return NextResponse.json(

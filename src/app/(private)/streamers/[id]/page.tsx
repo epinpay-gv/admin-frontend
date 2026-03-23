@@ -1,7 +1,5 @@
 "use client";
 
-// src/app/(private)/streamers/[id]/page.tsx
-
 import { use } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";

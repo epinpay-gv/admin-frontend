@@ -1,4 +1,3 @@
-// src/features/streamers/components/PackageCard.tsx
 
 import {
   Streamer,

@@ -1,4 +1,4 @@
-// src/features/store/mock/offers.mock.ts
+
 
 import {
   Offer,
@@ -7,9 +7,9 @@ import {
   DELIVERY_TYPE,
 } from "@/features/store/types";
 
-// Paylaşılan sabitler 
 
-// Product mock'taki id'lerle birebir eşleşiyor
+
+
 const PRODUCT_PUBG_660: Offer["product"] = {
   id: 1,
   name: "PUBG Mobile 660 UC",

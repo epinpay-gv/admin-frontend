@@ -1,6 +1,5 @@
 "use client";
 
-// src/app/(private)/streamers/package-templates/[id]/page.tsx
 
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -36,7 +35,7 @@ export default function TemplateDetailPage({
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty]   = useState(false);
 
-  // Form'u template yüklenince doldur
+
   if (template && !dirty && form.name === "") {
     setForm({
       name:        template.name,
@@ -57,7 +56,6 @@ export default function TemplateDetailPage({
     setDirty(false);
   };
 
-  // İçerik güncelleme — mevcut contents array'ini güncelleyip PUT atar
   const handleUpdateContent = async (contentId: number, data: Partial<TemplateContent>) => {
     if (!template) return;
     const updated = template.contents.map((c) =>
@@ -67,7 +65,7 @@ export default function TemplateDetailPage({
     await refresh();
   };
 
-  // İçerik ekleme
+
   const handleAddContent = async (data: Partial<TemplateContent>) => {
     if (!template) return;
     const newContent = {
