@@ -182,8 +182,7 @@ export default function CategoriesPage() {
   return (
     <PageState 
       loading={loading}
-      error={error}
-      
+      error={error}      
     >
       <div>
         {/* Üst bar */}
