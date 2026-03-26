@@ -11,6 +11,7 @@ import { useOffers } from "@/features/store/hooks/useOffers";
 import { useOfferToggle } from "@/features/store/hooks/useOfferToggle";
 import Image from "next/image";
 import Spinner from "@/components/common/spinner/Spinner";
+import { PageState } from "@/components/common/page-state/PageState";
 
 // Sabitler 
 const STATUS_LABELS: Record<OFFER_STATUS, string> = {
@@ -152,93 +153,72 @@ const { toggle, loadingId } = useOfferToggle((id, status) => {
     },
   ];
 
-  // Loading 
-
-  if (loading) {
-    return (
-     <div className="flex items-center justify-center h-64">
-             <Spinner />
-           </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full min-h-100 gap-4">
-        <p className="text-red-400 text-sm font-mono">{error}</p>
-        <Button variant="outline" onClick={() => window.location.reload()}>
-          Tekrar Dene
-        </Button>
-      </div>
-    );
-  }
-
-  //  Render 
-
   return (
-    <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
-      <PageHeader
-        title="Tekliflerim"
-        count={offers.length}
-        countLabel="teklif"
-        actions={
-          <Button
-            onClick={() => router.push("/store/new")}
-            className="text-white flex items-center gap-2"
-            style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
-          >
-            <Plus size={18} strokeWidth={2.5} />
-            <span className="font-semibold text-sm">Yeni Teklif</span>
-          </Button>
-        }
-      />
-
-      <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
-        <DataTable
-          data={offers as OfferRow[]}
-          columns={COLUMNS}
-          showStatusFilter
-          statusOptions={STATUS_OPTIONS}
-          actions={(row) => (
-            <div className="flex items-center justify-end gap-2">
-              {/* Toggle butonu — loadingId ile hangi satırın işlemde olduğu belli */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggle(row.id as number, row.status as OFFER_STATUS);
-                }}
-                disabled={loadingId === row.id}
-                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5"
-                title={row.status === OFFER_STATUS.ACTIVE ? "Pasife Al" : "Aktif Et"}
-                style={{
-                  background:   "var(--background-card)",
-                  borderColor:  "var(--border)",
-                  color:        row.status === OFFER_STATUS.ACTIVE ? "#00C6A2" : "#FF5050",
-                  opacity:      loadingId === row.id ? 0.5 : 1,
-                }}
-              >
-                {row.status === OFFER_STATUS.ACTIVE
-                  ? <ToggleRight size={20} />
-                  : <ToggleLeft  size={20} />
-                }
-              </button>
-              {/* Detay */}
-              <button
-                onClick={() => router.push(`/store/${row.id}`)}
-                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5"
-                title="Teklif Detayı"
-                style={{
-                  background:  "var(--background-card)",
-                  borderColor: "var(--border)",
-                  color:       "var(--text-muted)",
-                }}
-              >
-                <Eye size={14} />
-              </button>
-            </div>
-          )}
+    <PageState loading={loading} error={error}>
+      <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
+        <PageHeader
+          title="Tekliflerim"
+          count={offers.length}
+          countLabel="teklif"
+          actions={
+            <Button
+              onClick={() => router.push("/store/new")}
+              className="text-white flex items-center gap-2"
+              style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
+            >
+              <Plus size={18} strokeWidth={2.5} />
+              <span className="font-semibold text-sm">Yeni Teklif</span>
+            </Button>
+          }
         />
+
+        <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
+          <DataTable
+            data={offers as OfferRow[]}
+            columns={COLUMNS}
+            showStatusFilter
+            statusOptions={STATUS_OPTIONS}
+            actions={(row) => (
+              <div className="flex items-center justify-end gap-2">
+                {/* Toggle butonu — loadingId ile hangi satırın işlemde olduğu belli */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggle(row.id as number, row.status as OFFER_STATUS);
+                  }}
+                  disabled={loadingId === row.id}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5"
+                  title={row.status === OFFER_STATUS.ACTIVE ? "Pasife Al" : "Aktif Et"}
+                  style={{
+                    background:   "var(--background-card)",
+                    borderColor:  "var(--border)",
+                    color:        row.status === OFFER_STATUS.ACTIVE ? "#00C6A2" : "#FF5050",
+                    opacity:      loadingId === row.id ? 0.5 : 1,
+                  }}
+                >
+                  {row.status === OFFER_STATUS.ACTIVE
+                    ? <ToggleRight size={20} />
+                    : <ToggleLeft  size={20} />
+                  }
+                </button>
+                {/* Detay */}
+                <button
+                  onClick={() => router.push(`/store/${row.id}`)}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5"
+                  title="Teklif Detayı"
+                  style={{
+                    background:  "var(--background-card)",
+                    borderColor: "var(--border)",
+                    color:       "var(--text-muted)",
+                  }}
+                >
+                  <Eye size={14} />
+                </button>
+              </div>
+            )}
+          />
+        </div>
       </div>
-    </div>
+    </PageState>
   );
 }

@@ -7,6 +7,7 @@ import { DataTable, ColumnDef } from "@/components/common/data-table";
 import { useUsers } from "@/features/users/hooks/useUsers";
 import { UserListItem, USER_STATUS, UserFilters } from "@/features/users/types";
 import Spinner from "@/components/common/spinner/Spinner";
+import { PageState } from "@/components/common/page-state/PageState";
 
 // Sabit etiket ve renk tanımları 
 
@@ -161,57 +162,44 @@ export default function UsersPage() {
   const [filters, setFilters] = useState<UserFilters>({});
   const { users, loading, error } = useUsers(filters);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-              <Spinner />
-            </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-red-400 text-sm font-mono">{error}</p>
-      </div>
-    );
-  }
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1
-          className="text-2xl font-semibold tracking-tight"
-          style={{ color: "var(--text-primary)" }}
-        >
-          Kullanıcılar
-        </h1>
-        <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
-          Tüm kullanıcıları görüntüle ve yönet.
-        </p>
-      </div>
+    <PageState loading={loading} error={error}>
+      <div>
+        <div className="mb-6">
+          <h1
+            className="text-2xl font-semibold tracking-tight"
+            style={{ color: "var(--text-primary)" }}
+          >
+            Kullanıcılar
+          </h1>
+          <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
+            Tüm kullanıcıları görüntüle ve yönet.
+          </p>
+        </div>
 
-      <DataTable
-        data={users as UserRow[]}
-        columns={COLUMNS}
-        showStatusFilter
-        statusOptions={STATUS_OPTIONS}
-        actions={(row) => (
-          <div className="flex items-center justify-end gap-2">
-            <button
-              onClick={() => router.push(`/users/${row.id}`)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-              style={{
-                background: "var(--background-card)",
-                borderColor: "var(--border)",
-                color: "var(--text-muted)",
-              }}
-            >
-              <Eye size={14} />
-            </button>
-          </div>
-        )}
-      />
-    </div>
+        <DataTable
+          data={users as UserRow[]}
+          columns={COLUMNS}
+          showStatusFilter
+          statusOptions={STATUS_OPTIONS}
+          actions={(row) => (
+            <div className="flex items-center justify-end gap-2">
+              <button
+                onClick={() => router.push(`/users/${row.id}`)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
+                style={{
+                  background: "var(--background-card)",
+                  borderColor: "var(--border)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <Eye size={14} />
+              </button>
+            </div>
+          )}
+        />
+      </div>
+    </PageState>
   );
 }

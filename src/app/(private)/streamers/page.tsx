@@ -28,6 +28,7 @@ import {
   PACKAGE_REQUEST_TYPE_LABELS,
   PACKAGE_LEVEL_LABELS,
 } from "@/features/streamers/types";
+import { PageState } from "@/components/common/page-state/PageState";
 
 type TabKey = "streamers" | "templates" | "variants" | "requests";
 
@@ -362,79 +363,68 @@ export default function StreamersPage() {
 
   const active = hooks[activeTab];
 
-  if (active.loading) {
-    return <div className="flex items-center justify-center h-64"><Spinner /></div>;
-  }
-
-  if (active.error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64 gap-3">
-        <p className="text-red-400 text-sm font-mono">{active.error}</p>
-        <Button variant="ghost" onClick={active.refresh}>Tekrar dene</Button>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
-      <PageHeader
-        title="Yayıncılar"
-        count={data[activeTab].length}
-        countLabel={COUNT_LABEL[activeTab]}
-        actions={
-          <Button
-            variant="ghost"
-            onClick={active.refresh}
-            className="flex items-center gap-2 text-sm"
-            style={{ color: "var(--text-muted)" }}
-          >
-            <RefreshCw size={14} />
-            Yenile
-          </Button>
-        }
-      />
-
-      {/* Tab Bar */}
-      <div
-        className="flex items-center gap-1 p-1 rounded-xl mb-4 shrink-0"
-        style={{ background: "var(--background-card)", border: "1px solid var(--border)" }}
-      >
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
-            style={{
-              background: activeTab === tab.key ? "var(--background-secondary)" : "transparent",
-              color:      activeTab === tab.key ? "var(--text-primary)"         : "var(--text-muted)",
-              border:     activeTab === tab.key ? "1px solid var(--border)"     : "1px solid transparent",
-            }}
-          >
-            {tab.icon}
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tablo */}
-      <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
-        <DataTable
-          data={data[activeTab] as Row[]}
-          columns={cols[activeTab]}
-          actions={(row) => (
-            <div className="flex items-center justify-end">
-              <button
-                onClick={() => router.push(`${DETAIL_ROUTE[activeTab]}/${getDetailId(activeTab, row)}`)}
-                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5"
-                title="Detay"
-                style={{ background: "var(--background-card)", borderColor: "var(--border)", color: "var(--text-muted)" }}
-              >
-                <Eye size={14} />
-              </button>
-            </div>
-          )}
+    <PageState loading={active.loading} error={active.error}>
+      <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
+        <PageHeader
+          title="Yayıncılar"
+          count={data[activeTab].length}
+          countLabel={COUNT_LABEL[activeTab]}
+          actions={
+            <Button
+              variant="ghost"
+              onClick={active.refresh}
+              className="flex items-center gap-2 text-sm"
+              style={{ color: "var(--text-muted)" }}
+            >
+              <RefreshCw size={14} />
+              Yenile
+            </Button>
+          }
         />
+
+        {/* Tab Bar */}
+        <div
+          className="flex items-center gap-1 p-1 rounded-xl mb-4 shrink-0"
+          style={{ background: "var(--background-card)", border: "1px solid var(--border)" }}
+        >
+          {TABS.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+              style={{
+                background: activeTab === tab.key ? "var(--background-secondary)" : "transparent",
+                color:      activeTab === tab.key ? "var(--text-primary)"         : "var(--text-muted)",
+                border:     activeTab === tab.key ? "1px solid var(--border)"     : "1px solid transparent",
+              }}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tablo */}
+        <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
+          <DataTable
+            data={data[activeTab] as Row[]}
+            columns={cols[activeTab]}
+            actions={(row) => (
+              <div className="flex items-center justify-end">
+                <button
+                  onClick={() => router.push(`${DETAIL_ROUTE[activeTab]}/${getDetailId(activeTab, row)}`)}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5"
+                  title="Detay"
+                  style={{ background: "var(--background-card)", borderColor: "var(--border)", color: "var(--text-muted)" }}
+                >
+                  <Eye size={14} />
+                </button>
+              </div>
+            )}
+          />
+        </div>
       </div>
-    </div>
+    </PageState>
   );
 }

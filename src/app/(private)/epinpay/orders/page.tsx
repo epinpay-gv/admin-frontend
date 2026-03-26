@@ -18,6 +18,7 @@ import PageHeader from "@/components/common/page-header/PageHeader";
 import { useOrderExport } from "@/features/orders/hooks/useOrderExport";
 import OrderProductsModal from "@/features/orders/components/OrderProductsModal";
 import Spinner from "@/components/common/spinner/Spinner";
+import { PageState } from "@/components/common/page-state/PageState";
 
 type OrderRow = Order & Record<string, unknown>;
 
@@ -166,98 +167,81 @@ export default function OrdersPage() {
     },
   ];
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-              <Spinner />
-            </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64 gap-3">
-        <p className="text-red-400 text-sm font-mono">{error}</p>
-        <Button variant="ghost" onClick={() => window.location.reload()}>
-          Tekrar dene
-        </Button>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <PageHeader
-        title="Siparişler"
-        count={orders.length}
-        countLabel="sipariş"
-        actions={
-          <Button
-            onClick={() => exportExcel(filteredOrdersRef.current)}
-            disabled={exporting}
-            variant="outline"
-            className="flex items-center gap-2"
-            style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
-          >
-            {exporting ? (
-              <span
-                className="w-4 h-4 border-2 rounded-full animate-spin"
-                style={{
-                  borderTopColor: "currentColor",
-                  borderRightColor: "transparent",
-                  borderBottomColor: "transparent",
-                  borderLeftColor: "transparent",
-                }}
-              />
-            ) : (
-              <FileDown size={16} />
-            )}
-            Excel İndir
-          </Button>
-        }
-      />
-
-      <DataTable
-        data={orders as OrderRow[]}
-        columns={COLUMNS}
-        showStatusFilter
-        statusOptions={STATUS_OPTIONS}
-        onFilteredDataChange={(rows) => {
-          filteredOrdersRef.current = rows as unknown as Order[];
-        }}
-        actions={(row) => (
-          <div className="flex items-center justify-end gap-1.5">
-            <button
-              onClick={() => router.push(`/epinpay/orders/${row.id}`)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-              title="Detayı Gör"
-              style={{
-                background: "var(--background-card)",
-                borderColor: "var(--border)",
-                color: "var(--text-muted)",
-              }}
+    <PageState loading={loading} error={error}>
+      <div>
+        <PageHeader
+          title="Siparişler"
+          count={orders.length}
+          countLabel="sipariş"
+          actions={
+            <Button
+              onClick={() => exportExcel(filteredOrdersRef.current)}
+              disabled={exporting}
+              variant="outline"
+              className="flex items-center gap-2"
+              style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
             >
-              <Eye size={13} />
-            </button>
-          </div>
-        )}
-      />
+              {exporting ? (
+                <span
+                  className="w-4 h-4 border-2 rounded-full animate-spin"
+                  style={{
+                    borderTopColor: "currentColor",
+                    borderRightColor: "transparent",
+                    borderBottomColor: "transparent",
+                    borderLeftColor: "transparent",
+                  }}
+                />
+              ) : (
+                <FileDown size={16} />
+              )}
+              Excel İndir
+            </Button>
+          }
+        />
 
-      <OrderCancelModal
-        open={!!cancelModal}
-        onClose={() => setCancelModal(null)}
-        order={cancelModal}
-        onUpdate={(updated) => {
-          updateOrder(updated);
-          setCancelModal(null);
-        }}
-      />
+        <DataTable
+          data={orders as OrderRow[]}
+          columns={COLUMNS}
+          showStatusFilter
+          statusOptions={STATUS_OPTIONS}
+          onFilteredDataChange={(rows) => {
+            filteredOrdersRef.current = rows as unknown as Order[];
+          }}
+          actions={(row) => (
+            <div className="flex items-center justify-end gap-1.5">
+              <button
+                onClick={() => router.push(`/epinpay/orders/${row.id}`)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
+                title="Detayı Gör"
+                style={{
+                  background: "var(--background-card)",
+                  borderColor: "var(--border)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <Eye size={13} />
+              </button>
+            </div>
+          )}
+        />
 
-      <OrderProductsModal
-        open={!!productsModal}
-        onClose={() => setProductsModal(null)}
-        order={productsModal}
-      />
-    </div>
+        <OrderCancelModal
+          open={!!cancelModal}
+          onClose={() => setCancelModal(null)}
+          order={cancelModal}
+          onUpdate={(updated) => {
+            updateOrder(updated);
+            setCancelModal(null);
+          }}
+        />
+
+        <OrderProductsModal
+          open={!!productsModal}
+          onClose={() => setProductsModal(null)}
+          order={productsModal}
+        />
+      </div>
+    </PageState>
   );
 }

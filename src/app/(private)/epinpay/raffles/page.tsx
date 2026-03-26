@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import Spinner from "@/components/common/spinner/Spinner";
+import { PageState } from "@/components/common/page-state/PageState";
 
 const STATUS_COLORS: Record<RAFFLE_STATUS, { bg: string; color: string }> = {
   [RAFFLE_STATUS.DRAFT]: { bg: "rgba(255,180,0,0.15)", color: "#FFB400" },
@@ -226,200 +227,185 @@ export default function RafflesPage() {
     },
   ];
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64 gap-3">
-        <p className="text-red-400 text-sm font-mono">{error}</p>
-        <Button variant="ghost" onClick={refresh}>Tekrar dene</Button>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <PageHeader
-        title="Çekilişler"
-        count={raffles.length}
-        countLabel="çekiliş"
-        actions={
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              onClick={refresh}
-              className="flex items-center gap-2 text-sm"
-              style={{ color: "var(--text-muted)" }}
-            >
-              <RefreshCw size={14} />
-              Yenile
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setShowFilters((v) => !v)}
-              className="flex items-center gap-2 text-sm relative"
-              style={{ color: showFilters ? "#00C6A2" : "var(--text-muted)" }}
-            >
-              <Filter size={14} />
-              Filtrele
-              {hasActiveFilters && (
-                <span
-                  className="absolute -top-1 -right-1 w-2 h-2 rounded-full"
-                  style={{ background: "#00C6A2" }}
+    <PageState loading={loading} error={error} >
+      <div>
+        <PageHeader
+          title="Çekilişler"
+          count={raffles.length}
+          countLabel="çekiliş"
+          actions={
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                onClick={refresh}
+                className="flex items-center gap-2 text-sm"
+                style={{ color: "var(--text-muted)" }}
+              >
+                <RefreshCw size={14} />
+                Yenile
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setShowFilters((v) => !v)}
+                className="flex items-center gap-2 text-sm relative"
+                style={{ color: showFilters ? "#00C6A2" : "var(--text-muted)" }}
+              >
+                <Filter size={14} />
+                Filtrele
+                {hasActiveFilters && (
+                  <span
+                    className="absolute -top-1 -right-1 w-2 h-2 rounded-full"
+                    style={{ background: "#00C6A2" }}
+                  />
+                )}
+              </Button>
+            </div>
+          }
+        />
+
+        {/* Filtre Paneli */}
+        {showFilters && (
+          <div
+            className="rounded-xl border p-4 mb-4 space-y-3"
+            style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
+                  Arama
+                </label>
+                <input
+                  type="text"
+                  value={localFilters.search ?? ""}
+                  onChange={(e) => handleFilterChange("search", e.target.value)}
+                  placeholder="Çekiliş adı, oluşturan..."
+                  className="h-9 rounded-lg border px-3 text-sm outline-none"
+                  style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
                 />
-              )}
-            </Button>
-          </div>
-        }
-      />
+              </div>
 
-      {/* Filtre Paneli */}
-      {showFilters && (
-        <div
-          className="rounded-xl border p-4 mb-4 space-y-3"
-          style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
-                Arama
-              </label>
-              <input
-                type="text"
-                value={localFilters.search ?? ""}
-                onChange={(e) => handleFilterChange("search", e.target.value)}
-                placeholder="Çekiliş adı, oluşturan..."
-                className="h-9 rounded-lg border px-3 text-sm outline-none"
-                style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
-              />
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
+                  Oluşturan Türü
+                </label>
+                <select
+                  value={localFilters.creatorType ?? "all"}
+                  onChange={(e) => handleFilterChange("creatorType", e.target.value)}
+                  className="h-9 rounded-lg border px-3 text-sm outline-none"
+                  style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+                >
+                  <option value="all">Tümü</option>
+                  {Object.entries(RAFFLE_CREATOR_TYPE_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
+                  Çekiliş Türü
+                </label>
+                <select
+                  value={localFilters.type ?? "all"}
+                  onChange={(e) => handleFilterChange("type", e.target.value)}
+                  className="h-9 rounded-lg border px-3 text-sm outline-none"
+                  style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+                >
+                  <option value="all">Tümü</option>
+                  {Object.entries(RAFFLE_TYPE_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
+                  Durum
+                </label>
+                <select
+                  value={localFilters.status ?? "all"}
+                  onChange={(e) => handleFilterChange("status", e.target.value)}
+                  className="h-9 rounded-lg border px-3 text-sm outline-none"
+                  style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+                >
+                  {STATUS_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
+                  Başlangıç Tarihi
+                </label>
+                <input
+                  type="date"
+                  value={localFilters.startDate ?? ""}
+                  onChange={(e) => handleFilterChange("startDate", e.target.value)}
+                  className="h-9 rounded-lg border px-3 text-sm outline-none"
+                  style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
+                  Bitiş Tarihi
+                </label>
+                <input
+                  type="date"
+                  value={localFilters.endDate ?? ""}
+                  onChange={(e) => handleFilterChange("endDate", e.target.value)}
+                  className="h-9 rounded-lg border px-3 text-sm outline-none"
+                  style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+                />
+              </div>
             </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
-                Oluşturan Türü
-              </label>
-              <select
-                value={localFilters.creatorType ?? "all"}
-                onChange={(e) => handleFilterChange("creatorType", e.target.value)}
-                className="h-9 rounded-lg border px-3 text-sm outline-none"
-                style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <button
+                onClick={handleReset}
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all"
+                style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-muted)" }}
               >
-                <option value="all">Tümü</option>
-                {Object.entries(RAFFLE_CREATOR_TYPE_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
-                Çekiliş Türü
-              </label>
-              <select
-                value={localFilters.type ?? "all"}
-                onChange={(e) => handleFilterChange("type", e.target.value)}
-                className="h-9 rounded-lg border px-3 text-sm outline-none"
-                style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+                <X size={12} />
+                Temizle
+              </button>
+              <button
+                onClick={applyFilters}
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg text-white transition-all"
+                style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
               >
-                <option value="all">Tümü</option>
-                {Object.entries(RAFFLE_TYPE_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
+                <Filter size={12} />
+                Uygula
+              </button>
             </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
-                Durum
-              </label>
-              <select
-                value={localFilters.status ?? "all"}
-                onChange={(e) => handleFilterChange("status", e.target.value)}
-                className="h-9 rounded-lg border px-3 text-sm outline-none"
-                style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
-              >
-                {STATUS_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
-                Başlangıç Tarihi
-              </label>
-              <input
-                type="date"
-                value={localFilters.startDate ?? ""}
-                onChange={(e) => handleFilterChange("startDate", e.target.value)}
-                className="h-9 rounded-lg border px-3 text-sm outline-none"
-                style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
-              />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
-                Bitiş Tarihi
-              </label>
-              <input
-                type="date"
-                value={localFilters.endDate ?? ""}
-                onChange={(e) => handleFilterChange("endDate", e.target.value)}
-                className="h-9 rounded-lg border px-3 text-sm outline-none"
-                style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-end gap-2 pt-1">
-            <button
-              onClick={handleReset}
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all"
-              style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-muted)" }}
-            >
-              <X size={12} />
-              Temizle
-            </button>
-            <button
-              onClick={applyFilters}
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg text-white transition-all"
-              style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
-            >
-              <Filter size={12} />
-              Uygula
-            </button>
-          </div>
-        </div>
-      )}
-
-      <DataTable
-        data={raffles as RaffleRow[]}
-        columns={COLUMNS}
-        showStatusFilter
-        statusOptions={STATUS_OPTIONS}
-        actions={(row) => (
-          <div className="flex items-center justify-end gap-1.5">
-            <button
-              onClick={() => router.push(`/epinpay/raffles/${row.id}`)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-              title="Detay"
-              style={{
-                background: "var(--background-card)",
-                borderColor: "var(--border)",
-                color: "var(--text-muted)",
-              }}
-            >
-              <Eye size={13} />
-            </button>
           </div>
         )}
-      />
-    </div>
+
+        <DataTable
+          data={raffles as RaffleRow[]}
+          columns={COLUMNS}
+          showStatusFilter
+          statusOptions={STATUS_OPTIONS}
+          actions={(row) => (
+            <div className="flex items-center justify-end gap-1.5">
+              <button
+                onClick={() => router.push(`/epinpay/raffles/${row.id}`)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
+                title="Detay"
+                style={{
+                  background: "var(--background-card)",
+                  borderColor: "var(--border)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <Eye size={13} />
+              </button>
+            </div>
+          )}
+        />
+      </div>
+    </PageState>
   );
 }

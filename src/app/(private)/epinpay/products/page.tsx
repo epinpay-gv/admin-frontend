@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import ForbiddenCountriesModal from "@/features/products/components/ForbiddenCountriesModal";
 import PageHeader from "@/components/common/page-header/PageHeader";
-import Spinner from "@/components/common/spinner/Spinner";
+import { PageState } from "@/components/common/page-state/PageState";
 
 const STATUS_LABELS: Record<PRODUCT_STATUS, string> = {
   [PRODUCT_STATUS.ACTIVE]: "Aktif",
@@ -163,111 +163,87 @@ export default function ProductsPage() {
     },
   ];
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full min-h-100 gap-4">
-        <div className="p-4 rounded-full bg-red-500/10">
-           <ShieldOff className="text-red-500" size={32} />
-        </div>
-        <p className="text-red-400 text-sm font-mono max-w-md text-center">{error}</p>
-        <Button
-          variant="outline"
-          onClick={() => window.location.reload()}
-          className="border-border"
-        >
-          Sayfayı Yenile
-        </Button>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
-      <PageHeader
-        title="Ürünler"
-        count={products.length}
-        countLabel="ürün"
-        actions={
-            <Button
-            onClick={() => router.push("/epinpay/products/new")}
-            className="text-white flex items-center gap-2"
-            style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
-            >
-            <Plus size={18} strokeWidth={2.5} />
-            <span className="font-semibold text-sm">Yeni Ürün Ekle</span>
-            </Button>
-        }
-           />
-      
-      <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
-        <DataTable
-          data={products as ProductRow[]}
-          columns={COLUMNS}
-          showStatusFilter
-          statusOptions={STATUS_OPTIONS}
-          actions={(row) => (
-            <div className="flex items-center justify-end gap-2">
-              <button
-                onClick={() => open(row as Product)}
-                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-[var(--text-muted)]"
-                title="Hızlı Düzenle"
-                style={{
-                  background: "var(--background-card)",
-                  borderColor: "var(--border)",
-                  color: "var(--text-muted)",
-                }}
+    <PageState loading={loading} error={error} >
+      <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
+        <PageHeader
+          title="Ürünler"
+          count={products.length}
+          countLabel="ürün"
+          actions={
+              <Button
+              onClick={() => router.push("/epinpay/products/new")}
+              className="text-white flex items-center gap-2"
+              style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
               >
-                <Pencil size={14} />
-              </button>
-              <button
-                onClick={() => router.push(`/epinpay/products/copy-${row.id}`)}
-                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-[var(--text-muted)]"
-                title="Kopyasını Oluştur"
-                style={{
-                  background: "var(--background-card)",
-                  borderColor: "var(--border)",
-                  color: "var(--text-muted)",
-                }}
-              >
-                <Copy size={14} />
-              </button>
-              <button
-                onClick={() => router.push(`/epinpay/products/${row.id}`)}
-                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-[var(--text-muted)]"
-                title="Ürün Detayları"
-                style={{
-                  background: "var(--background-card)",
-                  borderColor: "var(--border)",
-                  color: "var(--text-muted)",
-                }}
-              >
-                <Eye size={14} />
-              </button>
-            </div>
-          )}
+              <Plus size={18} strokeWidth={2.5} />
+              <span className="font-semibold text-sm">Yeni Ürün Ekle</span>
+              </Button>
+          }
+            />
+        
+        <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
+          <DataTable
+            data={products as ProductRow[]}
+            columns={COLUMNS}
+            showStatusFilter
+            statusOptions={STATUS_OPTIONS}
+            actions={(row) => (
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  onClick={() => open(row as Product)}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-[var(--text-muted)]"
+                  title="Hızlı Düzenle"
+                  style={{
+                    background: "var(--background-card)",
+                    borderColor: "var(--border)",
+                    color: "var(--text-muted)",
+                  }}
+                >
+                  <Pencil size={14} />
+                </button>
+                <button
+                  onClick={() => router.push(`/epinpay/products/copy-${row.id}`)}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-[var(--text-muted)]"
+                  title="Kopyasını Oluştur"
+                  style={{
+                    background: "var(--background-card)",
+                    borderColor: "var(--border)",
+                    color: "var(--text-muted)",
+                  }}
+                >
+                  <Copy size={14} />
+                </button>
+                <button
+                  onClick={() => router.push(`/epinpay/products/${row.id}`)}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-[var(--text-muted)]"
+                  title="Ürün Detayları"
+                  style={{
+                    background: "var(--background-card)",
+                    borderColor: "var(--border)",
+                    color: "var(--text-muted)",
+                  }}
+                >
+                  <Eye size={14} />
+                </button>
+              </div>
+            )}
+          />
+        </div>
+        
+        <ProductEditModal
+          open={isOpen}
+          onClose={close}
+          product={selectedProduct}
+        />
+
+        <ForbiddenCountriesModal
+          open={!!forbiddenModal}
+          onClose={() => setForbiddenModal(null)}
+          product={forbiddenModal}
+          onUpdate={() => setForbiddenModal(null)}
         />
       </div>
-      
-      <ProductEditModal
-        open={isOpen}
-        onClose={close}
-        product={selectedProduct}
-      />
-
-      <ForbiddenCountriesModal
-        open={!!forbiddenModal}
-        onClose={() => setForbiddenModal(null)}
-        product={forbiddenModal}
-        onUpdate={() => setForbiddenModal(null)}
-      />
-    </div>
+    </PageState>
   );
 }

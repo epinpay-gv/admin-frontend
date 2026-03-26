@@ -11,6 +11,7 @@ import LocaleSelector from "@/components/common/locale-selector/LocaleSelector";
 import { Locale } from "@/components/common/locale-selector/locale.service";
 import { Button } from "@/components/ui/button";
 import Spinner from "@/components/common/spinner/Spinner";
+import { PageState } from "@/components/common/page-state/PageState";
 
 const STATUS_COLORS: Record<PRODUCT_STATUS, { bg: string; color: string }> = {
   [PRODUCT_STATUS.ACTIVE]: { bg: "rgba(0,198,162,0.15)", color: "#00C6A2" },
@@ -94,27 +95,6 @@ export default function ProductDetailPage({
     );
   };
 
-  if (loading && numericId !== null) {
-    return (
-      <div className="flex items-center justify-center h-64">
-              <Spinner />
-            </div>
-    );
-  }
-
-  if (error || (numericId !== null && !product && !loading)) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64 gap-3">
-        <p className="text-red-400 text-sm font-mono">
-          {error ?? "Ürün bulunamadı."}
-        </p>
-        <Button variant="ghost" onClick={() => router.back()}>
-          Geri dön
-        </Button>
-      </div>
-    );
-  }
-
   const pageTitle =
     mode === "create"
       ? "Yeni Ürün"
@@ -123,168 +103,170 @@ export default function ProductDetailPage({
       : product?.translation.name ?? "";
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      <div className="pb-4">
-        {/* Üst bar */}
-        <div
-          className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 mb-4 rounded-xl border gap-4"
-          style={{
-            background: "var(--background-card)",
-            borderColor: "var(--border)",
-          }}
-        >
-          <div className="flex items-center gap-3 min-w-0">
-            <button
-              onClick={() => {
-                if (isDirty) {
-                  if (confirm("Kaydedilmemiş değişiklikler var. Çıkmak istediğinize emin misiniz?")) {
+    <PageState loading={loading} error={error}>
+      <div className="flex flex-col h-full overflow-hidden">
+        <div className="pb-4">
+          {/* Üst bar */}
+          <div
+            className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 mb-4 rounded-xl border gap-4"
+            style={{
+              background: "var(--background-card)",
+              borderColor: "var(--border)",
+            }}
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                onClick={() => {
+                  if (isDirty) {
+                    if (confirm("Kaydedilmemiş değişiklikler var. Çıkmak istediğinize emin misiniz?")) {
+                      router.back();
+                    }
+                  } else {
                     router.back();
                   }
-                } else {
-                  router.back();
-                }
-              }}
-              className="w-9 h-9 shrink-0 rounded-lg flex items-center justify-center border transition-colors"
-              style={{
-                background: "var(--background-secondary)",
-                borderColor: "var(--border)",
-                color: "var(--text-muted)",
-              }}
-            >
-              <ArrowLeft size={16} />
-            </button>
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1
-                  className="text-xl font-semibold tracking-tight truncate"
-                  style={{ color: "var(--text-primary)" }}
-                >
-                  {pageTitle}
-                </h1>
-                {product && mode === "edit" && (
-                  <span
-                    className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                    style={{
-                      background: STATUS_COLORS[product.status].bg,
-                      color: STATUS_COLORS[product.status].color,
-                    }}
+                }}
+                className="w-9 h-9 shrink-0 rounded-lg flex items-center justify-center border transition-colors"
+                style={{
+                  background: "var(--background-secondary)",
+                  borderColor: "var(--border)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <ArrowLeft size={16} />
+              </button>
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1
+                    className="text-xl font-semibold tracking-tight truncate"
+                    style={{ color: "var(--text-primary)" }}
                   >
-                    {STATUS_LABELS[product.status]}
-                  </span>
-                )}
-                {mode === "create" && (
-                  <span
-                    className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                    style={{ background: "rgba(255,180,0,0.15)", color: "#FFB400" }}
+                    {pageTitle}
+                  </h1>
+                  {product && mode === "edit" && (
+                    <span
+                      className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
+                      style={{
+                        background: STATUS_COLORS[product.status].bg,
+                        color: STATUS_COLORS[product.status].color,
+                      }}
+                    >
+                      {STATUS_LABELS[product.status]}
+                    </span>
+                  )}
+                  {mode === "create" && (
+                    <span
+                      className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
+                      style={{ background: "rgba(255,180,0,0.15)", color: "#FFB400" }}
+                    >
+                      Yeni
+                    </span>
+                  )}
+                  {mode === "duplicate" && (
+                    <span
+                      className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
+                      style={{ background: "rgba(0,133,255,0.15)", color: "#0085FF" }}
+                    >
+                      Kopya
+                    </span>
+                  )}
+                  {isDirty && (
+                    <span
+                      className="text-[11px] font-mono px-2 py-0.5 rounded-full"
+                      style={{ background: "rgba(255,180,0,0.15)", color: "#FFB400" }}
+                    >
+                      Kaydedilmemiş değişiklikler
+                    </span>
+                  )}
+                </div>
+                {product && (
+                  <p
+                    className="text-xs font-mono mt-0.5"
+                    style={{ color: "var(--text-muted)" }}
                   >
-                    Yeni
-                  </span>
-                )}
-                {mode === "duplicate" && (
-                  <span
-                    className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                    style={{ background: "rgba(0,133,255,0.15)", color: "#0085FF" }}
-                  >
-                    Kopya
-                  </span>
-                )}
-                {isDirty && (
-                  <span
-                    className="text-[11px] font-mono px-2 py-0.5 rounded-full"
-                    style={{ background: "rgba(255,180,0,0.15)", color: "#FFB400" }}
-                  >
-                    Kaydedilmemiş değişiklikler
-                  </span>
+                    #{product.id} · {product.translation.slug}
+                  </p>
                 )}
               </div>
-              {product && (
-                <p
-                  className="text-xs font-mono mt-0.5"
-                  style={{ color: "var(--text-muted)" }}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2">
+                {mode === "edit" && product && (
+                  <Button
+                    variant="ghost"
+                    onClick={() =>
+                      router.push(`/epinpay/products/copy-${product.id}`)
+                    }
+                    className="flex items-center gap-2 text-sm"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    <Copy size={14} />
+                    Kopyala
+                  </Button>
+                )}
+                <Button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="text-white flex items-center gap-2"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)",
+                  }}
                 >
-                  #{product.id} · {product.translation.slug}
-                </p>
-              )}
+                  {saving ? (
+                    <span className="flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Kaydediliyor...
+                    </span>
+                  ) : (
+                    <>
+                      <Save size={14} />
+                      {mode === "create"
+                        ? "Oluştur"
+                        : mode === "duplicate"
+                        ? "Kopyayı Kaydet"
+                        : "Kaydet"}
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
-              {mode === "edit" && product && (
-                <Button
-                  variant="ghost"
-                  onClick={() =>
-                    router.push(`/epinpay/products/copy-${product.id}`)
-                  }
-                  className="flex items-center gap-2 text-sm"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  <Copy size={14} />
-                  Kopyala
-                </Button>
-              )}
-              <Button
-                onClick={handleSave}
-                disabled={saving}
-                className="text-white flex items-center gap-2"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)",
-                }}
-              >
-                {saving ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Kaydediliyor...
-                  </span>
-                ) : (
-                  <>
-                    <Save size={14} />
-                    {mode === "create"
-                      ? "Oluştur"
-                      : mode === "duplicate"
-                      ? "Kopyayı Kaydet"
-                      : "Kaydet"}
-                  </>
-                )}
-              </Button>
-            </div>
+          {/* Locale Selector */}
+          <div
+            className="p-4 rounded-lg border"
+            style={{
+              background: "var(--background-card)",
+              borderColor: "var(--border)",
+            }}
+          >
+            <LocaleSelector
+              activeLocale={activeLocale}
+              enabledLocales={enabledLocales}
+              onLocaleChange={handleLocaleChange}
+              onLocaleAdd={handleLocaleAdd}
+              onLocaleRemove={handleLocaleRemove}
+            />
           </div>
         </div>
 
-        {/* Locale Selector */}
-        <div
-          className="p-4 rounded-lg border"
-          style={{
-            background: "var(--background-card)",
-            borderColor: "var(--border)",
-          }}
-        >
-          <LocaleSelector
-            activeLocale={activeLocale}
-            enabledLocales={enabledLocales}
-            onLocaleChange={handleLocaleChange}
-            onLocaleAdd={handleLocaleAdd}
-            onLocaleRemove={handleLocaleRemove}
+        {/* Form */}
+        <div className="flex-1 overflow-y-auto">
+          <ProductForm
+            product={product ?? null}
+            mode={mode}
+            saving={saving}
+            form={form}
+            errors={errors}
+            handleChange={handleChange}
+            handleSelect={handleSelect}
+            onSuccess={(saved) => {
+              router.push(`/epinpay/products/${saved.id}`);
+            }}
           />
         </div>
       </div>
-
-      {/* Form */}
-      <div className="flex-1 overflow-y-auto">
-        <ProductForm
-          product={product ?? null}
-          mode={mode}
-          saving={saving}
-          form={form}
-          errors={errors}
-          handleChange={handleChange}
-          handleSelect={handleSelect}
-          onSuccess={(saved) => {
-            router.push(`/epinpay/products/${saved.id}`);
-          }}
-        />
-      </div>
-    </div>
+    </PageState>
   );
 }

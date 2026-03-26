@@ -12,6 +12,7 @@ import BlogEditModal from "@/features/blog/components/BlogEditModal";
 import { Button } from "@/components/ui/button";
 import Spinner from "@/components/common/spinner/Spinner";
 import {PALETTE} from "@/lib/status-color";
+import { PageState } from "@/components/common/page-state/PageState";
 
 const STATUS_LABELS: Record<BLOG_TRANSLATION_STATUS, string> = {
   [BLOG_TRANSLATION_STATUS.PUBLISHED]: "Yayında",
@@ -197,84 +198,70 @@ export default function BlogPage() {
     };
   });
 
-  if (loading) {
-    return (
-    <div className="flex items-center justify-center h-64">
-              <Spinner />
-            </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-red-400 text-sm font-mono">{error}</p>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1
-            className="text-2xl font-semibold tracking-tight"
-            style={{ color: "var(--text-primary)" }}
-          >
-            Blog Yazıları
-          </h1>
-          <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
-            Toplam <span className="font-semibold" style={{ color: "var(--text-primary)" }}>{blogs.length}</span> blog yazısı yönetiliyor.
-          </p>
-        </div>
-        <Button
-          onClick={() => router.push("/blog/new")}
-          className="text-white flex items-center gap-2 px-6 h-11 shadow-lg shadow-emerald-500/20"
-          style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
-        >
-          <Plus size={18} strokeWidth={2.5} />
-          <span className="font-semibold text-sm">Yeni Blog Ekle</span>
-        </Button>
-      </div>
-
-      <DataTable
-        data={blogRows}
-        columns={COLUMNS}
-        showStatusFilter
-        statusOptions={STATUS_OPTIONS}
-        actions={(row) => (
-          <div className="flex items-center justify-end gap-2">
-            <button
-              onClick={() => open(row._original as Blog)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-              style={{
-                background: "var(--background-card)",
-                borderColor: "var(--border)",
-                color: "var(--text-muted)",
-              }}
+    <PageState loading={loading} error={error} >
+      <div>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1
+              className="text-2xl font-semibold tracking-tight"
+              style={{ color: "var(--text-primary)" }}
             >
-              <Pencil size={14} />
-            </button>
-            <button
-              onClick={() => router.push(`/blog/${row.id}`)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-              style={{
-                background: "var(--background-card)",
-                borderColor: "var(--border)",
-                color: "var(--text-muted)",
-              }}
-            >
-              <Eye size={14} />
-            </button>
+              Blog Yazıları
+            </h1>
+            <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
+              Toplam <span className="font-semibold" style={{ color: "var(--text-primary)" }}>{blogs.length}</span> blog yazısı yönetiliyor.
+            </p>
           </div>
-        )}
-      />
+          <Button
+            onClick={() => router.push("/blog/new")}
+            className="text-white flex items-center gap-2 px-6 h-11 shadow-lg shadow-emerald-500/20"
+            style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
+          >
+            <Plus size={18} strokeWidth={2.5} />
+            <span className="font-semibold text-sm">Yeni Blog Ekle</span>
+          </Button>
+        </div>
 
-      <BlogEditModal
-        open={isOpen}
-        onClose={close}
-        blog={selectedBlog}
-      />
-    </div>
+        <DataTable
+          data={blogRows}
+          columns={COLUMNS}
+          showStatusFilter
+          statusOptions={STATUS_OPTIONS}
+          actions={(row) => (
+            <div className="flex items-center justify-end gap-2">
+              <button
+                onClick={() => open(row._original as Blog)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
+                style={{
+                  background: "var(--background-card)",
+                  borderColor: "var(--border)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <Pencil size={14} />
+              </button>
+              <button
+                onClick={() => router.push(`/blog/${row.id}`)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
+                style={{
+                  background: "var(--background-card)",
+                  borderColor: "var(--border)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <Eye size={14} />
+              </button>
+            </div>
+          )}
+        />
+
+        <BlogEditModal
+          open={isOpen}
+          onClose={close}
+          blog={selectedBlog}
+        />
+      </div>
+    </PageState>
   );
 }

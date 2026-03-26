@@ -8,10 +8,7 @@ import { useOfferForm } from "@/features/store/hooks/useOfferForm";
 import { OFFER_STATUS, DELIVERY_TYPE } from "@/features/store/types";
 import { Button } from "@/components/ui/button";
 import OfferForm from "@/features/store/components/OfferForm";
-import Spinner from "@/components/common/spinner/Spinner";
-
-
-// Sabitler 
+import {PageState} from "@/components/common/page-state/PageState";
 
 const STATUS_COLORS: Record<OFFER_STATUS, { bg: string; color: string }> = {
   [OFFER_STATUS.ACTIVE]:  { bg: "rgba(0,198,162,0.15)",  color: "#00C6A2" },
@@ -41,8 +38,6 @@ function resolveOfferId(id: string): number | null {
   return id === "new" ? null : Number(id);
 }
 
-// Sayfa
-
 export default function OfferDetailPage({
   params,
 }: {
@@ -67,157 +62,136 @@ export default function OfferDetailPage({
       router.back();
     }
   };
+  const isEditMode = mode === "edit";
+  const isPageLoading = isEditMode && loading;
+  const pageError = error || (isEditMode && !offer && !loading ? "Teklif bulunamadı." : null);
 
-  // Loading / Error 
-
-  if (loading && numericId !== null) {
-    return (
-      <div className="flex items-center justify-center h-64">
-              <Spinner />
-            </div>
-    );
-  }
-
-if (error || (numericId !== null && !offer && !loading)) {
-  return (
-    <div className="flex flex-col items-center justify-center h-64 gap-3">
-      <p className="text-red-400 text-sm font-mono">
-        {error ?? "Teklif bulunamadı."}
-      </p>
-      <Button variant="ghost" onClick={() => router.back()}>
-        Geri dön
-      </Button>
-    </div>
-  );
-}
-  const pageTitle = mode === "create" ? "Yeni Teklif" : offer?.product.name ?? "";
-
-  // Render 
+  const pageTitle = mode === "create" ? "Yeni Teklif" : offer?.product.name ?? "Teklif Detay";
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      <div className="pb-4">
+    <PageState 
+      loading={isPageLoading} 
+      error={pageError} 
+      onRetry={() => router.back()}
+    >
+      <div className="flex flex-col h-full overflow-hidden">
+        <div className="pb-4">
+          {/* Üst bar */}
+          <div
+            className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 mb-4 rounded-xl border gap-4"
+            style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                onClick={handleBack}
+                className="w-9 h-9 shrink-0 rounded-lg flex items-center justify-center border transition-colors"
+                style={{
+                  background:  "var(--background-secondary)",
+                  borderColor: "var(--border)",
+                  color:       "var(--text-muted)",
+                }}
+              >
+                <ArrowLeft size={16} />
+              </button>
 
-        {/* Üst bar — product kalıbıyla aynı yapı */}
-        <div
-          className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 mb-4 rounded-xl border gap-4"
-          style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
-        >
-          <div className="flex items-center gap-3 min-w-0">
-            <button
-              onClick={handleBack}
-              className="w-9 h-9 shrink-0 rounded-lg flex items-center justify-center border transition-colors"
-              style={{
-                background:  "var(--background-secondary)",
-                borderColor: "var(--border)",
-                color:       "var(--text-muted)",
-              }}
-            >
-              <ArrowLeft size={16} />
-            </button>
-
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1
-                  className="text-xl font-semibold tracking-tight truncate"
-                  style={{ color: "var(--text-primary)" }}
-                >
-                  {pageTitle}
-                </h1>
-
-                {/* Durum badge */}
-                {offer && mode === "edit" && (
-                  <span
-                    className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                    style={{
-                      background: STATUS_COLORS[offer.status].bg,
-                      color:      STATUS_COLORS[offer.status].color,
-                    }}
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1
+                    className="text-xl font-semibold tracking-tight truncate"
+                    style={{ color: "var(--text-primary)" }}
                   >
-                    {STATUS_LABELS[offer.status]}
-                  </span>
-                )}
+                    {pageTitle}
+                  </h1>
 
-                {/* Teslimat tipi badge */}
+                  {offer && mode === "edit" && (
+                    <span
+                      className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
+                      style={{
+                        background: STATUS_COLORS[offer.status].bg,
+                        color:      STATUS_COLORS[offer.status].color,
+                      }}
+                    >
+                      {STATUS_LABELS[offer.status]}
+                    </span>
+                  )}
+                  {offer && (
+                    <span
+                      className="text-[11px] px-2 py-0.5 rounded-full font-mono"
+                      style={{
+                        background: "var(--background-secondary)",
+                        color:      "var(--text-muted)",
+                      }}
+                    >
+                      {DELIVERY_LABELS[offer.deliveryType]}
+                    </span>
+                  )}
+
+                  {mode === "create" && (
+                    <span
+                      className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
+                      style={{ background: "rgba(255,180,0,0.15)", color: "#FFB400" }}
+                    >
+                      Yeni
+                    </span>
+                  )}
+
+                  {isDirty && (
+                    <span
+                      className="text-[11px] font-mono px-2 py-0.5 rounded-full"
+                      style={{ background: "rgba(255,180,0,0.15)", color: "#FFB400" }}
+                    >
+                      Kaydedilmemiş değişiklikler
+                    </span>
+                  )}
+                </div>
+
                 {offer && (
-                  <span
-                    className="text-[11px] px-2 py-0.5 rounded-full font-mono"
-                    style={{
-                      background: "var(--background-secondary)",
-                      color:      "var(--text-muted)",
-                    }}
-                  >
-                    {DELIVERY_LABELS[offer.deliveryType]}
-                  </span>
-                )}
-
-                {mode === "create" && (
-                  <span
-                    className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                    style={{ background: "rgba(255,180,0,0.15)", color: "#FFB400" }}
-                  >
-                    Yeni
-                  </span>
-                )}
-
-                {isDirty && (
-                  <span
-                    className="text-[11px] font-mono px-2 py-0.5 rounded-full"
-                    style={{ background: "rgba(255,180,0,0.15)", color: "#FFB400" }}
-                  >
-                    Kaydedilmemiş değişiklikler
-                  </span>
+                  <p className="text-xs font-mono mt-0.5" style={{ color: "var(--text-muted)" }}>
+                    #{offer.id} · {offer.product.slug}
+                  </p>
                 )}
               </div>
-
-              {offer && (
-                <p className="text-xs font-mono mt-0.5" style={{ color: "var(--text-muted)" }}>
-                  #{offer.id} · {offer.product.slug}
-                </p>
-              )}
             </div>
+            <Button
+              onClick={() => {}} 
+              disabled={saving}
+              className="text-white flex items-center gap-2"
+              style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
+            >
+              {saving ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Kaydediliyor...
+                </span>
+              ) : (
+                <>
+                  <Save size={14} />
+                  {mode === "create" ? "Oluştur" : "Kaydet"}
+                </>
+              )}
+            </Button>
           </div>
+        </div>
 
-          {/* Kaydet butonu */}
-          <Button
-            onClick={() => {}} 
-            disabled={saving}
-            className="text-white flex items-center gap-2"
-            style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
-          >
-            {saving ? (
-              <span className="flex items-center gap-2">
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Kaydediliyor...
-              </span>
-            ) : (
-              <>
-                <Save size={14} />
-                {mode === "create" ? "Oluştur" : "Kaydet"}
-              </>
-            )}
-          </Button>
+        <div className="flex-1 overflow-y-auto pb-6">
+          <OfferForm
+            offer={offer ?? null}
+            mode={mode}
+            saving={saving}
+            defaultValues={defaultValues}
+            onDirtyChange={setIsDirty}
+            onSubmit={async (values) => {
+              await submit(values);
+              router.push("/epinpay/store");
+            }}
+          />
+          {saveError && (
+            <div className="px-6 py-4 mt-4 bg-red-400/10 border border-red-400/20 rounded-xl mx-6">
+               <p className="text-red-400 text-xs font-mono">{saveError}</p>
+            </div>
+          )}
         </div>
       </div>
-
-     
-      <div className="flex-1 overflow-y-auto">
-        <OfferForm
-          offer={offer ?? null}
-          mode={mode}
-          saving={saving}
-          defaultValues={defaultValues}
-          onDirtyChange={setIsDirty}
-          onSubmit={async (values) => {
-            await submit(values);
-            router.push("/epinpay/store");
-          }}
-        />
-      </div>
-
-      {saveError && (
-        <p className="text-red-400 text-xs font-mono px-6 py-2">{saveError}</p>
-      )}
-    </div>
+    </PageState>
   );
 }
