@@ -11,6 +11,7 @@ import { useBlogModal } from "@/features/blog/hooks/useBlogModal";
 import BlogEditModal from "@/features/blog/components/BlogEditModal";
 import { Button } from "@/components/ui/button";
 import Spinner from "@/components/common/spinner/Spinner";
+import {PALETTE} from "@/lib/status-color";
 
 const STATUS_LABELS: Record<BLOG_TRANSLATION_STATUS, string> = {
   [BLOG_TRANSLATION_STATUS.PUBLISHED]: "Yayında",
@@ -18,11 +19,11 @@ const STATUS_LABELS: Record<BLOG_TRANSLATION_STATUS, string> = {
   [BLOG_TRANSLATION_STATUS.INACTIVE]: "Pasif",
 };
 
-const STATUS_COLORS: Record<BLOG_TRANSLATION_STATUS, { bg: string; color: string }> = {
-  [BLOG_TRANSLATION_STATUS.PUBLISHED]: { bg: "rgba(0,198,162,0.15)", color: "#00C6A2" },
-  [BLOG_TRANSLATION_STATUS.INACTIVE]: { bg: "rgba(255,80,80,0.15)", color: "#FF5050" },
-  [BLOG_TRANSLATION_STATUS.DRAFT]: { bg: "rgba(255,180,0,0.15)", color: "#FFB400" },
-};
+const STATUS_COLOR = {
+  [BLOG_TRANSLATION_STATUS.PUBLISHED]: PALETTE.green,
+  [BLOG_TRANSLATION_STATUS.INACTIVE]:  PALETTE.red,
+  [BLOG_TRANSLATION_STATUS.DRAFT]:     PALETTE.yellow,
+}
 
 const LANGUAGE_LABELS: Record<LANGUAGE, string> = {
   [LANGUAGE.TR]: "TR",
@@ -150,7 +151,7 @@ const COLUMNS: ColumnDef<BlogRow>[] = [
     sortable: true,
     render: (value) => {
       const status = value as BLOG_TRANSLATION_STATUS;
-      const colors = STATUS_COLORS[status];
+      const colors = STATUS_COLOR[status];
       return (
         <span
           className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"

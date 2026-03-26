@@ -9,10 +9,11 @@ import LocaleSelector from "@/components/common/locale-selector/LocaleSelector";
 import { Locale } from "@/components/common/locale-selector/locale.service";
 import { Button } from "@/components/ui/button";
 import Spinner from "@/components/common/spinner/Spinner";
+import { PALETTE } from "@/lib/status-color";
 
-const STATUS_COLORS: Record<CATEGORY_STATUS, { bg: string; color: string }> = {
-  [CATEGORY_STATUS.ACTIVE]: { bg: "rgba(0,198,162,0.15)", color: "#00C6A2" },
-  [CATEGORY_STATUS.INACTIVE]: { bg: "rgba(255,80,80,0.15)", color: "#FF5050" },
+const STATUS_COLORS = {
+  [CATEGORY_STATUS.ACTIVE]:   PALETTE.green,
+  [CATEGORY_STATUS.INACTIVE]: PALETTE.red,
 };
 
 const STATUS_LABELS: Record<CATEGORY_STATUS, string> = {
@@ -181,7 +182,7 @@ export default function CategoryDetailPage({
                 {mode === "create" && (
                   <span
                     className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                    style={{ background: "rgba(255,180,0,0.15)", color: "#FFB400" }}
+                    style={{ background: PALETTE.yellow.bg, color: PALETTE.yellow.color }}
                   >
                     Yeni
                   </span>
@@ -189,7 +190,7 @@ export default function CategoryDetailPage({
                 {mode === "duplicate" && (
                   <span
                     className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                    style={{ background: "rgba(0,133,255,0.15)", color: "#0085FF" }}
+                   style={{ background: PALETTE.blue.bg, color: PALETTE.blue.color }}
                   >
                     Kopya
                   </span>
@@ -197,7 +198,7 @@ export default function CategoryDetailPage({
                 {isDirty && (
                   <span
                     className="text-[11px] font-mono px-2 py-0.5 rounded-full"
-                    style={{ background: "rgba(255,180,0,0.15)", color: "#FFB400" }}
+                   style={{ background: PALETTE.yellow.bg, color: PALETTE.yellow.color }}
                   >
                     Kaydedilmemiş değişiklikler
                   </span>

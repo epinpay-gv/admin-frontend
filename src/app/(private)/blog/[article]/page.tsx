@@ -15,6 +15,7 @@ import { blogService } from "@/features/blog/service/blog.service";
 import RichTextEditor from "@/components/common/rick-test/contentEditable";
 import LocaleSelector from "@/components/common/locale-selector/LocaleSelector";
 import { Locale } from "@/components/common/locale-selector/locale.service";
+import {PALETTE} from "@/lib/status-color"
 
 const STATUS_LABELS: Record<BLOG_TRANSLATION_STATUS, string> = {
   [BLOG_TRANSLATION_STATUS.PUBLISHED]: "Yayında",
@@ -22,10 +23,10 @@ const STATUS_LABELS: Record<BLOG_TRANSLATION_STATUS, string> = {
   [BLOG_TRANSLATION_STATUS.INACTIVE]: "Pasif",
 };
 
-const STATUS_COLORS: Record<BLOG_TRANSLATION_STATUS, { bg: string; color: string }> = {
-  [BLOG_TRANSLATION_STATUS.PUBLISHED]: { bg: "rgba(0,198,162,0.15)", color: "#00C6A2" },
-  [BLOG_TRANSLATION_STATUS.DRAFT]: { bg: "rgba(255,180,0,0.15)", color: "#FFB400" },
-  [BLOG_TRANSLATION_STATUS.INACTIVE]: { bg: "rgba(255,80,80,0.15)", color: "#FF5050" },
+const STATUS_COLORS = {
+  [BLOG_TRANSLATION_STATUS.PUBLISHED]: PALETTE.green,
+  [BLOG_TRANSLATION_STATUS.DRAFT]:     PALETTE.yellow,
+  [BLOG_TRANSLATION_STATUS.INACTIVE]:  PALETTE.red,
 };
 
 interface BlogTranslationForm {
@@ -422,7 +423,7 @@ export default function BlogDetailPage({
               </p>
               <span
                 className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono uppercase"
-                style={{ background: "rgba(0,133,255,0.15)", color: "#0085FF" }}
+               style={{ background: PALETTE.blue.bg, color: PALETTE.blue.color }}
               >
                 {blog.sourceLanguage}
               </span>

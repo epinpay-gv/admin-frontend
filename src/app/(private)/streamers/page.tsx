@@ -7,7 +7,7 @@ import { DataTable, ColumnDef } from "@/components/common/data-table";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import Spinner from "@/components/common/spinner/Spinner";
-
+import {PALETTE} from "@/lib/status-color"
 import { useStreamers }        from "@/features/streamers/hooks/useStreamers";
 import { usePackageTemplates } from "@/features/streamers/hooks/usePackageTemplates";
 import { useCountryVariants }  from "@/features/streamers/hooks/useCountryVariants";
@@ -29,55 +29,43 @@ import {
   PACKAGE_LEVEL_LABELS,
 } from "@/features/streamers/types";
 
-
-
 type TabKey = "streamers" | "templates" | "variants" | "requests";
 
 type Row = Record<string, any>;
 
-const STATUS_COLOR = {
-  green:  { bg: "rgba(0,198,162,0.15)",   color: "#00C6A2" },
-  red:    { bg: "rgba(255,80,80,0.15)",   color: "#FF5050" },
-  yellow: { bg: "rgba(255,180,0,0.15)",   color: "#FFB400" },
-  blue:   { bg: "rgba(0,133,255,0.15)",   color: "#0085FF" },
-  purple: { bg: "rgba(160,80,255,0.15)",  color: "#A050FF" },
-  gray:   { bg: "rgba(160,160,160,0.15)", color: "#A0A0A0" },
-} as const;
 
-const STREAMER_STATUS_COLOR: Record<STREAMER_STATUS, typeof STATUS_COLOR[keyof typeof STATUS_COLOR]> = {
-  [STREAMER_STATUS.PENDING]:  STATUS_COLOR.yellow,
-  [STREAMER_STATUS.APPROVED]: STATUS_COLOR.green,
-  [STREAMER_STATUS.REJECTED]: STATUS_COLOR.red,
+const STREAMER_STATUS_COLOR: Record<STREAMER_STATUS, typeof PALETTE[keyof typeof PALETTE]> = {
+  [STREAMER_STATUS.PENDING]:  PALETTE.yellow,
+  [STREAMER_STATUS.APPROVED]: PALETTE.green,
+  [STREAMER_STATUS.REJECTED]: PALETTE.red,
 };
 
-const PACKAGE_STATUS_COLOR: Record<PACKAGE_STATUS, typeof STATUS_COLOR[keyof typeof STATUS_COLOR]> = {
-  [PACKAGE_STATUS.ACTIVE]:  STATUS_COLOR.green,
-  [PACKAGE_STATUS.EXPIRED]: STATUS_COLOR.red,
-  [PACKAGE_STATUS.NONE]:    STATUS_COLOR.gray,
+const PACKAGE_STATUS_COLOR: Record<PACKAGE_STATUS, typeof PALETTE[keyof typeof PALETTE]> = {
+  [PACKAGE_STATUS.ACTIVE]:  PALETTE.green,
+  [PACKAGE_STATUS.EXPIRED]: PALETTE.red,
+  [PACKAGE_STATUS.NONE]:    PALETTE.gray,
 };
 
-const TEMPLATE_STATUS_COLOR: Record<TEMPLATE_STATUS, typeof STATUS_COLOR[keyof typeof STATUS_COLOR]> = {
-  [TEMPLATE_STATUS.ACTIVE]:   STATUS_COLOR.green,
-  [TEMPLATE_STATUS.INACTIVE]: STATUS_COLOR.gray,
+const TEMPLATE_STATUS_COLOR: Record<TEMPLATE_STATUS, typeof PALETTE[keyof typeof PALETTE]> = {
+  [TEMPLATE_STATUS.ACTIVE]:   PALETTE.green,
+  [TEMPLATE_STATUS.INACTIVE]: PALETTE.gray,
 };
 
-const VARIANT_STATUS_COLOR: Record<VARIANT_STATUS, typeof STATUS_COLOR[keyof typeof STATUS_COLOR]> = {
-  [VARIANT_STATUS.ACTIVE]:   STATUS_COLOR.green,
-  [VARIANT_STATUS.INACTIVE]: STATUS_COLOR.gray,
+const VARIANT_STATUS_COLOR: Record<VARIANT_STATUS, typeof PALETTE[keyof typeof PALETTE]> = {
+  [VARIANT_STATUS.ACTIVE]:   PALETTE.green,
+  [VARIANT_STATUS.INACTIVE]: PALETTE.gray,
 };
 
-const REQUEST_STATUS_COLOR: Record<PACKAGE_REQUEST_STATUS, typeof STATUS_COLOR[keyof typeof STATUS_COLOR]> = {
-  [PACKAGE_REQUEST_STATUS.PENDING]:  STATUS_COLOR.yellow,
-  [PACKAGE_REQUEST_STATUS.APPROVED]: STATUS_COLOR.green,
-  [PACKAGE_REQUEST_STATUS.REJECTED]: STATUS_COLOR.red,
+const REQUEST_STATUS_COLOR: Record<PACKAGE_REQUEST_STATUS, typeof PALETTE[keyof typeof PALETTE]> = {
+  [PACKAGE_REQUEST_STATUS.PENDING]:  PALETTE.yellow,
+  [PACKAGE_REQUEST_STATUS.APPROVED]: PALETTE.green,
+  [PACKAGE_REQUEST_STATUS.REJECTED]: PALETTE.red,
 };
 
-const REQUEST_TYPE_COLOR: Record<PACKAGE_REQUEST_TYPE, typeof STATUS_COLOR[keyof typeof STATUS_COLOR]> = {
-  [PACKAGE_REQUEST_TYPE.RENEWAL]: STATUS_COLOR.blue,
-  [PACKAGE_REQUEST_TYPE.UPGRADE]: STATUS_COLOR.purple,
+const REQUEST_TYPE_COLOR: Record<PACKAGE_REQUEST_TYPE, typeof PALETTE[keyof typeof PALETTE]> = {
+  [PACKAGE_REQUEST_TYPE.RENEWAL]: PALETTE.blue,
+  [PACKAGE_REQUEST_TYPE.UPGRADE]: PALETTE.purple,
 };
-
-
 
 function Badge({ label, bg, color }: { label: string; bg: string; color: string }) {
   return (
@@ -98,8 +86,6 @@ function DateText({ value }: { value: string | undefined }) {
     </span>
   );
 }
-
-
 
 const STREAMER_COLUMNS: ColumnDef<Row>[] = [
   {

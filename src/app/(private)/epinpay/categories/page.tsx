@@ -5,24 +5,29 @@ import { useRouter } from "next/navigation";
 import { Pencil, Copy, Plus, ShieldOff, Package, Eye } from "lucide-react";
 import { DataTable } from "@/components/common/data-table";
 import { ColumnDef } from "@/components/common/data-table";
-import { useCategories, CategoryEditModal, CategoryCountryStatusModal, CategoryProductsModal, CATEGORY_STATUS } from "@/features/categories";
+import {
+  useCategories,
+  CategoryEditModal,
+  CategoryCountryStatusModal,
+  CategoryProductsModal,
+  CATEGORY_STATUS,
+} from "@/features/categories";
 import { Category } from "@/features/categories";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import Image from "next/image";
 import Spinner from "@/components/common/spinner/Spinner";
-
+import { PALETTE } from "@/lib/status-color";
 
 const STATUS_LABELS: Record<CATEGORY_STATUS, string> = {
   [CATEGORY_STATUS.ACTIVE]: "Aktif",
   [CATEGORY_STATUS.INACTIVE]: "Pasif",
 };
 
-const STATUS_COLORS: Record<CATEGORY_STATUS, { bg: string; color: string }> = {
-  [CATEGORY_STATUS.ACTIVE]: { bg: "rgba(0,198,162,0.15)", color: "#00C6A2" },
-  [CATEGORY_STATUS.INACTIVE]: { bg: "rgba(255,80,80,0.15)", color: "#FF5050" },
+const STATUS_COLORS = {
+  [CATEGORY_STATUS.ACTIVE]: PALETTE.green,
+  [CATEGORY_STATUS.INACTIVE]: PALETTE.red,
 };
-
 const STATUS_OPTIONS = [
   { label: "Tümü", value: "all" },
   { label: "Aktif", value: CATEGORY_STATUS.ACTIVE },
@@ -69,10 +74,16 @@ export default function CategoriesPage() {
               />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
+              <p
+                className="text-sm font-medium truncate"
+                style={{ color: "var(--text-primary)" }}
+              >
                 {translation.name}
               </p>
-              <p className="text-[11px] font-mono opacity-60 truncate" style={{ color: "var(--text-muted)" }}>
+              <p
+                className="text-[11px] font-mono opacity-60 truncate"
+                style={{ color: "var(--text-muted)" }}
+              >
                 {translation.slug}
               </p>
             </div>
@@ -120,8 +131,8 @@ export default function CategoriesPage() {
           className="flex items-center gap-1.5 text-xs font-mono px-2 py-1 rounded-lg transition-all"
           style={{
             background: "var(--background-secondary)",
-            color: "#0085FF",
-            border: "1px solid rgba(0,133,255,0.2)",
+            color: PALETTE.blue.color,
+            border: `1px solid ${PALETTE.blue.color}33`,
           }}
         >
           <Package size={11} />
@@ -133,7 +144,8 @@ export default function CategoriesPage() {
       key: "forbiddenCountries",
       label: "Ülke Durumu",
       render: (_, row) => {
-        const forbidden = row.forbiddenCountries as Category["forbiddenCountries"];
+        const forbidden =
+          row.forbiddenCountries as Category["forbiddenCountries"];
         const hasForbidden = forbidden.length > 0;
 
         return (
@@ -144,15 +156,15 @@ export default function CategoriesPage() {
             }}
             className="flex items-center gap-1.5 text-xs font-mono px-2 py-1 rounded-lg transition-all"
             style={{
-              background: hasForbidden
-                ? "rgba(255,80,80,0.1)"
-                : "rgba(0,198,162,0.1)",
-              color: hasForbidden ? "#FF5050" : "#00C6A2",
-              border: `1px solid ${hasForbidden ? "rgba(255,80,80,0.2)" : "rgba(0,198,162,0.2)"}`,
+              background: hasForbidden ? PALETTE.red.bg : PALETTE.green.bg,
+              color: hasForbidden ? PALETTE.red.color : PALETTE.green.color,
+              border: `1px solid ${hasForbidden ? PALETTE.red.color + "33" : PALETTE.green.color + "33"}`,
             }}
           >
             <ShieldOff size={11} />
-            {hasForbidden ? `${forbidden.length} ülke kısıtlı` : "Tüm ülkeler aktif"}
+            {hasForbidden
+              ? `${forbidden.length} ülke kısıtlı`
+              : "Tüm ülkeler aktif"}
           </button>
         );
       },
@@ -179,8 +191,8 @@ export default function CategoriesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-              <Spinner />
-            </div>
+        <Spinner />
+      </div>
     );
   }
 
@@ -207,16 +219,18 @@ export default function CategoriesPage() {
         count={categories.length}
         countLabel="kategori"
         actions={
-            <Button
+          <Button
             onClick={() => router.push("/epinpay/categories/new")}
             className="text-white flex items-center gap-2"
-            style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
-            >
+            style={{
+              background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)",
+            }}
+          >
             <Plus size={18} strokeWidth={2.5} />
             <span className="font-semibold text-sm">Yeni Kategori Ekle</span>
-            </Button>
+          </Button>
         }
-     />
+      />
 
       <DataTable
         data={categories as CategoryRow[]}
@@ -249,7 +263,7 @@ export default function CategoriesPage() {
             >
               <Copy size={13} />
             </button>
-            
+
             <button
               onClick={() => router.push(`/epinpay/categories/${row.id}`)}
               className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
@@ -262,7 +276,6 @@ export default function CategoriesPage() {
             >
               <Eye size={13} />
             </button>
-            
           </div>
         )}
       />
