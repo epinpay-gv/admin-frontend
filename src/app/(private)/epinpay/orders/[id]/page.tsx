@@ -7,6 +7,7 @@ import { useOrder, OrderStatusBadge, OrderMemberTypeBadge, OrderCancelModal, ORD
 import { Button } from "@/components/ui/button";
 import { DELIVERY_TYPE, SLA_STATUS } from "@/features/orders/types";
 import { PageState } from "@/components/common/page-state/PageState";
+import { PALETTE } from "@/lib/status-color";
 
 const DELIVERY_TYPE_LABELS: Record<DELIVERY_TYPE, string> = {
   [DELIVERY_TYPE.EPIN]: "E-Pin",
@@ -177,47 +178,64 @@ export default function OrderDetailPage({
                 </div>
               </div>
 
-              {/* Teslimat */}
-              <div className="rounded-xl border p-6" style={{ background: "var(--background-card)", borderColor: "var(--border)" }}>
-                <SectionDivider title="Teslimat" />
-                <div className="mt-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>Teslimat Tipi</span>
-                    <span className="text-sm font-mono" style={{ color: "var(--text-primary)" }}>{DELIVERY_TYPE_LABELS[order.delivery.deliveryType]}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>SLA Durumu</span>
-                    <span
-                      className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                      style={{
-                        background: order.slaStatus === SLA_STATUS.OK ? "rgba(0,198,162,0.15)" : order.slaStatus === SLA_STATUS.AT_RISK ? "rgba(255,180,0,0.15)" : "rgba(255,80,80,0.15)",
-                        color: order.slaStatus === SLA_STATUS.OK ? "#00C6A2" : order.slaStatus === SLA_STATUS.AT_RISK ? "#FFB400" : "#FF5050",
-                      }}
-                    >
-                      {order.slaStatus === SLA_STATUS.OK ? "Normal" : order.slaStatus === SLA_STATUS.AT_RISK ? "Risk Altında" : "İhlal Edildi"}
-                    </span>
-                  </div>
-                  {order.delivery.payload && (
-                    <div className="flex flex-col gap-1.5 pt-2">
-                      <span className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>Teslimat Kodu</span>
-                      <div
-                        className="px-4 py-3 rounded-lg font-mono text-sm font-bold tracking-widest text-center"
-                        style={{ background: "var(--background-secondary)", color: "#00C6A2", border: "1px solid rgba(0,198,162,0.2)" }}
-                      >
-                        {order.delivery.payload}
-                      </div>
-                    </div>
-                  )}
-                  {order.cancelReason && (
-                    <div className="flex flex-col gap-1.5 pt-2">
-                      <span className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>İptal Nedeni</span>
-                      <p className="text-sm font-mono px-3 py-2 rounded-lg" style={{ background: "rgba(255,80,80,0.05)", color: "#FF5050", border: "1px solid rgba(255,80,80,0.15)" }}>
-                        {order.cancelReason} {order.isSlaCancel && " (SLA İhlali)"}
-                      </p>
-                    </div>
-                  )}
-                </div>
+          {/* Teslimat */}
+          <div className="rounded-xl border p-6" style={{ background: "var(--background-card)", borderColor: "var(--border)" }}>
+            <SectionDivider title="Teslimat" />
+            <div className="mt-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>Teslimat Tipi</span>
+                <span className="text-sm font-mono" style={{ color: "var(--text-primary)" }}>{DELIVERY_TYPE_LABELS[order.delivery.deliveryType]}</span>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>SLA Durumu</span>
+                <span
+                  className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
+                  style={{
+                    background: order.slaStatus === SLA_STATUS.OK ? PALETTE.green.bg : order.slaStatus === SLA_STATUS.AT_RISK ? PALETTE.yellow.bg : PALETTE.red.bg,
+                    color: order.slaStatus === SLA_STATUS.OK ? PALETTE.green.color : order.slaStatus === SLA_STATUS.AT_RISK ? PALETTE.yellow.color : PALETTE.red.color,
+                  }}
+                >
+                  {order.slaStatus === SLA_STATUS.OK ? "Normal" : order.slaStatus === SLA_STATUS.AT_RISK ? "Risk Altında" : "İhlal Edildi"}
+                </span>
+              </div>
+              {order.delivery.slaDeadline && (
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>SLA Deadline</span>
+                  <span className="text-sm font-mono" style={{ color: "var(--text-primary)" }}>
+                    {new Date(order.delivery.slaDeadline).toLocaleString("tr-TR")}
+                  </span>
+                </div>
+              )}
+              {order.delivery.deliveredAt && (
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>Teslim Tarihi</span>
+                  <span className="text-sm font-mono" style={{ color: "#00C6A2" }}>
+                    {new Date(order.delivery.deliveredAt).toLocaleString("tr-TR")}
+                  </span>
+                </div>
+              )}
+              {order.delivery.payload && (
+                <div className="flex flex-col gap-1.5 pt-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>Teslimat Kodu</span>
+                  <div
+                    className="px-4 py-3 rounded-lg font-mono text-sm font-bold tracking-widest text-center"
+                    style={{ background: "var(--background-secondary)", color: "#00C6A2", border: "1px solid rgba(0,198,162,0.2)" }}
+                  >
+                    {order.delivery.payload}
+                  </div>
+                </div>
+              )}
+              {order.cancelReason && (
+                <div className="flex flex-col gap-1.5 pt-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>İptal Nedeni</span>
+                  <p className="text-sm font-mono px-3 py-2 rounded-lg" style={{ background: "rgba(255,80,80,0.05)", color: "#FF5050", border: "1px solid rgba(255,80,80,0.15)" }}>
+                    {order.cancelReason}
+                    {order.isSlaCancel && " (SLA İhlali)"}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
 
               {/* Event Log */}
               <div className="rounded-xl border p-6" style={{ background: "var(--background-card)", borderColor: "var(--border)" }}>
@@ -246,35 +264,41 @@ export default function OrderDetailPage({
               </div>
             </div>
 
-            {/* Sağ Panel */}
-            <div className="space-y-4">
-              <div className="rounded-xl border p-6 sticky top-6" style={{ background: "var(--background-card)", borderColor: "var(--border)" }}>
-                <SectionDivider title="Ödeme" />
-                <div className="mt-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>Yöntem</span>
-                    <span className="text-sm font-mono" style={{ color: "var(--text-primary)" }}>
-                      {order.payment.method.replace("_", " ").toUpperCase()}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>Durum</span>
-                    <span
-                      className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                      style={{
-                        background: order.payment.status === "success" ? "rgba(0,198,162,0.15)" : order.payment.status === "refunded" ? "rgba(155,89,182,0.15)" : "rgba(255,80,80,0.15)",
-                        color: order.payment.status === "success" ? "#00C6A2" : order.payment.status === "refunded" ? "#9B59B6" : "#FF5050",
-                      }}
-                    >
-                      {order.payment.status === "success" ? "Başarılı" : order.payment.status === "refunded" ? "İade Edildi" : order.payment.status === "failed" ? "Başarısız" : "Bekliyor"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>Tutar</span>
-                    <span className="text-sm font-mono font-bold" style={{ color: "var(--text-primary)" }}>
-                      {order.payment.amount.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} {order.payment.currency}
-                    </span>
-                  </div>
+        {/* Sağ: Ödeme özeti */}
+        <div className="space-y-4">
+          <div className="rounded-xl border p-6 sticky top-6" style={{ background: "var(--background-card)", borderColor: "var(--border)" }}>
+            <SectionDivider title="Ödeme" />
+            <div className="mt-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>Yöntem</span>
+                <span className="text-sm font-mono" style={{ color: "var(--text-primary)" }}>
+                  {order.payment.method.replace("_", " ").toUpperCase()}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>Durum</span>
+                <span
+                  className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
+                  style={{
+                    background: order.payment.status === "success" ? PALETTE.green.bg : order.payment.status === "refunded" ? PALETTE.purple.bg : PALETTE.red.bg,
+                    color: order.payment.status === "success" ? PALETTE.green.color : order.payment.status === "refunded" ? PALETTE.purple.color : PALETTE.red.color,
+                  }}
+                >
+                  {order.payment.status === "success" ? "Başarılı" : order.payment.status === "refunded" ? "İade Edildi" : order.payment.status === "failed" ? "Başarısız" : "Bekliyor"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>Tutar</span>
+                <span className="text-sm font-mono font-bold" style={{ color: "var(--text-primary)" }}>
+                  {order.payment.amount.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} {order.payment.currency}
+                </span>
+              </div>
+              {order.payment.paidAt && (
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>Ödeme Tarihi</span>
+                  <span className="text-xs font-mono" style={{ color: "var(--text-secondary)" }}>
+                    {new Date(order.payment.paidAt).toLocaleString("tr-TR")}
+                  </span>
                 </div>
               </div>
             </div>

@@ -11,7 +11,12 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import ForbiddenCountriesModal from "@/features/products/components/ForbiddenCountriesModal";
 import PageHeader from "@/components/common/page-header/PageHeader";
+<<<<<<< HEAD
 import { PageState } from "@/components/common/page-state/PageState";
+=======
+import Spinner from "@/components/common/spinner/Spinner";
+import { PALETTE } from "@/lib/status-color";
+>>>>>>> fix/color-status
 
 const STATUS_LABELS: Record<PRODUCT_STATUS, string> = {
   [PRODUCT_STATUS.ACTIVE]: "Aktif",
@@ -19,12 +24,11 @@ const STATUS_LABELS: Record<PRODUCT_STATUS, string> = {
   [PRODUCT_STATUS.DRAFT]: "Taslak",
 };
 
-const STATUS_COLORS: Record<PRODUCT_STATUS, { bg: string; color: string }> = {
-  [PRODUCT_STATUS.ACTIVE]: { bg: "rgba(0,198,162,0.15)", color: "#00C6A2" },
-  [PRODUCT_STATUS.INACTIVE]: { bg: "rgba(255,80,80,0.15)", color: "#FF5050" },
-  [PRODUCT_STATUS.DRAFT]: { bg: "rgba(255,180,0,0.15)", color: "#FFB400" },
+const STATUS_COLORS = {
+  [PRODUCT_STATUS.ACTIVE]: PALETTE.green,
+  [PRODUCT_STATUS.INACTIVE]: PALETTE.red,
+  [PRODUCT_STATUS.DRAFT]: PALETTE.yellow,
 };
-
 type ProductRow = Product & Record<string, unknown>;
 
 const STATUS_OPTIONS = [
@@ -59,12 +63,12 @@ export default function ProductsPage() {
         const translation = row.translation as Product["translation"];
         return (
           <div className="flex min-w-50 items-center gap-3">
-            
+
             <div
               className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-border"
               style={{ background: "var(--background-secondary)" }}
             >
-              
+
               <Image
                 src={translation.imgUrl}
                 alt={translation.imgAlt}
@@ -133,9 +137,9 @@ export default function ProductsPage() {
             }}
             className="flex items-center gap-1.5 text-[10px] font-mono px-2 py-1 rounded-lg transition-all hover:scale-105 active:scale-95"
             style={{
-              background: hasForbidden ? "rgba(255,80,80,0.1)" : "var(--background-secondary)",
-              color: hasForbidden ? "#FF5050" : "var(--text-muted)",
-              border: `1px solid ${hasForbidden ? "rgba(255,80,80,0.2)" : "var(--border)"}`,
+              background: hasForbidden ? PALETTE.red.bg : "var(--background-secondary)",
+              color: hasForbidden ? PALETTE.red.color : "var(--text-muted)",
+              border: `1px solid ${hasForbidden ? PALETTE.red.color + "33" : "var(--border)"}`,
             }}
           >
             <ShieldOff size={11} />
@@ -163,6 +167,7 @@ export default function ProductsPage() {
     },
   ];
 
+<<<<<<< HEAD
   return (
     <PageState loading={loading} error={error} >
       <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
@@ -245,5 +250,113 @@ export default function ProductsPage() {
         />
       </div>
     </PageState>
+=======
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full min-h-100 gap-4">
+        <div className="p-4 rounded-full bg-red-500/10">
+          <ShieldOff className="text-red-500" size={32} />
+        </div>
+        <p className="text-red-400 text-sm font-mono max-w-md text-center">{error}</p>
+        <Button
+          variant="outline"
+          onClick={() => window.location.reload()}
+          className="border-border"
+        >
+          Sayfayı Yenile
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
+      <PageHeader
+        title="Ürünler"
+        count={products.length}
+        countLabel="ürün"
+        actions={
+          <Button
+            onClick={() => router.push("/epinpay/products/new")}
+            className="text-white flex items-center gap-2"
+            style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
+          >
+            <Plus size={18} strokeWidth={2.5} />
+            <span className="font-semibold text-sm">Yeni Ürün Ekle</span>
+          </Button>
+        }
+      />
+
+      <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
+        <DataTable
+          data={products as ProductRow[]}
+          columns={COLUMNS}
+          showStatusFilter
+          statusOptions={STATUS_OPTIONS}
+          actions={(row) => (
+            <div className="flex items-center justify-end gap-2">
+              <button
+                onClick={() => open(row as Product)}
+                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-(--text-muted)"
+                title="Hızlı Düzenle"
+                style={{
+                  background: "var(--background-card)",
+                  borderColor: "var(--border)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <Pencil size={14} />
+              </button>
+              <button
+                onClick={() => router.push(`/epinpay/products/copy-${row.id}`)}
+                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-(--text-muted)"
+                title="Kopyasını Oluştur"
+                style={{
+                  background: "var(--background-card)",
+                  borderColor: "var(--border)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <Copy size={14} />
+              </button>
+              <button
+                onClick={() => router.push(`/epinpay/products/${row.id}`)}
+                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-(--text-muted)"
+                title="Ürün Detayları"
+                style={{
+                  background: "var(--background-card)",
+                  borderColor: "var(--border)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <Eye size={14} />
+              </button>
+            </div>
+          )}
+        />
+      </div>
+
+      <ProductEditModal
+        open={isOpen}
+        onClose={close}
+        product={selectedProduct}
+      />
+
+      <ForbiddenCountriesModal
+        open={!!forbiddenModal}
+        onClose={() => setForbiddenModal(null)}
+        product={forbiddenModal}
+        onUpdate={() => setForbiddenModal(null)}
+      />
+    </div>
+>>>>>>> fix/color-status
   );
 }

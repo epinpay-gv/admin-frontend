@@ -9,13 +9,16 @@ import { OFFER_STATUS, DELIVERY_TYPE } from "@/features/store/types";
 import { Button } from "@/components/ui/button";
 import OfferForm from "@/features/store/components/OfferForm";
 import {PageState} from "@/components/common/page-state/PageState";
+import Spinner from "@/components/common/spinner/Spinner";
+import { PALETTE } from "@/lib/status-color";
 
-const STATUS_COLORS: Record<OFFER_STATUS, { bg: string; color: string }> = {
-  [OFFER_STATUS.ACTIVE]:  { bg: "rgba(0,198,162,0.15)",  color: "#00C6A2" },
-  [OFFER_STATUS.PASSIVE]: { bg: "rgba(255,80,80,0.15)",  color: "#FF5050" },
-  [OFFER_STATUS.DRAFT]:   { bg: "rgba(255,180,0,0.15)",  color: "#FFB400" },
+// Sabitler 
+
+const STATUS_COLORS = {
+  [OFFER_STATUS.ACTIVE]:  PALETTE.green,
+  [OFFER_STATUS.PASSIVE]: PALETTE.red,
+  [OFFER_STATUS.DRAFT]:   PALETTE.yellow,
 };
-
 const STATUS_LABELS: Record<OFFER_STATUS, string> = {
   [OFFER_STATUS.ACTIVE]:  "Aktif",
   [OFFER_STATUS.PASSIVE]: "Pasif",
@@ -146,9 +149,33 @@ export default function OfferDetailPage({
                 </div>
 
                 {offer && (
-                  <p className="text-xs font-mono mt-0.5" style={{ color: "var(--text-muted)" }}>
-                    #{offer.id} · {offer.product.slug}
-                  </p>
+                  <span
+                    className="text-[11px] px-2 py-0.5 rounded-full font-mono"
+                    style={{
+                      background: "var(--background-secondary)",
+                      color:      "var(--text-muted)",
+                    }}
+                  >
+                    {DELIVERY_LABELS[offer.deliveryType]}
+                  </span>
+                )}
+
+                {mode === "create" && (
+                  <span
+                    className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
+                    style={PALETTE.yellow}
+                  >
+                    Yeni
+                  </span>
+                )}
+
+                {isDirty && (
+                  <span
+                    className="text-[11px] font-mono px-2 py-0.5 rounded-full"
+                    style={PALETTE.yellow}
+                  >
+                    Kaydedilmemiş değişiklikler
+                  </span>
                 )}
               </div>
             </div>

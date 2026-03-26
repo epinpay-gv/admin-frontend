@@ -12,6 +12,7 @@ import { useOfferToggle } from "@/features/store/hooks/useOfferToggle";
 import Image from "next/image";
 import Spinner from "@/components/common/spinner/Spinner";
 import { PageState } from "@/components/common/page-state/PageState";
+import { PALETTE } from "@/lib/status-color";
 
 // Sabitler 
 const STATUS_LABELS: Record<OFFER_STATUS, string> = {
@@ -20,11 +21,12 @@ const STATUS_LABELS: Record<OFFER_STATUS, string> = {
   [OFFER_STATUS.DRAFT]:   "Taslak",
 };
 
-const STATUS_COLORS: Record<OFFER_STATUS, { bg: string; color: string }> = {
-  [OFFER_STATUS.ACTIVE]:  { bg: "rgba(0,198,162,0.15)",  color: "#00C6A2" },
-  [OFFER_STATUS.PASSIVE]: { bg: "rgba(255,80,80,0.15)",  color: "#FF5050" },
-  [OFFER_STATUS.DRAFT]:   { bg: "rgba(255,180,0,0.15)",  color: "#FFB400" },
+const STATUS_COLORS = {
+  [OFFER_STATUS.ACTIVE]:  PALETTE.green,
+  [OFFER_STATUS.PASSIVE]: PALETTE.red,
+  [OFFER_STATUS.DRAFT]:   PALETTE.yellow,
 };
+
 
 const DELIVERY_LABELS: Record<DELIVERY_TYPE, string> = {
   [DELIVERY_TYPE.AUTOMATIC]:    "Otomatik",
@@ -32,10 +34,10 @@ const DELIVERY_LABELS: Record<DELIVERY_TYPE, string> = {
   [DELIVERY_TYPE.DROPSHIPPING]: "Stoksuz",
 };
 
-const DELIVERY_COLORS: Record<DELIVERY_TYPE, { bg: string; color: string }> = {
-  [DELIVERY_TYPE.AUTOMATIC]:    { bg: "rgba(0,133,255,0.12)",  color: "#0085FF" },
-  [DELIVERY_TYPE.ID_UPLOAD]:    { bg: "rgba(162,89,255,0.12)", color: "#A259FF" },
-  [DELIVERY_TYPE.DROPSHIPPING]: { bg: "rgba(255,180,0,0.12)",  color: "#FFB400" },
+const DELIVERY_COLORS = {
+  [DELIVERY_TYPE.AUTOMATIC]:    PALETTE.blue,
+  [DELIVERY_TYPE.ID_UPLOAD]:    PALETTE.purple,
+  [DELIVERY_TYPE.DROPSHIPPING]: PALETTE.yellow,
 };
 
 const STATUS_OPTIONS = [
@@ -127,7 +129,7 @@ const { toggle, loadingId } = useOfferToggle((id, status) => {
         return (
           <span
             className="font-mono text-sm font-medium"
-            style={{ color: isEmpty ? "#FF5050" : "var(--text-primary)" }}
+            style={{ color: isEmpty ? PALETTE.red.color : "var(--text-primary)" }}
           >
             {stock?.total ?? 0}
           </span>
@@ -170,6 +172,52 @@ const { toggle, loadingId } = useOfferToggle((id, status) => {
               <span className="font-semibold text-sm">Yeni Teklif</span>
             </Button>
           }
+      />
+
+      <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
+        <DataTable
+          data={offers as OfferRow[]}
+          columns={COLUMNS}
+          showStatusFilter
+          statusOptions={STATUS_OPTIONS}
+          actions={(row) => (
+            <div className="flex items-center justify-end gap-2">
+              {/* Toggle butonu — loadingId ile hangi satırın işlemde olduğu belli */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggle(row.id as number, row.status as OFFER_STATUS);
+                }}
+                disabled={loadingId === row.id}
+                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5"
+                title={row.status === OFFER_STATUS.ACTIVE ? "Pasife Al" : "Aktif Et"}
+                style={{
+                  background:   "var(--background-card)",
+                  borderColor:  "var(--border)",
+              color: row.status === OFFER_STATUS.ACTIVE ? PALETTE.green.color : PALETTE.red.color,
+                  opacity:      loadingId === row.id ? 0.5 : 1,
+                }}
+              >
+                {row.status === OFFER_STATUS.ACTIVE
+                  ? <ToggleRight size={20} />
+                  : <ToggleLeft  size={20} />
+                }
+              </button>
+              {/* Detay */}
+              <button
+                onClick={() => router.push(`/store/${row.id}`)}
+                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5"
+                title="Teklif Detayı"
+                style={{
+                  background:  "var(--background-card)",
+                  borderColor: "var(--border)",
+                  color:       "var(--text-muted)",
+                }}
+              >
+                <Eye size={14} />
+              </button>
+            </div>
+          )}
         />
 
         <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
@@ -218,6 +266,7 @@ const { toggle, loadingId } = useOfferToggle((id, status) => {
             )}
           />
         </div>
+      </div>
       </div>
     </PageState>
   );

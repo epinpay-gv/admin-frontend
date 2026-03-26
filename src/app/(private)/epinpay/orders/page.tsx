@@ -17,8 +17,8 @@ import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import { useOrderExport } from "@/features/orders/hooks/useOrderExport";
 import OrderProductsModal from "@/features/orders/components/OrderProductsModal";
-import Spinner from "@/components/common/spinner/Spinner";
 import { PageState } from "@/components/common/page-state/PageState";
+import { PALETTE } from "@/lib/status-color";
 
 type OrderRow = Order & Record<string, unknown>;
 
@@ -52,7 +52,7 @@ export default function OrdersPage() {
         <button
           onClick={() => router.push(`/epinpay/orders/${row.id}`)}
           className="text-sm font-mono font-bold transition-colors"
-          style={{ color: "#0085FF" }}
+          style={{ color: PALETTE.blue.color, }}
         >
           #{String(value)}
         </button>
@@ -78,7 +78,7 @@ export default function OrdersPage() {
             onClick={() => router.push(`/users/${order.user!.id}`)}
             className="flex flex-col items-start transition-colors"
           >
-            <span className="text-sm font-medium" style={{ color: "#0085FF" }}>
+            <span className="text-sm font-medium" style={{color: PALETTE.blue.color,}}>
               {order.user.fullName}
             </span>
             <span className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
@@ -123,8 +123,8 @@ export default function OrdersPage() {
             className="flex items-center gap-1.5 text-xs font-mono px-2 py-1 rounded-lg transition-all"
             style={{
               background: "var(--background-secondary)",
-              color: "#0085FF",
-              border: "1px solid rgba(0,133,255,0.2)",
+              color: PALETTE.blue.color,
+              border: `1px solid ${PALETTE.blue.color}33`,
             }}
           >
             {String(value)} ürün
