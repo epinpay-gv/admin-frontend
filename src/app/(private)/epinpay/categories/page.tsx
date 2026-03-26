@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import Image from "next/image";
 import Spinner from "@/components/common/spinner/Spinner";
+import { PageState } from "@/components/common/page-state/PageState";
 
 
 const STATUS_LABELS: Record<CATEGORY_STATUS, string> = {
@@ -176,122 +177,107 @@ export default function CategoriesPage() {
     },
   ];
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-              <Spinner />
-            </div>
-    );
-  }
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64 gap-3">
-        <p className="text-red-400 text-sm font-mono">{error}</p>
-        <Button
-          variant="ghost"
-          onClick={() => window.location.reload()}
-          style={{ color: "var(--text-muted)" }}
-        >
-          Tekrar dene
-        </Button>
-      </div>
-    );
-  }
 
   return (
-    <div>
-      {/* Üst bar */}
-      <PageHeader
-        title="Kategoriler"
-        count={categories.length}
-        countLabel="kategori"
-        actions={
-            <Button
-            onClick={() => router.push("/epinpay/categories/new")}
-            className="text-white flex items-center gap-2"
-            style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
-            >
-            <Plus size={18} strokeWidth={2.5} />
-            <span className="font-semibold text-sm">Yeni Kategori Ekle</span>
-            </Button>
-        }
-     />
-
-      <DataTable
-        data={categories as CategoryRow[]}
-        columns={COLUMNS}
-        showStatusFilter
-        statusOptions={STATUS_OPTIONS}
-        actions={(row) => (
-          <div className="flex items-center justify-end gap-1.5">
-            <button
-              onClick={() => setEditModal(row as Category)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-              title="Hızlı Düzenle"
-              style={{
-                background: "var(--background-card)",
-                borderColor: "var(--border)",
-                color: "var(--text-muted)",
-              }}
-            >
-              <Pencil size={13} />
-            </button>
-            <button
-              onClick={() => router.push(`/epinpay/categories/copy-${row.id}`)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-              title="Kopyala"
-              style={{
-                background: "var(--background-card)",
-                borderColor: "var(--border)",
-                color: "var(--text-muted)",
-              }}
-            >
-              <Copy size={13} />
-            </button>
-            
-            <button
-              onClick={() => router.push(`/epinpay/categories/${row.id}`)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-              title="Düzenle"
-              style={{
-                background: "var(--background-card)",
-                borderColor: "var(--border)",
-                color: "var(--text-muted)",
-              }}
-            >
-              <Eye size={13} />
-            </button>
-            
-          </div>
-        )}
+    <PageState 
+      loading={loading}
+      error={error}
+      className="h-96"
+    >
+      <div>
+        {/* Üst bar */}
+        <PageHeader
+          title="Kategoriler"
+          count={categories.length}
+          countLabel="kategori"
+          actions={
+              <Button
+              onClick={() => router.push("/epinpay/categories/new")}
+              className="text-white flex items-center gap-2"
+              style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
+              >
+              <Plus size={18} strokeWidth={2.5} />
+              <span className="font-semibold text-sm">Yeni Kategori Ekle</span>
+              </Button>
+          }
       />
 
-      <CategoryCountryStatusModal
-        open={!!countryModal}
-        onClose={() => setCountryModal(null)}
-        category={countryModal}
-        onUpdate={(updated) => {
-          updateCategory(updated);
-          setCountryModal(null);
-        }}
-      />
+        <DataTable
+          data={categories as CategoryRow[]}
+          columns={COLUMNS}
+          showStatusFilter
+          statusOptions={STATUS_OPTIONS}
+          actions={(row) => (
+            <div className="flex items-center justify-end gap-1.5">
+              <button
+                onClick={() => setEditModal(row as Category)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
+                title="Hızlı Düzenle"
+                style={{
+                  background: "var(--background-card)",
+                  borderColor: "var(--border)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <Pencil size={13} />
+              </button>
+              <button
+                onClick={() => router.push(`/epinpay/categories/copy-${row.id}`)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
+                title="Kopyala"
+                style={{
+                  background: "var(--background-card)",
+                  borderColor: "var(--border)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <Copy size={13} />
+              </button>
+              
+              <button
+                onClick={() => router.push(`/epinpay/categories/${row.id}`)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
+                title="Düzenle"
+                style={{
+                  background: "var(--background-card)",
+                  borderColor: "var(--border)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <Eye size={13} />
+              </button>
+              
+            </div>
+          )}
+        />
 
-      <CategoryEditModal
-        open={!!editModal}
-        onClose={() => setEditModal(null)}
-        category={editModal}
-        onUpdate={(updated) => {
-          updateCategory(updated);
-          setEditModal(null);
-        }}
-      />
+        <CategoryCountryStatusModal
+          open={!!countryModal}
+          onClose={() => setCountryModal(null)}
+          category={countryModal}
+          onUpdate={(updated) => {
+            updateCategory(updated);
+            setCountryModal(null);
+          }}
+        />
 
-      <CategoryProductsModal
-        open={!!productsModal}
-        onClose={() => setProductsModal(null)}
-        category={productsModal}
-      />
-    </div>
+        <CategoryEditModal
+          open={!!editModal}
+          onClose={() => setEditModal(null)}
+          category={editModal}
+          onUpdate={(updated) => {
+            updateCategory(updated);
+            setEditModal(null);
+          }}
+        />
+
+        <CategoryProductsModal
+          open={!!productsModal}
+          onClose={() => setProductsModal(null)}
+          category={productsModal}
+        />
+      </div>
+    </PageState>
   );
 }
