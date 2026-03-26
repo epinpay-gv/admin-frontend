@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Spinner from "@/components/common/spinner/Spinner";
-
+import { PALETTE } from "@/lib/status-color";
 import { useStreamer } from "@/features/streamers/hooks/useStreamer";
 import PackageCard    from "@/features/streamers/components/PackageCard";
 import RequestList    from "@/features/streamers/components/RequestList";
@@ -15,12 +15,11 @@ import {
   STREAMER_STATUS_LABELS,
 } from "@/features/streamers/types";
 
-const STREAMER_STATUS_COLOR: Record<STREAMER_STATUS, { bg: string; color: string }> = {
-  [STREAMER_STATUS.PENDING]:  { bg: "rgba(255,180,0,0.15)",   color: "#FFB400" },
-  [STREAMER_STATUS.APPROVED]: { bg: "rgba(0,198,162,0.15)",   color: "#00C6A2" },
-  [STREAMER_STATUS.REJECTED]: { bg: "rgba(255,80,80,0.15)",   color: "#FF5050" },
+const STREAMER_STATUS_COLOR = {
+  [STREAMER_STATUS.PENDING]:  PALETTE.yellow,
+  [STREAMER_STATUS.APPROVED]: PALETTE.green,
+  [STREAMER_STATUS.REJECTED]: PALETTE.red,
 };
-
 export default function StreamerDetailPage({
   params,
 }: {

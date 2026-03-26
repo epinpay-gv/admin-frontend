@@ -19,25 +19,27 @@ import {
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import Spinner from "@/components/common/spinner/Spinner";
+import { PALETTE } from "@/lib/status-color";
 
-const STATUS_COLORS: Record<RAFFLE_STATUS, { bg: string; color: string }> = {
-  [RAFFLE_STATUS.DRAFT]: { bg: "rgba(255,180,0,0.15)", color: "#FFB400" },
-  [RAFFLE_STATUS.ACTIVE]: { bg: "rgba(0,198,162,0.15)", color: "#00C6A2" },
-  [RAFFLE_STATUS.FINISHED]: { bg: "rgba(0,133,255,0.15)", color: "#0085FF" },
-  [RAFFLE_STATUS.CANCELLED]: { bg: "rgba(255,80,80,0.15)", color: "#FF5050" },
-  [RAFFLE_STATUS.INACTIVE]: { bg: "rgba(160,160,160,0.15)", color: "#A0A0A0" },
+
+const STATUS_COLORS = {
+  [RAFFLE_STATUS.DRAFT]:     PALETTE.yellow,
+  [RAFFLE_STATUS.ACTIVE]:    PALETTE.green,
+  [RAFFLE_STATUS.FINISHED]:  PALETTE.blue,
+  [RAFFLE_STATUS.CANCELLED]: PALETTE.red,
+  [RAFFLE_STATUS.INACTIVE]:  PALETTE.gray,
 };
 
-const CREATOR_COLORS: Record<RAFFLE_CREATOR_TYPE, { bg: string; color: string }> = {
-  [RAFFLE_CREATOR_TYPE.ADMIN]: { bg: "rgba(160,80,255,0.15)", color: "#A050FF" },
-  [RAFFLE_CREATOR_TYPE.STORE]: { bg: "rgba(0,133,255,0.15)", color: "#0085FF" },
-  [RAFFLE_CREATOR_TYPE.PUBLISHER]: { bg: "rgba(0,198,162,0.15)", color: "#00C6A2" },
+const CREATOR_COLORS = {
+  [RAFFLE_CREATOR_TYPE.ADMIN]:     PALETTE.purple,
+  [RAFFLE_CREATOR_TYPE.STORE]:     PALETTE.blue,
+  [RAFFLE_CREATOR_TYPE.PUBLISHER]: PALETTE.green,
 };
 
-const TYPE_COLORS: Record<RAFFLE_TYPE, { bg: string; color: string }> = {
-  [RAFFLE_TYPE.FREE]: { bg: "rgba(0,198,162,0.15)", color: "#00C6A2" },
-  [RAFFLE_TYPE.EP]: { bg: "rgba(255,180,0,0.15)", color: "#FFB400" },
-  [RAFFLE_TYPE.COUPON]: { bg: "rgba(0,133,255,0.15)", color: "#0085FF" },
+const TYPE_COLORS = {
+  [RAFFLE_TYPE.FREE]:   PALETTE.green,
+  [RAFFLE_TYPE.EP]:     PALETTE.yellow,
+  [RAFFLE_TYPE.COUPON]: PALETTE.blue,
 };
 
 const STATUS_OPTIONS = [
@@ -264,14 +266,14 @@ export default function RafflesPage() {
               variant="ghost"
               onClick={() => setShowFilters((v) => !v)}
               className="flex items-center gap-2 text-sm relative"
-              style={{ color: showFilters ? "#00C6A2" : "var(--text-muted)" }}
+              style={{ color: showFilters ? PALETTE.green.color : "var(--text-muted)" }}
             >
               <Filter size={14} />
               Filtrele
               {hasActiveFilters && (
                 <span
                   className="absolute -top-1 -right-1 w-2 h-2 rounded-full"
-                  style={{ background: "#00C6A2" }}
+                 style={{ background: PALETTE.green.color }}
                 />
               )}
             </Button>

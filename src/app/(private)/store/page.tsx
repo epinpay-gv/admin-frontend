@@ -11,6 +11,7 @@ import { useOffers } from "@/features/store/hooks/useOffers";
 import { useOfferToggle } from "@/features/store/hooks/useOfferToggle";
 import Image from "next/image";
 import Spinner from "@/components/common/spinner/Spinner";
+import { PALETTE } from "@/lib/status-color";
 
 // Sabitler 
 const STATUS_LABELS: Record<OFFER_STATUS, string> = {
@@ -19,11 +20,12 @@ const STATUS_LABELS: Record<OFFER_STATUS, string> = {
   [OFFER_STATUS.DRAFT]:   "Taslak",
 };
 
-const STATUS_COLORS: Record<OFFER_STATUS, { bg: string; color: string }> = {
-  [OFFER_STATUS.ACTIVE]:  { bg: "rgba(0,198,162,0.15)",  color: "#00C6A2" },
-  [OFFER_STATUS.PASSIVE]: { bg: "rgba(255,80,80,0.15)",  color: "#FF5050" },
-  [OFFER_STATUS.DRAFT]:   { bg: "rgba(255,180,0,0.15)",  color: "#FFB400" },
+const STATUS_COLORS = {
+  [OFFER_STATUS.ACTIVE]:  PALETTE.green,
+  [OFFER_STATUS.PASSIVE]: PALETTE.red,
+  [OFFER_STATUS.DRAFT]:   PALETTE.yellow,
 };
+
 
 const DELIVERY_LABELS: Record<DELIVERY_TYPE, string> = {
   [DELIVERY_TYPE.AUTOMATIC]:    "Otomatik",
@@ -31,10 +33,10 @@ const DELIVERY_LABELS: Record<DELIVERY_TYPE, string> = {
   [DELIVERY_TYPE.DROPSHIPPING]: "Stoksuz",
 };
 
-const DELIVERY_COLORS: Record<DELIVERY_TYPE, { bg: string; color: string }> = {
-  [DELIVERY_TYPE.AUTOMATIC]:    { bg: "rgba(0,133,255,0.12)",  color: "#0085FF" },
-  [DELIVERY_TYPE.ID_UPLOAD]:    { bg: "rgba(162,89,255,0.12)", color: "#A259FF" },
-  [DELIVERY_TYPE.DROPSHIPPING]: { bg: "rgba(255,180,0,0.12)",  color: "#FFB400" },
+const DELIVERY_COLORS = {
+  [DELIVERY_TYPE.AUTOMATIC]:    PALETTE.blue,
+  [DELIVERY_TYPE.ID_UPLOAD]:    PALETTE.purple,
+  [DELIVERY_TYPE.DROPSHIPPING]: PALETTE.yellow,
 };
 
 const STATUS_OPTIONS = [
@@ -126,7 +128,7 @@ const { toggle, loadingId } = useOfferToggle((id, status) => {
         return (
           <span
             className="font-mono text-sm font-medium"
-            style={{ color: isEmpty ? "#FF5050" : "var(--text-primary)" }}
+            style={{ color: isEmpty ? PALETTE.red.color : "var(--text-primary)" }}
           >
             {stock?.total ?? 0}
           </span>
@@ -213,7 +215,7 @@ const { toggle, loadingId } = useOfferToggle((id, status) => {
                 style={{
                   background:   "var(--background-card)",
                   borderColor:  "var(--border)",
-                  color:        row.status === OFFER_STATUS.ACTIVE ? "#00C6A2" : "#FF5050",
+              color: row.status === OFFER_STATUS.ACTIVE ? PALETTE.green.color : PALETTE.red.color,
                   opacity:      loadingId === row.id ? 0.5 : 1,
                 }}
               >

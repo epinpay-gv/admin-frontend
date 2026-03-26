@@ -12,6 +12,7 @@ import { useState } from "react";
 import ForbiddenCountriesModal from "@/features/products/components/ForbiddenCountriesModal";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import Spinner from "@/components/common/spinner/Spinner";
+import { PALETTE } from "@/lib/status-color";
 
 const STATUS_LABELS: Record<PRODUCT_STATUS, string> = {
   [PRODUCT_STATUS.ACTIVE]: "Aktif",
@@ -19,12 +20,11 @@ const STATUS_LABELS: Record<PRODUCT_STATUS, string> = {
   [PRODUCT_STATUS.DRAFT]: "Taslak",
 };
 
-const STATUS_COLORS: Record<PRODUCT_STATUS, { bg: string; color: string }> = {
-  [PRODUCT_STATUS.ACTIVE]: { bg: "rgba(0,198,162,0.15)", color: "#00C6A2" },
-  [PRODUCT_STATUS.INACTIVE]: { bg: "rgba(255,80,80,0.15)", color: "#FF5050" },
-  [PRODUCT_STATUS.DRAFT]: { bg: "rgba(255,180,0,0.15)", color: "#FFB400" },
+const STATUS_COLORS = {
+  [PRODUCT_STATUS.ACTIVE]: PALETTE.green,
+  [PRODUCT_STATUS.INACTIVE]: PALETTE.red,
+  [PRODUCT_STATUS.DRAFT]: PALETTE.yellow,
 };
-
 type ProductRow = Product & Record<string, unknown>;
 
 const STATUS_OPTIONS = [
@@ -59,12 +59,12 @@ export default function ProductsPage() {
         const translation = row.translation as Product["translation"];
         return (
           <div className="flex min-w-50 items-center gap-3">
-            
+
             <div
               className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-border"
               style={{ background: "var(--background-secondary)" }}
             >
-              
+
               <Image
                 src={translation.imgUrl}
                 alt={translation.imgAlt}
@@ -133,9 +133,9 @@ export default function ProductsPage() {
             }}
             className="flex items-center gap-1.5 text-[10px] font-mono px-2 py-1 rounded-lg transition-all hover:scale-105 active:scale-95"
             style={{
-              background: hasForbidden ? "rgba(255,80,80,0.1)" : "var(--background-secondary)",
-              color: hasForbidden ? "#FF5050" : "var(--text-muted)",
-              border: `1px solid ${hasForbidden ? "rgba(255,80,80,0.2)" : "var(--border)"}`,
+              background: hasForbidden ? PALETTE.red.bg : "var(--background-secondary)",
+              color: hasForbidden ? PALETTE.red.color : "var(--text-muted)",
+              border: `1px solid ${hasForbidden ? PALETTE.red.color + "33" : "var(--border)"}`,
             }}
           >
             <ShieldOff size={11} />
@@ -175,7 +175,7 @@ export default function ProductsPage() {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-100 gap-4">
         <div className="p-4 rounded-full bg-red-500/10">
-           <ShieldOff className="text-red-500" size={32} />
+          <ShieldOff className="text-red-500" size={32} />
         </div>
         <p className="text-red-400 text-sm font-mono max-w-md text-center">{error}</p>
         <Button
@@ -196,17 +196,17 @@ export default function ProductsPage() {
         count={products.length}
         countLabel="ürün"
         actions={
-            <Button
+          <Button
             onClick={() => router.push("/epinpay/products/new")}
             className="text-white flex items-center gap-2"
             style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
-            >
+          >
             <Plus size={18} strokeWidth={2.5} />
             <span className="font-semibold text-sm">Yeni Ürün Ekle</span>
-            </Button>
+          </Button>
         }
-           />
-      
+      />
+
       <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
         <DataTable
           data={products as ProductRow[]}
@@ -217,7 +217,7 @@ export default function ProductsPage() {
             <div className="flex items-center justify-end gap-2">
               <button
                 onClick={() => open(row as Product)}
-                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-[var(--text-muted)]"
+                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-(--text-muted)"
                 title="Hızlı Düzenle"
                 style={{
                   background: "var(--background-card)",
@@ -229,7 +229,7 @@ export default function ProductsPage() {
               </button>
               <button
                 onClick={() => router.push(`/epinpay/products/copy-${row.id}`)}
-                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-[var(--text-muted)]"
+                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-(--text-muted)"
                 title="Kopyasını Oluştur"
                 style={{
                   background: "var(--background-card)",
@@ -241,7 +241,7 @@ export default function ProductsPage() {
               </button>
               <button
                 onClick={() => router.push(`/epinpay/products/${row.id}`)}
-                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-[var(--text-muted)]"
+                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-(--text-muted)"
                 title="Ürün Detayları"
                 style={{
                   background: "var(--background-card)",
@@ -255,7 +255,7 @@ export default function ProductsPage() {
           )}
         />
       </div>
-      
+
       <ProductEditModal
         open={isOpen}
         onClose={close}

@@ -13,13 +13,14 @@ import {
 } from "@/features/raffles/types";
 import { Button } from "@/components/ui/button";
 import Spinner from "@/components/common/spinner/Spinner";
+import { PALETTE } from "@/lib/status-color";
 
-const STATUS_COLORS: Record<RAFFLE_STATUS, { bg: string; color: string }> = {
-  [RAFFLE_STATUS.DRAFT]: { bg: "rgba(255,180,0,0.15)", color: "#FFB400" },
-  [RAFFLE_STATUS.ACTIVE]: { bg: "rgba(0,198,162,0.15)", color: "#00C6A2" },
-  [RAFFLE_STATUS.FINISHED]: { bg: "rgba(0,133,255,0.15)", color: "#0085FF" },
-  [RAFFLE_STATUS.CANCELLED]: { bg: "rgba(255,80,80,0.15)", color: "#FF5050" },
-  [RAFFLE_STATUS.INACTIVE]: { bg: "rgba(160,160,160,0.15)", color: "#A0A0A0" },
+const STATUS_COLORS = {
+  [RAFFLE_STATUS.DRAFT]:     PALETTE.yellow,
+  [RAFFLE_STATUS.ACTIVE]:    PALETTE.green,
+  [RAFFLE_STATUS.FINISHED]:  PALETTE.blue,
+  [RAFFLE_STATUS.CANCELLED]: PALETTE.red,
+  [RAFFLE_STATUS.INACTIVE]:  PALETTE.gray,
 };
 
 function SectionDivider({ title }: { title: string }) {
@@ -174,12 +175,12 @@ export default function RaffleDetailPage({
               {raffle.cancelReason && (
                 <div
                   className="mt-4 p-3 rounded-lg"
-                  style={{ background: "rgba(255,80,80,0.1)", border: "1px solid rgba(255,80,80,0.2)" }}
+                  style={{ background: PALETTE.red.bg, border: `1px solid ${PALETTE.red.color}33` }}
                 >
-                  <p className="text-xs font-semibold font-mono mb-1" style={{ color: "#FF5050" }}>
+                  <p className="text-xs font-semibold font-mono mb-1" style={{ color: PALETTE.red.color }} >
                     İptal Nedeni
                   </p>
-                  <p className="text-sm" style={{ color: "#FF5050" }}>
+                  <p className="text-sm" style={{ color: PALETTE.red.color }} >
                     {raffle.cancelReason}
                   </p>
                 </div>
@@ -245,7 +246,7 @@ export default function RaffleDetailPage({
                       <div className="flex items-start gap-3">
                         <div
                           className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                          style={{ background: "rgba(0,198,162,0.1)", color: "#00C6A2" }}
+                          style={{ background: PALETTE.green.bg, color: PALETTE.green.color }}
                         >
                           <Gift size={16} />
                         </div>

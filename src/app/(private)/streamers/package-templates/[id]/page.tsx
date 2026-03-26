@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Spinner from "@/components/common/spinner/Spinner";
-
+import { PALETTE } from "@/lib/status-color";
 import { usePackageTemplate } from "@/features/streamers/hooks/usePackageTemplate";
 import TemplateContentList    from "@/features/streamers/components/TemplateContentList";
 
@@ -17,9 +17,9 @@ import {
   PACKAGE_LEVEL_LABELS,
 } from "@/features/streamers/types";
 
-const TEMPLATE_STATUS_COLOR: Record<TEMPLATE_STATUS, { bg: string; color: string }> = {
-  [TEMPLATE_STATUS.ACTIVE]:   { bg: "rgba(0,198,162,0.15)",   color: "#00C6A2" },
-  [TEMPLATE_STATUS.INACTIVE]: { bg: "rgba(160,160,160,0.15)", color: "#A0A0A0" },
+const TEMPLATE_STATUS_COLOR = {
+  [TEMPLATE_STATUS.ACTIVE]:   PALETTE.green,
+  [TEMPLATE_STATUS.INACTIVE]: PALETTE.gray,
 };
 
 export default function TemplateDetailPage({
@@ -128,7 +128,7 @@ export default function TemplateDetailPage({
               {dirty && (
                 <span
                   className="text-[11px] font-mono px-2 py-0.5 rounded-full"
-                  style={{ background: "rgba(255,180,0,0.15)", color: "#FFB400" }}
+                  style={{ background: PALETTE.yellow.bg, color: PALETTE.yellow.color }}
                 >
                   Kaydedilmemiş değişiklikler
                 </span>

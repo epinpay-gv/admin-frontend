@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Order, DELIVERY_TYPE, SLA_STATUS } from "@/features/orders/types";
 import Spinner from "@/components/common/spinner/Spinner";
+import { PALETTE } from "@/lib/status-color";
 
 const DELIVERY_TYPE_LABELS: Record<DELIVERY_TYPE, string> = {
   [DELIVERY_TYPE.EPIN]: "E-Pin",
@@ -46,8 +47,8 @@ export default function OrderDetailPage({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-              <Spinner />
-            </div>
+        <Spinner />
+      </div>
     );
   }
 
@@ -84,7 +85,7 @@ export default function OrderDetailPage({
               </h1>
               <OrderStatusBadge status={order.status} slaStatus={order.slaStatus} />
               {order.isSlaCancel && (
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono" style={{ background: "rgba(255,80,80,0.15)", color: "#FF5050" }}>
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono" style={{ background: PALETTE.red.bg, color: PALETTE.red.color }}>
                   SLA İptal
                 </span>
               )}
@@ -201,8 +202,8 @@ export default function OrderDetailPage({
                 <span
                   className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
                   style={{
-                    background: order.slaStatus === SLA_STATUS.OK ? "rgba(0,198,162,0.15)" : order.slaStatus === SLA_STATUS.AT_RISK ? "rgba(255,180,0,0.15)" : "rgba(255,80,80,0.15)",
-                    color: order.slaStatus === SLA_STATUS.OK ? "#00C6A2" : order.slaStatus === SLA_STATUS.AT_RISK ? "#FFB400" : "#FF5050",
+                    background: order.slaStatus === SLA_STATUS.OK ? PALETTE.green.bg : order.slaStatus === SLA_STATUS.AT_RISK ? PALETTE.yellow.bg : PALETTE.red.bg,
+                    color: order.slaStatus === SLA_STATUS.OK ? PALETTE.green.color : order.slaStatus === SLA_STATUS.AT_RISK ? PALETTE.yellow.color : PALETTE.red.color,
                   }}
                 >
                   {order.slaStatus === SLA_STATUS.OK ? "Normal" : order.slaStatus === SLA_STATUS.AT_RISK ? "Risk Altında" : "İhlal Edildi"}
@@ -293,8 +294,8 @@ export default function OrderDetailPage({
                 <span
                   className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
                   style={{
-                    background: order.payment.status === "success" ? "rgba(0,198,162,0.15)" : order.payment.status === "refunded" ? "rgba(155,89,182,0.15)" : "rgba(255,80,80,0.15)",
-                    color: order.payment.status === "success" ? "#00C6A2" : order.payment.status === "refunded" ? "#9B59B6" : "#FF5050",
+                    background: order.payment.status === "success" ? PALETTE.green.bg : order.payment.status === "refunded" ? PALETTE.purple.bg : PALETTE.red.bg,
+                    color: order.payment.status === "success" ? PALETTE.green.color : order.payment.status === "refunded" ? PALETTE.purple.color : PALETTE.red.color,
                   }}
                 >
                   {order.payment.status === "success" ? "Başarılı" : order.payment.status === "refunded" ? "İade Edildi" : order.payment.status === "failed" ? "Başarısız" : "Bekliyor"}

@@ -9,16 +9,15 @@ import { OFFER_STATUS, DELIVERY_TYPE } from "@/features/store/types";
 import { Button } from "@/components/ui/button";
 import OfferForm from "@/features/store/components/OfferForm";
 import Spinner from "@/components/common/spinner/Spinner";
-
+import { PALETTE } from "@/lib/status-color";
 
 // Sabitler 
 
-const STATUS_COLORS: Record<OFFER_STATUS, { bg: string; color: string }> = {
-  [OFFER_STATUS.ACTIVE]:  { bg: "rgba(0,198,162,0.15)",  color: "#00C6A2" },
-  [OFFER_STATUS.PASSIVE]: { bg: "rgba(255,80,80,0.15)",  color: "#FF5050" },
-  [OFFER_STATUS.DRAFT]:   { bg: "rgba(255,180,0,0.15)",  color: "#FFB400" },
+const STATUS_COLORS = {
+  [OFFER_STATUS.ACTIVE]:  PALETTE.green,
+  [OFFER_STATUS.PASSIVE]: PALETTE.red,
+  [OFFER_STATUS.DRAFT]:   PALETTE.yellow,
 };
-
 const STATUS_LABELS: Record<OFFER_STATUS, string> = {
   [OFFER_STATUS.ACTIVE]:  "Aktif",
   [OFFER_STATUS.PASSIVE]: "Pasif",
@@ -154,7 +153,7 @@ if (error || (numericId !== null && !offer && !loading)) {
                 {mode === "create" && (
                   <span
                     className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                    style={{ background: "rgba(255,180,0,0.15)", color: "#FFB400" }}
+                    style={PALETTE.yellow}
                   >
                     Yeni
                   </span>
@@ -163,7 +162,7 @@ if (error || (numericId !== null && !offer && !loading)) {
                 {isDirty && (
                   <span
                     className="text-[11px] font-mono px-2 py-0.5 rounded-full"
-                    style={{ background: "rgba(255,180,0,0.15)", color: "#FFB400" }}
+                    style={PALETTE.yellow}
                   >
                     Kaydedilmemiş değişiklikler
                   </span>
