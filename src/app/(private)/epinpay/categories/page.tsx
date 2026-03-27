@@ -10,7 +10,7 @@ import { Category } from "@/features/categories";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import Image from "next/image";
-import Spinner from "@/components/common/spinner/Spinner";
+import { EntityActions } from "@/components/common/entity-actions/EntityActions";
 import { PageState } from "@/components/common/page-state/PageState";
 
 

@@ -5,22 +5,13 @@ import { useRouter } from "next/navigation";
 import { Eye, Filter, X, RefreshCw } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/common/data-table";
 import { useRaffles } from "@/features/raffles";
-import {
-  Raffle,
-  RAFFLE_STATUS,
-  RAFFLE_STATUS_LABELS,
-  RAFFLE_TYPE,
-  RAFFLE_TYPE_LABELS,
-  RAFFLE_CREATOR_TYPE,
-  RAFFLE_CREATOR_TYPE_LABELS,
-  PARTICIPATION_RESTRICTION_LABELS,
-  RaffleFilters,
-} from "@/features/raffles/types";
+import {Raffle, RAFFLE_STATUS, RAFFLE_STATUS_LABELS, RAFFLE_TYPE, RAFFLE_TYPE_LABELS,
+  RAFFLE_CREATOR_TYPE, RAFFLE_CREATOR_TYPE_LABELS, PARTICIPATION_RESTRICTION_LABELS,
+RaffleFilters} from "@/features/raffles/types";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import Spinner from "@/components/common/spinner/Spinner";
 import { PALETTE } from "@/lib/status-color";
-
 
 const STATUS_COLORS = {
   [RAFFLE_STATUS.DRAFT]:     PALETTE.yellow,
@@ -109,7 +100,7 @@ export default function RafflesPage() {
       sortable: true,
       searchable: true,
       render: (_, row) => (
-        <div className="min-w-[200px]">
+        <div className="min-w-50">
           <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
             {row.name as string}
           </p>
