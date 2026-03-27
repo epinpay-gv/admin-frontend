@@ -10,7 +10,6 @@ import { useBlogs } from "@/features/blog/hooks/useBlogs";
 import { useBlogModal } from "@/features/blog/hooks/useBlogModal";
 import BlogEditModal from "@/features/blog/components/BlogEditModal";
 import { Button } from "@/components/ui/button";
-import Spinner from "@/components/common/spinner/Spinner";
 import {PALETTE} from "@/lib/status-color";
 import { PageState } from "@/components/common/page-state/PageState";
 

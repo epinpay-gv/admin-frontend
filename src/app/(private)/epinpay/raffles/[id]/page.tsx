@@ -12,6 +12,7 @@ import {
   PARTICIPATION_RESTRICTION_LABELS,
 } from "@/features/raffles/types";
 import {PageState} from "@/components/common/page-state/PageState";
+import {PALETTE} from "@/lib/status-color";
 
 const STATUS_COLORS: Record<RAFFLE_STATUS, { bg: string; color: string }> = {
   [RAFFLE_STATUS.DRAFT]: { bg: "rgba(255,180,0,0.15)", color: "#FFB400" },

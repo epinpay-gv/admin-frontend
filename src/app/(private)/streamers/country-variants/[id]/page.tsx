@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {PageState} from "@/components/common/page-state/PageState";
-
+import {PALETTE} from "@/lib/status-color";
 import { useCountryVariant }  from "@/features/streamers/hooks/useCountryVariant";
 import { usePackageTemplate } from "@/features/streamers/hooks/usePackageTemplate";
 import VariantContentList      from "@/features/streamers/components/VariantContentList";
@@ -16,11 +16,10 @@ import {
   PACKAGE_LEVEL_LABELS,
 } from "@/features/streamers/types";
 
-const VARIANT_STATUS_COLOR: Record<VARIANT_STATUS, { bg: string; color: string }> = {
-  [VARIANT_STATUS.ACTIVE]:   { bg: "rgba(0,198,162,0.15)",   color: "#00C6A2" },
-  [VARIANT_STATUS.INACTIVE]: { bg: "rgba(160,160,160,0.15)", color: "#A0A0A0" },
+const VARIANT_STATUS_COLOR = {
+  [VARIANT_STATUS.ACTIVE]:   PALETTE.green,
+  [VARIANT_STATUS.INACTIVE]: PALETTE.gray,
 };
-
 export default function VariantDetailPage({
   params,
 }: {
@@ -142,7 +141,7 @@ export default function VariantDetailPage({
                   {dirty && (
                     <span
                       className="text-[11px] font-mono px-2 py-0.5 rounded-full"
-                      style={{ background: "rgba(255,180,0,0.15)", color: "#FFB400" }}
+                      style={{ background: PALETTE.yellow.bg, color: PALETTE.yellow.color }}
                     >
                       Kaydedilmemiş değişiklikler
                     </span>
