@@ -57,8 +57,10 @@ export async function baseFetcher<TResponse, TBody = unknown>(
     revalidate,
     tags,
   } = config;
-
-  const url = buildUrl(endpoint, params);
+  const url = buildUrl(
+    endpoint,
+    params as Record<string, string | number | boolean | undefined | null>
+  );
 
   const nextConfig: RequestInit["next"] = {};
   if (revalidate !== undefined) nextConfig.revalidate = revalidate;
@@ -87,7 +89,6 @@ export async function baseFetcher<TResponse, TBody = unknown>(
     );
   }
 
-  // No content
   if (response.status === 204) {
     return undefined as TResponse;
   }
@@ -117,17 +118,15 @@ export async function baseFetcher<TResponse, TBody = unknown>(
   return json as TResponse;
 }
 
-// Convenience Methods 
-
 export const api = {
-  get: <TResponse>(
+  get: <TResponse, TParams extends Record<string, unknown> = Record<string, unknown>>(
     endpoint: string,
-    params?: FetcherConfig["params"],
+    params?: TParams,
     config?: Omit<FetcherConfig, "method" | "body" | "params">
-  ) =>
+  ): Promise<TResponse> =>
     baseFetcher<TResponse>(endpoint, {
       method: "GET",
-      params,
+      params: params as Record<string, string | number | boolean | undefined | null>,
       ...config,
     }),
 
@@ -135,7 +134,7 @@ export const api = {
     endpoint: string,
     body?: TBody,
     config?: Omit<FetcherConfig<TBody>, "method" | "body">
-  ) =>
+  ): Promise<TResponse> =>
     baseFetcher<TResponse, TBody>(endpoint, {
       method: "POST",
       body,
@@ -146,7 +145,7 @@ export const api = {
     endpoint: string,
     body?: TBody,
     config?: Omit<FetcherConfig<TBody>, "method" | "body">
-  ) =>
+  ): Promise<TResponse> =>
     baseFetcher<TResponse, TBody>(endpoint, {
       method: "PUT",
       body,
@@ -157,7 +156,7 @@ export const api = {
     endpoint: string,
     body?: TBody,
     config?: Omit<FetcherConfig<TBody>, "method" | "body">
-  ) =>
+  ): Promise<TResponse> =>
     baseFetcher<TResponse, TBody>(endpoint, {
       method: "PATCH",
       body,
@@ -167,7 +166,7 @@ export const api = {
   delete: <TResponse>(
     endpoint: string,
     config?: Omit<FetcherConfig, "method" | "body">
-  ) =>
+  ): Promise<TResponse> =>
     baseFetcher<TResponse>(endpoint, {
       method: "DELETE",
       ...config,
