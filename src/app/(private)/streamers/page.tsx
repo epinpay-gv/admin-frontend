@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, RefreshCw, Users, Package, Globe, ClipboardList } from "lucide-react";
+import { RefreshCw, Users, Package, Globe, ClipboardList } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/common/data-table";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import Spinner from "@/components/common/spinner/Spinner";
-import {PALETTE} from "@/lib/status-color"
-import { useStreamers }        from "@/features/streamers/hooks/useStreamers";
+import { PALETTE } from "@/lib/status-color"
+import { useStreamers } from "@/features/streamers/hooks/useStreamers";
 import { usePackageTemplates } from "@/features/streamers/hooks/usePackageTemplates";
-import { useCountryVariants }  from "@/features/streamers/hooks/useCountryVariants";
-import { usePackageRequests }  from "@/features/streamers/hooks/usePackageRequests";
+import { useCountryVariants } from "@/features/streamers/hooks/useCountryVariants";
+import { usePackageRequests } from "@/features/streamers/hooks/usePackageRequests";
 
 import {
   STREAMER_STATUS,
@@ -28,6 +28,7 @@ import {
   PACKAGE_REQUEST_TYPE_LABELS,
   PACKAGE_LEVEL_LABELS,
 } from "@/features/streamers/types";
+import { EntityActions } from "@/components/common/entity-actions/EntityActions";
 
 type TabKey = "streamers" | "templates" | "variants" | "requests";
 
@@ -35,29 +36,29 @@ type Row = Record<string, any>;
 
 
 const STREAMER_STATUS_COLOR: Record<STREAMER_STATUS, typeof PALETTE[keyof typeof PALETTE]> = {
-  [STREAMER_STATUS.PENDING]:  PALETTE.yellow,
+  [STREAMER_STATUS.PENDING]: PALETTE.yellow,
   [STREAMER_STATUS.APPROVED]: PALETTE.green,
   [STREAMER_STATUS.REJECTED]: PALETTE.red,
 };
 
 const PACKAGE_STATUS_COLOR: Record<PACKAGE_STATUS, typeof PALETTE[keyof typeof PALETTE]> = {
-  [PACKAGE_STATUS.ACTIVE]:  PALETTE.green,
+  [PACKAGE_STATUS.ACTIVE]: PALETTE.green,
   [PACKAGE_STATUS.EXPIRED]: PALETTE.red,
-  [PACKAGE_STATUS.NONE]:    PALETTE.gray,
+  [PACKAGE_STATUS.NONE]: PALETTE.gray,
 };
 
 const TEMPLATE_STATUS_COLOR: Record<TEMPLATE_STATUS, typeof PALETTE[keyof typeof PALETTE]> = {
-  [TEMPLATE_STATUS.ACTIVE]:   PALETTE.green,
+  [TEMPLATE_STATUS.ACTIVE]: PALETTE.green,
   [TEMPLATE_STATUS.INACTIVE]: PALETTE.gray,
 };
 
 const VARIANT_STATUS_COLOR: Record<VARIANT_STATUS, typeof PALETTE[keyof typeof PALETTE]> = {
-  [VARIANT_STATUS.ACTIVE]:   PALETTE.green,
+  [VARIANT_STATUS.ACTIVE]: PALETTE.green,
   [VARIANT_STATUS.INACTIVE]: PALETTE.gray,
 };
 
 const REQUEST_STATUS_COLOR: Record<PACKAGE_REQUEST_STATUS, typeof PALETTE[keyof typeof PALETTE]> = {
-  [PACKAGE_REQUEST_STATUS.PENDING]:  PALETTE.yellow,
+  [PACKAGE_REQUEST_STATUS.PENDING]: PALETTE.yellow,
   [PACKAGE_REQUEST_STATUS.APPROVED]: PALETTE.green,
   [PACKAGE_REQUEST_STATUS.REJECTED]: PALETTE.red,
 };
@@ -321,24 +322,24 @@ const REQUEST_COLUMNS: ColumnDef<Row>[] = [
 
 
 const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
-  { key: "streamers", label: "Yayıncılar",      icon: <Users size={13} /> },
+  { key: "streamers", label: "Yayıncılar", icon: <Users size={13} /> },
   { key: "templates", label: "Paket Şablonları", icon: <Package size={13} /> },
-  { key: "variants",  label: "Ülke Varyantları", icon: <Globe size={13} /> },
-  { key: "requests",  label: "Paket Talepleri",  icon: <ClipboardList size={13} /> },
+  { key: "variants", label: "Ülke Varyantları", icon: <Globe size={13} /> },
+  { key: "requests", label: "Paket Talepleri", icon: <ClipboardList size={13} /> },
 ];
 
 const DETAIL_ROUTE: Record<TabKey, string> = {
   streamers: "/streamers",
   templates: "/streamers/package-templates",
-  variants:  "/streamers/country-variants",
-  requests:  "/streamers", 
+  variants: "/streamers/country-variants",
+  requests: "/streamers",
 };
 
 const COUNT_LABEL: Record<TabKey, string> = {
   streamers: "yayıncı",
   templates: "şablon",
-  variants:  "varyant",
-  requests:  "talep",
+  variants: "varyant",
+  requests: "talep",
 };
 
 
@@ -353,12 +354,12 @@ export default function StreamersPage() {
 
   const streamersHook = useStreamers();
   const templatesHook = usePackageTemplates();
-  const variantsHook  = useCountryVariants();
-  const requestsHook  = usePackageRequests();
+  const variantsHook = useCountryVariants();
+  const requestsHook = usePackageRequests();
 
   const hooks = { streamers: streamersHook, templates: templatesHook, variants: variantsHook, requests: requestsHook };
-  const data  = { streamers: streamersHook.streamers, templates: templatesHook.templates, variants: variantsHook.variants, requests: requestsHook.requests };
-  const cols  = { streamers: STREAMER_COLUMNS, templates: TEMPLATE_COLUMNS, variants: VARIANT_COLUMNS, requests: REQUEST_COLUMNS };
+  const data = { streamers: streamersHook.streamers, templates: templatesHook.templates, variants: variantsHook.variants, requests: requestsHook.requests };
+  const cols = { streamers: STREAMER_COLUMNS, templates: TEMPLATE_COLUMNS, variants: VARIANT_COLUMNS, requests: REQUEST_COLUMNS };
 
   const active = hooks[activeTab];
 
@@ -406,8 +407,8 @@ export default function StreamersPage() {
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
             style={{
               background: activeTab === tab.key ? "var(--background-secondary)" : "transparent",
-              color:      activeTab === tab.key ? "var(--text-primary)"         : "var(--text-muted)",
-              border:     activeTab === tab.key ? "1px solid var(--border)"     : "1px solid transparent",
+              color: activeTab === tab.key ? "var(--text-primary)" : "var(--text-muted)",
+              border: activeTab === tab.key ? "1px solid var(--border)" : "1px solid transparent",
             }}
           >
             {tab.icon}
@@ -422,16 +423,10 @@ export default function StreamersPage() {
           data={data[activeTab] as Row[]}
           columns={cols[activeTab]}
           actions={(row) => (
-            <div className="flex items-center justify-end">
-              <button
-                onClick={() => router.push(`${DETAIL_ROUTE[activeTab]}/${getDetailId(activeTab, row)}`)}
-                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5"
-                title="Detay"
-                style={{ background: "var(--background-card)", borderColor: "var(--border)", color: "var(--text-muted)" }}
-              >
-                <Eye size={14} />
-              </button>
-            </div>
+            <EntityActions
+              row={row}
+              onView={() => router.push(`${DETAIL_ROUTE[activeTab]}/${getDetailId(activeTab, row)}`)}
+            />
           )}
         />
       </div>

@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, FileDown } from "lucide-react";
+import { FileDown } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/common/data-table";
 import {
   useOrders,
@@ -19,6 +19,7 @@ import { useOrderExport } from "@/features/orders/hooks/useOrderExport";
 import OrderProductsModal from "@/features/orders/components/OrderProductsModal";
 import Spinner from "@/components/common/spinner/Spinner";
 import { PALETTE } from "@/lib/status-color";
+import { EntityActions } from "@/components/common/entity-actions/EntityActions";
 
 type OrderRow = Order & Record<string, unknown>;
 
@@ -224,24 +225,9 @@ export default function OrdersPage() {
         showStatusFilter
         statusOptions={STATUS_OPTIONS}
         onFilteredDataChange={(rows) => {
-          filteredOrdersRef.current = rows as unknown as Order[];
+        filteredOrdersRef.current = rows as unknown as Order[];
         }}
-        actions={(row) => (
-          <div className="flex items-center justify-end gap-1.5">
-            <button
-              onClick={() => router.push(`/epinpay/orders/${row.id}`)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-              title="Detayı Gör"
-              style={{
-                background: "var(--background-card)",
-                borderColor: "var(--border)",
-                color: "var(--text-muted)",
-              }}
-            >
-              <Eye size={13} />
-            </button>
-          </div>
-        )}
+     actions={(row) => (<EntityActions row={row} onView={() => router.push(`/epinpay/orders/${row.id}`)}/>)}
       />
 
       <OrderCancelModal

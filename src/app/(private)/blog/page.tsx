@@ -246,7 +246,7 @@ export default function BlogPage() {
         actions={(row) => (
           <EntityActions
             row={row}
-            onEdit={(r) => open(r._original as Blog)}
+            onEdit={(r) => open(r._original)}
             onView={(r) => router.push(`/blog/${r.id}`)}
           />
         )}

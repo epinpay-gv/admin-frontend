@@ -1,20 +1,41 @@
-import { Eye, Pencil, LucideIcon } from "lucide-react";
+import { Eye, Pencil } from "lucide-react";
+import { ReactNode } from "react";
+
+export type ActionItem = {
+  icon: ReactNode;
+  title: string;
+  onClick: () => void;
+};
 
 type Props<T> = {
   row: T;
   onEdit?: (row: T) => void;
   onView?: (row: T) => void;
+  extraActions?: ActionItem[];
 };
 
-type ActionButtonProps = {
-  icon: LucideIcon;
-  onClick: (e: React.MouseEvent) => void;
-};
+export function EntityActions<T>({ row, onEdit, onView, extraActions = [] }: Props<T>) {
+  const actions: ActionItem[] = [
+    ...(onEdit ? [{ icon: <Pencil size={14} />, title: "Düzenle", onClick: () => onEdit(row) }] : []),
+    ...extraActions,
+    ...(onView ? [{ icon: <Eye size={14} />,    title: "Görüntüle", onClick: () => onView(row) }] : []),
+  ];
 
-function ActionButton({ icon: Icon, onClick }: ActionButtonProps) {
+  return (
+    <div className="flex items-center justify-end gap-1.5">
+      {actions.map((action) => (
+        <ActionButton key={action.title} {...action} />
+      ))}
+    </div>
+  );
+}
+
+export function ActionButton({ icon, title, onClick }: ActionItem) {
   return (
     <button
       onClick={onClick}
+      title={title}
+      aria-label={title}
       className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
       style={{
         background: "var(--background-card)",
@@ -22,29 +43,7 @@ function ActionButton({ icon: Icon, onClick }: ActionButtonProps) {
         color: "var(--text-muted)",
       }}
     >
-      <Icon size={14} />
+      {icon}
     </button>
-  );
-}
-
-export function EntityActions<T>({ row, onEdit, onView }: Props<T>) {
-  if (!onEdit && !onView) return null;
-
-  return (
-    <div className="flex items-center justify-end gap-2">
-      {onEdit && (
-        <ActionButton
-          icon={Pencil}
-
-          onClick={(e) => { e.stopPropagation(); onEdit(row); }}
-        />
-      )}
-      {onView && (
-        <ActionButton
-          icon={Eye}
-          onClick={(e) => { e.stopPropagation(); onView(row); }}
-        />
-      )}
-    </div>
   );
 }

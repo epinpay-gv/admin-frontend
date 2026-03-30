@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, Filter, X, RefreshCw } from "lucide-react";
+import { Filter, X, RefreshCw } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/common/data-table";
 import { useRaffles } from "@/features/raffles";
 import {Raffle, RAFFLE_STATUS, RAFFLE_STATUS_LABELS, RAFFLE_TYPE, RAFFLE_TYPE_LABELS,
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import Spinner from "@/components/common/spinner/Spinner";
 import { PALETTE } from "@/lib/status-color";
+import { EntityActions } from "@/components/common/entity-actions/EntityActions";
 
 const STATUS_COLORS = {
   [RAFFLE_STATUS.DRAFT]:     PALETTE.yellow,
@@ -396,22 +397,12 @@ export default function RafflesPage() {
         columns={COLUMNS}
         showStatusFilter
         statusOptions={STATUS_OPTIONS}
-        actions={(row) => (
-          <div className="flex items-center justify-end gap-1.5">
-            <button
-              onClick={() => router.push(`/epinpay/raffles/${row.id}`)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-              title="Detay"
-              style={{
-                background: "var(--background-card)",
-                borderColor: "var(--border)",
-                color: "var(--text-muted)",
-              }}
-            >
-              <Eye size={13} />
-            </button>
-          </div>
-        )}
+    actions={(row) => (
+  <EntityActions
+    row={row}
+    onView={() => router.push(`/epinpay/raffles/${row.id}`)}
+  />
+)}
       />
     </div>
   );

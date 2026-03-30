@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Eye, Plus, ToggleLeft, ToggleRight } from "lucide-react";
+import { Plus, ToggleLeft, ToggleRight } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/common/data-table";
 
 import { OfferListItem, OFFER_STATUS, DELIVERY_TYPE } from "@/features/store/types";
@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import { useOffers } from "@/features/store/hooks/useOffers";
 import { useOfferToggle } from "@/features/store/hooks/useOfferToggle";
-import Image from "next/image";
 import Spinner from "@/components/common/spinner/Spinner";
 import { PALETTE } from "@/lib/status-color";
+import { EntityActions } from "@/components/common/entity-actions/EntityActions";
 
 // Sabitler 
 const STATUS_LABELS: Record<OFFER_STATUS, string> = {
@@ -201,44 +201,35 @@ const { toggle, loadingId } = useOfferToggle((id, status) => {
           columns={COLUMNS}
           showStatusFilter
           statusOptions={STATUS_OPTIONS}
-          actions={(row) => (
-            <div className="flex items-center justify-end gap-2">
-              {/* Toggle butonu — loadingId ile hangi satırın işlemde olduğu belli */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggle(row.id as number, row.status as OFFER_STATUS);
-                }}
-                disabled={loadingId === row.id}
-                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5"
-                title={row.status === OFFER_STATUS.ACTIVE ? "Pasife Al" : "Aktif Et"}
-                style={{
-                  background:   "var(--background-card)",
-                  borderColor:  "var(--border)",
-              color: row.status === OFFER_STATUS.ACTIVE ? PALETTE.green.color : PALETTE.red.color,
-                  opacity:      loadingId === row.id ? 0.5 : 1,
-                }}
-              >
-                {row.status === OFFER_STATUS.ACTIVE
-                  ? <ToggleRight size={20} />
-                  : <ToggleLeft  size={20} />
-                }
-              </button>
-              {/* Detay */}
-              <button
-                onClick={() => router.push(`/store/${row.id}`)}
-                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5"
-                title="Teklif Detayı"
-                style={{
-                  background:  "var(--background-card)",
-                  borderColor: "var(--border)",
-                  color:       "var(--text-muted)",
-                }}
-              >
-                <Eye size={14} />
-              </button>
-            </div>
-          )}
+         actions={(row) => (
+  <div className="flex items-center justify-end gap-2">
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        toggle(row.id as number, row.status as OFFER_STATUS);
+      }}
+      disabled={loadingId === row.id}
+      className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5"
+      title={row.status === OFFER_STATUS.ACTIVE ? "Pasife Al" : "Aktif Et"}
+      style={{
+        background: "var(--background-card)",
+        borderColor: "var(--border)",
+        color: row.status === OFFER_STATUS.ACTIVE ? PALETTE.green.color : PALETTE.red.color,
+        opacity: loadingId === row.id ? 0.5 : 1,
+      }}
+    >
+      {row.status === OFFER_STATUS.ACTIVE
+        ? <ToggleRight size={20} />
+        : <ToggleLeft size={20} />
+      }
+    </button>
+
+    <EntityActions
+      row={row}
+      onView={() => router.push(`/store/${row.id}`)}
+    />
+  </div>
+)}
         />
       </div>
     </div>

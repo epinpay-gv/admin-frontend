@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Eye, Pencil, Copy, Plus, ShieldOff, Shield } from "lucide-react";
+import { Copy, Plus, ShieldOff, Shield } from "lucide-react";
 import { DataTable } from "@/components/common/data-table";
 import { ColumnDef } from "@/components/common/data-table";
 import { useProducts, useProductModal, ProductEditModal } from "@/features/products";
@@ -13,6 +13,7 @@ import ForbiddenCountriesModal from "@/features/products/components/ForbiddenCou
 import PageHeader from "@/components/common/page-header/PageHeader";
 import Spinner from "@/components/common/spinner/Spinner";
 import { PALETTE } from "@/lib/status-color";
+import { EntityActions } from "@/components/common/entity-actions/EntityActions";
 
 const STATUS_LABELS: Record<PRODUCT_STATUS, string> = {
   [PRODUCT_STATUS.ACTIVE]: "Aktif",
@@ -214,44 +215,18 @@ export default function ProductsPage() {
           showStatusFilter
           statusOptions={STATUS_OPTIONS}
           actions={(row) => (
-            <div className="flex items-center justify-end gap-2">
-              <button
-                onClick={() => open(row as Product)}
-                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-(--text-muted)"
-                title="Hızlı Düzenle"
-                style={{
-                  background: "var(--background-card)",
-                  borderColor: "var(--border)",
-                  color: "var(--text-muted)",
-                }}
-              >
-                <Pencil size={14} />
-              </button>
-              <button
-                onClick={() => router.push(`/epinpay/products/copy-${row.id}`)}
-                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-(--text-muted)"
-                title="Kopyasını Oluştur"
-                style={{
-                  background: "var(--background-card)",
-                  borderColor: "var(--border)",
-                  color: "var(--text-muted)",
-                }}
-              >
-                <Copy size={14} />
-              </button>
-              <button
-                onClick={() => router.push(`/epinpay/products/${row.id}`)}
-                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5 hover:border-(--text-muted)"
-                title="Ürün Detayları"
-                style={{
-                  background: "var(--background-card)",
-                  borderColor: "var(--border)",
-                  color: "var(--text-muted)",
-                }}
-              >
-                <Eye size={14} />
-              </button>
-            </div>
+            <EntityActions
+              row={row}
+              onEdit={() => open(row as Product)}
+              onView={() => router.push(`/epinpay/products/${row.id}`)}
+              extraActions={[
+                {
+                  icon: <Copy size={13} />,
+                  title: "Kopyasını Oluştur",
+                  onClick: () => router.push(`/epinpay/products/copy-${row.id}`),
+                },
+              ]}
+            />
           )}
         />
       </div>

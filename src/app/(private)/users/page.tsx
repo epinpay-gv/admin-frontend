@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/common/data-table";
 import { useUsers } from "@/features/users/hooks/useUsers";
 import { UserListItem, USER_STATUS, UserFilters } from "@/features/users/types";
 import Spinner from "@/components/common/spinner/Spinner";
+import { EntityActions } from "@/components/common/entity-actions/EntityActions";
 
 // Sabit etiket ve renk tanımları 
 
@@ -164,8 +164,8 @@ export default function UsersPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-              <Spinner />
-            </div>
+        <Spinner />
+      </div>
     );
   }
 
@@ -197,21 +197,10 @@ export default function UsersPage() {
         showStatusFilter
         statusOptions={STATUS_OPTIONS}
         actions={(row) => (
-          <div className="flex items-center justify-end gap-2">
-            <button
-              onClick={() => router.push(`/users/${row.id}`)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-              style={{
-                background: "var(--background-card)",
-                borderColor: "var(--border)",
-                color: "var(--text-muted)",
-              }}
-            >
-              <Eye size={14} />
-            </button>
-          </div>
-        )}
-      />
+          <EntityActions
+            row={row}
+            onView={() => router.push(`/users/${row.id}`)} />
+        )} />
     </div>
   );
 }
