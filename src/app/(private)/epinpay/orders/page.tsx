@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, FileDown } from "lucide-react";
+import { FileDown } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/common/data-table";
 import {
   useOrders,
@@ -19,6 +19,7 @@ import { useOrderExport } from "@/features/orders/hooks/useOrderExport";
 import OrderProductsModal from "@/features/orders/components/OrderProductsModal";
 import { PageState } from "@/components/common/page-state/PageState";
 import { PALETTE } from "@/lib/status-color";
+import { EntityActions } from "@/components/common/entity-actions/EntityActions";
 
 type OrderRow = Order & Record<string, unknown>;
 
@@ -168,6 +169,7 @@ export default function OrdersPage() {
   ];
 
   return (
+<<<<<<< HEAD
     <PageState loading={loading} error={error}>
       <div>
         <PageHeader
@@ -199,6 +201,49 @@ export default function OrdersPage() {
             </Button>
           }
         />
+=======
+    <div>
+      <PageHeader
+        title="Siparişler"
+        count={orders.length}
+        countLabel="sipariş"
+        actions={
+          <Button
+            onClick={() => exportExcel(filteredOrdersRef.current)}
+            disabled={exporting}
+            variant="outline"
+            className="flex items-center gap-2"
+            style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+          >
+            {exporting ? (
+              <span
+                className="w-4 h-4 border-2 rounded-full animate-spin"
+                style={{
+                  borderTopColor: "currentColor",
+                  borderRightColor: "transparent",
+                  borderBottomColor: "transparent",
+                  borderLeftColor: "transparent",
+                }}
+              />
+            ) : (
+              <FileDown size={16} />
+            )}
+            Excel İndir
+          </Button>
+        }
+      />
+
+      <DataTable
+        data={orders as OrderRow[]}
+        columns={COLUMNS}
+        showStatusFilter
+        statusOptions={STATUS_OPTIONS}
+        onFilteredDataChange={(rows) => {
+        filteredOrdersRef.current = rows as unknown as Order[];
+        }}
+     actions={(row) => (<EntityActions row={row} onView={() => router.push(`/epinpay/orders/${row.id}`)}/>)}
+      />
+>>>>>>> fix/color-status
 
         <DataTable
           data={orders as OrderRow[]}

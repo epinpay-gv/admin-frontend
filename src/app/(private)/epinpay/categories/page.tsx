@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Pencil, Copy, Plus, ShieldOff, Package, Eye } from "lucide-react";
+import { Copy, Plus, ShieldOff, Package, Pencil, Eye } from "lucide-react";
 import { DataTable } from "@/components/common/data-table";
 import { ColumnDef } from "@/components/common/data-table";
 import { useCategories, CategoryEditModal, CategoryCountryStatusModal, CategoryProductsModal, CATEGORY_STATUS } from "@/features/categories";
@@ -10,7 +10,7 @@ import { Category } from "@/features/categories";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import Image from "next/image";
-import Spinner from "@/components/common/spinner/Spinner";
+import { EntityActions } from "@/components/common/entity-actions/EntityActions";
 import { PageState } from "@/components/common/page-state/PageState";
 
 
@@ -56,9 +56,9 @@ export default function CategoriesPage() {
       render: (_, row) => {
         const translation = row.translation as Category["translation"];
         return (
-          <div className="flex min-w-[200px] items-center gap-3">
+          <div className="flex min-w-50 items-center gap-3">
             <div
-              className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-[var(--border)]"
+              className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-border"
               style={{ background: "var(--background-secondary)" }}
             >
               <Image
@@ -180,9 +180,9 @@ export default function CategoriesPage() {
 
 
   return (
-    <PageState 
+    <PageState
       loading={loading}
-      error={error}      
+      error={error}
     >
       <div>
         {/* Üst bar */}
@@ -191,16 +191,16 @@ export default function CategoriesPage() {
           count={categories.length}
           countLabel="kategori"
           actions={
-              <Button
+            <Button
               onClick={() => router.push("/epinpay/categories/new")}
               className="text-white flex items-center gap-2"
               style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
-              >
+            >
               <Plus size={18} strokeWidth={2.5} />
               <span className="font-semibold text-sm">Yeni Kategori Ekle</span>
-              </Button>
+            </Button>
           }
-      />
+        />
 
         <DataTable
           data={categories as CategoryRow[]}
@@ -208,46 +208,18 @@ export default function CategoriesPage() {
           showStatusFilter
           statusOptions={STATUS_OPTIONS}
           actions={(row) => (
-            <div className="flex items-center justify-end gap-1.5">
-              <button
-                onClick={() => setEditModal(row as Category)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-                title="Hızlı Düzenle"
-                style={{
-                  background: "var(--background-card)",
-                  borderColor: "var(--border)",
-                  color: "var(--text-muted)",
-                }}
-              >
-                <Pencil size={13} />
-              </button>
-              <button
-                onClick={() => router.push(`/epinpay/categories/copy-${row.id}`)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-                title="Kopyala"
-                style={{
-                  background: "var(--background-card)",
-                  borderColor: "var(--border)",
-                  color: "var(--text-muted)",
-                }}
-              >
-                <Copy size={13} />
-              </button>
-              
-              <button
-                onClick={() => router.push(`/epinpay/categories/${row.id}`)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-                title="Düzenle"
-                style={{
-                  background: "var(--background-card)",
-                  borderColor: "var(--border)",
-                  color: "var(--text-muted)",
-                }}
-              >
-                <Eye size={13} />
-              </button>
-              
-            </div>
+            <EntityActions
+              row={row}
+              onEdit={() => setEditModal(row as Category)}
+              onView={() => router.push(`/epinpay/categories/${row.id}`)}
+              extraActions={[
+                {
+                  icon: <Copy size={13} />,
+                  title: "Kopyala",
+                  onClick: () => router.push(`/epinpay/categories/copy-${row.id}`),
+                },
+              ]}
+            />
           )}
         />
 

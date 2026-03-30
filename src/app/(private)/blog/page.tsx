@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Eye, Pencil, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { DataTable } from "@/components/common/data-table";
 import { ColumnDef } from "@/components/common/data-table";
 import { LANGUAGE } from "@/types";
@@ -12,6 +12,7 @@ import BlogEditModal from "@/features/blog/components/BlogEditModal";
 import { Button } from "@/components/ui/button";
 import {PALETTE} from "@/lib/status-color";
 import { PageState } from "@/components/common/page-state/PageState";
+import { EntityActions } from "@/components/common/entity-actions/EntityActions";
 
 const STATUS_LABELS: Record<BLOG_TRANSLATION_STATUS, string> = {
   [BLOG_TRANSLATION_STATUS.PUBLISHED]: "Yayında",
@@ -21,8 +22,8 @@ const STATUS_LABELS: Record<BLOG_TRANSLATION_STATUS, string> = {
 
 const STATUS_COLOR = {
   [BLOG_TRANSLATION_STATUS.PUBLISHED]: PALETTE.green,
-  [BLOG_TRANSLATION_STATUS.INACTIVE]:  PALETTE.red,
-  [BLOG_TRANSLATION_STATUS.DRAFT]:     PALETTE.yellow,
+  [BLOG_TRANSLATION_STATUS.INACTIVE]: PALETTE.red,
+  [BLOG_TRANSLATION_STATUS.DRAFT]: PALETTE.yellow,
 }
 
 const LANGUAGE_LABELS: Record<LANGUAGE, string> = {
@@ -222,38 +223,22 @@ export default function BlogPage() {
           </Button>
         </div>
 
-        <DataTable
-          data={blogRows}
-          columns={COLUMNS}
-          showStatusFilter
-          statusOptions={STATUS_OPTIONS}
-          actions={(row) => (
-            <div className="flex items-center justify-end gap-2">
-              <button
-                onClick={() => open(row._original as Blog)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-                style={{
-                  background: "var(--background-card)",
-                  borderColor: "var(--border)",
-                  color: "var(--text-muted)",
-                }}
-              >
-                <Pencil size={14} />
-              </button>
-              <button
-                onClick={() => router.push(`/blog/${row.id}`)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
-                style={{
-                  background: "var(--background-card)",
-                  borderColor: "var(--border)",
-                  color: "var(--text-muted)",
-                }}
-              >
-                <Eye size={14} />
-              </button>
-            </div>
-          )}
-        />
+
+      <DataTable
+        data={blogRows}
+        columns={COLUMNS}
+        showStatusFilter
+        statusOptions={STATUS_OPTIONS}
+        actions={(row) => (
+          <EntityActions
+            row={row}
+            onEdit={(r) => open(r._original)}
+            onView={(r) => router.push(`/blog/${r.id}`)}
+          />
+        )}
+      />
+
+
 
         <BlogEditModal
           open={isOpen}
