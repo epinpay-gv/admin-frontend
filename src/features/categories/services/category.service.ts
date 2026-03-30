@@ -1,11 +1,12 @@
 import { api } from "@/lib/api/baseFetcher";
-import { Category, CategoryCountry } from "@/features/categories/types";
+import { Category, CategoryCountry, CategoryFilters } from "@/features/categories/types";
 
 const BASE_URL = "/api/categories";
 
 export const categoryService = {
-  getAll: (): Promise<Category[]> =>
-    api.get<Category[]>(BASE_URL),
+  // REVİZE: CategoryFilters tipinde opsiyonel bir parametre ekledik
+  getAll: (filters?: CategoryFilters): Promise<Category[]> =>
+    api.get<Category[], CategoryFilters>(BASE_URL, filters),
 
   getById: (id: number): Promise<Category> =>
     api.get<Category>(`${BASE_URL}/${id}`),

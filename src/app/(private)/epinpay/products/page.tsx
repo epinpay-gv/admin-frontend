@@ -1,20 +1,23 @@
 "use client";
 
-import Image from "next/image";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Copy, Plus, ShieldOff, Shield } from "lucide-react";
+import { Eye, Pencil, Copy, Plus, Filter, RefreshCw } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { DataTable } from "@/components/common/data-table";
-import { ColumnDef } from "@/components/common/data-table";
 import { useProducts, useProductModal, ProductEditModal } from "@/features/products";
-import { Product, PRODUCT_STATUS } from "@/features/products";
+import { Product, PRODUCT_STATUS, ProductFilters } from "@/features/products/types";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import ForbiddenCountriesModal from "@/features/products/components/ForbiddenCountriesModal";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import { PageState } from "@/components/common/page-state/PageState";
 import Spinner from "@/components/common/spinner/Spinner";
 import { PALETTE } from "@/lib/status-color";
 import { EntityActions } from "@/components/common/entity-actions/EntityActions";
+import { FilterPanel } from "@/components/common/filter-panel/FilterPanel"; 
+import { FilterValue } from "@/components/common/filter-panel/types";
+import ForbiddenCountriesModal from "@/features/products/components/ForbiddenCountriesModal";
+import { PRODUCT_FILTER_CONFIG } from "@/features/products/hooks/ProductFilterConfig";
+import { PRODUCT_COLUMNS } from "@/features/products/components/ProductTableConfig";
 
 const STATUS_LABELS: Record<PRODUCT_STATUS, string> = {
   [PRODUCT_STATUS.ACTIVE]: "Aktif",
@@ -38,162 +41,86 @@ const STATUS_OPTIONS = [
 
 export default function ProductsPage() {
   const router = useRouter();
-  const { products, loading, error } = useProducts();
+  const { products, loading, error, filters, setFilters, resetFilters, refresh } = useProducts();
   const { isOpen, selectedProduct, open, close } = useProductModal();
+  
+  const [showFilters, setShowFilters] = useState(false);
   const [forbiddenModal, setForbiddenModal] = useState<Product | null>(null);
 
-  const COLUMNS: ColumnDef<ProductRow>[] = [
-    {
-      key: "id",
-      label: "ID",
-      sortable: true,
-      searchable: true,
-      width: "60px",
-    },
-    {
-      key: "translation",
-      label: "Ürün",
-      sortable: true,
-      searchable: true,
-      searchKey: "translation.name",
-      sortKey: "translation.name",
-      render: (_, row) => {
-        const translation = row.translation as Product["translation"];
-        return (
-          <div className="flex min-w-50 items-center gap-3">
+  // Sütunları memoize ediyoruz, modal state değişiminde tablo titremesin
+  const columns = useMemo(() => PRODUCT_COLUMNS(setForbiddenModal), []);
 
-            <div
-              className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-border"
-              style={{ background: "var(--background-secondary)" }}
-            >
-
-              <Image
-                src={translation.imgUrl}
-                alt={translation.imgAlt}
-                width={40}
-                height={40}
-                className="object-cover w-full h-full"
-              />
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
-                {translation.name}
-              </p>
-              <p className="text-[11px] font-mono opacity-60 truncate" style={{ color: "var(--text-muted)" }}>
-                {translation.slug}
-              </p>
-            </div>
-          </div>
-        );
-      },
-    },
-    {
-      key: "category",
-      label: "Kategori",
-      sortable: true,
-      searchable: true,
-      searchKey: "category.name",
-      sortKey: "category.name",
-      render: (_, row) => {
-        const category = row.category as Product["category"];
-        if (!category) return <span style={{ color: "var(--text-muted)" }}>-</span>;
-        return (
-          <span
-            className="text-[11px] font-mono px-2 py-0.5 rounded-md"
-            style={{
-              background: "var(--background-secondary)",
-              color: "var(--text-secondary)",
-              border: "1px solid var(--border)",
-            }}
-          >
-            {category.name}
-          </span>
-        );
-      },
-    },
-    {
-      key: "basePrice",
-      label: "Fiyat",
-      sortable: true,
-      render: (value) => (
-        <span className="font-mono text-sm" style={{ color: "var(--text-secondary)" }}>
-          ₺ {Number(value).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
-        </span>
-      ),
-    },
-    {
-      key: "forbiddenCountries",
-      label: "Kısıtlama",
-      render: (_, row) => {
-        const forbidden = row.forbiddenCountries as Product["forbiddenCountries"];
-        const hasForbidden = forbidden?.length > 0;
-        return (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setForbiddenModal(row as Product);
-            }}
-            className="flex items-center gap-1.5 text-[10px] font-mono px-2 py-1 rounded-lg transition-all hover:scale-105 active:scale-95"
-            style={{
-              background: hasForbidden ? PALETTE.red.bg : "var(--background-secondary)",
-              color: hasForbidden ? PALETTE.red.color : "var(--text-muted)",
-              border: `1px solid ${hasForbidden ? PALETTE.red.color + "33" : "var(--border)"}`,
-            }}
-          >
-            <ShieldOff size={11} />
-            {hasForbidden ? `${forbidden.length} Ülke` : "Kısıtlama Yok"}
-          </button>
-        );
-      },
-    },
-    {
-      key: "status",
-      label: "Durum",
-      sortable: true,
-      render: (value) => {
-        const status = value as PRODUCT_STATUS;
-        const colors = STATUS_COLORS[status];
-        return (
-          <span
-            className="text-[10px] font-bold px-2 py-0.5 rounded-full font-mono uppercase tracking-wider"
-            style={{ background: colors.bg, color: colors.color }}
-          >
-            {STATUS_LABELS[status]}
-          </span>
-        );
-      },
-    },
-  ];
+  const hasActiveFilters = Object.entries(filters || {}).some(
+    ([_, value]) => value && value !== "all" && value !== ""
+  );
 
   return (
-    <PageState loading={loading} error={error} >
-      <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
-        <PageHeader
-          title="Ürünler"
-          count={products.length}
-          countLabel="ürün"
-          actions={
-              <Button
+    <div className="flex flex-col h-[calc(100vh-100px)] space-y-4 px-1">
+      <PageHeader
+        title="Ürün Yönetimi"
+        count={products.length}
+        countLabel="ürün"
+        actions={
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" onClick={refresh} className="text-(--text-muted)">
+              <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+            </Button>
+
+            <Button
+              variant="ghost"
+              onClick={() => setShowFilters((v) => !v)}
+              className="relative px-4"
+              style={{ 
+                backgroundColor: showFilters ? "rgba(0, 198, 162, 0.1)" : "transparent",
+                color: showFilters ? "#00C6A2" : "var(--text-muted)" 
+              }}
+            >
+              <Filter size={14} className="mr-2" />
+              Filtrele
+              <AnimatePresence>
+                {hasActiveFilters && (
+                  <motion.span 
+                    initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
+                    className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-background bg-[#00C6A2]"
+                  />
+                )}
+              </AnimatePresence>
+            </Button>
+
+            <Button
               onClick={() => router.push("/epinpay/products/new")}
-              className="text-white flex items-center gap-2"
+              className="text-white"
               style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
-              >
-              <Plus size={18} strokeWidth={2.5} />
-              <span className="font-semibold text-sm">Yeni Ürün Ekle</span>
-              </Button>
-          }
-            />
-        
-        <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
+            >
+              <Plus size={18} className="mr-2" />
+              Yeni Ürün Ekle
+            </Button>
+          </div>
+        }
+      />
+
+      <AnimatePresence mode="popLayout">
+        {showFilters && (
+          <FilterPanel
+            key="product-filter-panel"
+            configs={PRODUCT_FILTER_CONFIG}
+            initialFilters={filters as unknown as Record<string, FilterValue>}
+            onApply={(data) => setFilters(data as unknown as ProductFilters)}
+            onReset={resetFilters}
+          />
+        )}
+      </AnimatePresence>
+
+      <PageState loading={loading} error={error}>
+        <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar pb-10">
           <DataTable
-            data={products as ProductRow[]}
-            columns={COLUMNS}
-            showStatusFilter
-            statusOptions={STATUS_OPTIONS}
+            data={products as unknown as Record<string, unknown>[]}
+            columns={columns}
+            showStatusFilter={false}
             actions={(row) => (
                <EntityActions
               row={row}
-              onEdit={() => open(row as Product)}
+              onEdit={() => open(row as unknown as Product)}
               onView={() => router.push(`/epinpay/products/${row.id}`)}
               extraActions={[
                 {
@@ -206,20 +133,19 @@ export default function ProductsPage() {
             )}
           />
         </div>
-        
-        <ProductEditModal
-          open={isOpen}
-          onClose={close}
-          product={selectedProduct}
-        />
+      </PageState>
 
-        <ForbiddenCountriesModal
-          open={!!forbiddenModal}
-          onClose={() => setForbiddenModal(null)}
-          product={forbiddenModal}
-          onUpdate={() => setForbiddenModal(null)}
-        />
-      </div>
-    </PageState>
+      <ProductEditModal open={isOpen} onClose={close} product={selectedProduct} />
+      
+      <ForbiddenCountriesModal
+        open={!!forbiddenModal}
+        onClose={() => setForbiddenModal(null)}
+        product={forbiddenModal}
+        onUpdate={() => {
+            setForbiddenModal(null);
+            refresh(); // Güncelleme sonrası veriyi yenile
+        }}
+      />
+    </div>
   );
 }

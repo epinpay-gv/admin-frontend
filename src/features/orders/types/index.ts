@@ -62,7 +62,7 @@ export interface OrderDelivery {
   deliveryType: DELIVERY_TYPE;
   status: ORDER_STATUS;
   deliveredAt?: string;
-  payload?: string; // epin kodu, top-up referansı vb.
+  payload?: string;
   slaStatus: SLA_STATUS;
   slaDeadline?: string;
 }
@@ -88,7 +88,7 @@ export interface OrderEventLog {
 
 export interface Order {
   id: number;
-  userId: number | null; // null = misafir
+  userId: number | null;
   user: OrderUser | null;
   guestEmail?: string;
   memberType: MEMBER_TYPE;
@@ -108,6 +108,8 @@ export interface Order {
 }
 
 export interface OrderFilters {
+  userEmail?: string | number | boolean | null | undefined;
+  id?: string | number | boolean | null | undefined;
   search?: string;
   userId?: string;
   memberType?: MEMBER_TYPE | "all";

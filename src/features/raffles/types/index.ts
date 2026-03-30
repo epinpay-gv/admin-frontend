@@ -1,3 +1,5 @@
+// features/raffles/types.ts
+
 export enum RAFFLE_STATUS {
   DRAFT = "draft",
   ACTIVE = "active",
@@ -41,6 +43,8 @@ export enum AUDIT_ACTION {
   CODE_DELIVERED = "code_delivered",
   BACKUP_PROMOTED = "backup_promoted",
 }
+
+// --- Labels ---
 
 export const RAFFLE_STATUS_LABELS: Record<RAFFLE_STATUS, string> = {
   [RAFFLE_STATUS.DRAFT]: "Taslak",
@@ -86,6 +90,7 @@ export const AUDIT_ACTION_LABELS: Record<AUDIT_ACTION, string> = {
   [AUDIT_ACTION.BACKUP_PROMOTED]: "Yedek Devreye Girdi",
 };
 
+// --- Interfaces ---
 
 export interface RaffleReward {
   id: number;
@@ -128,6 +133,7 @@ export interface RaffleAuditLog {
 }
 
 export interface Raffle {
+  [key: string]: unknown; // DataTable dinamik erişimi için eklendi
   id: string;
   name: string;
   description: string;

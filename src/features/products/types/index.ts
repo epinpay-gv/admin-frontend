@@ -3,7 +3,6 @@ export enum PRODUCT_STATUS {
   INACTIVE = "inactive",
   DRAFT = "draft",
 }
-
 export interface ProductFaq {
   id: number;
   name: string;
@@ -69,4 +68,16 @@ export interface Product {
   forbiddenCountries: Country[];
   updatedAt: string;
   createdAt: string;
+}
+
+export interface ProductFilters {
+  name?: string;
+  category_id?: string;
+  status?: string;
+  min_price?: number;
+  max_price?: number;
+  is_favorite?: boolean;
+  region_id?: string;
+
+  [key: string]: string | number | boolean | undefined | null;
 }

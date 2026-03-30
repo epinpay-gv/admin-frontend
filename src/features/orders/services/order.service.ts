@@ -4,9 +4,15 @@ import { Order, OrderFilters, OrderExportParams } from "@/features/orders/types"
 
 const BASE_URL = "/api/orders";
 
+/**
+ * Filtreleri hem getAll hem de exportExcel için ortak bir formatta hazırlar.
+ */
 function buildParams(filters?: OrderFilters): Record<string, string | number | boolean | undefined | null> {
   if (!filters) return {};
   return {
+    // Mevcut filtrelerin tamamını ekledik
+    id: filters.id,
+    userEmail: filters.userEmail,
     search: filters.search,
     userId: filters.userId,
     memberType: filters.memberType !== "all" ? filters.memberType : undefined,
@@ -26,6 +32,7 @@ function createBlobError(message: string, statusCode: number, code?: string): Fe
 }
 
 export const orderService = {
+  // Liste çekme - buildParams kullanıyor
   getAll: (filters?: OrderFilters): Promise<Order[]> =>
     api.get<Order[]>(BASE_URL, buildParams(filters)),
 
@@ -37,13 +44,14 @@ export const orderService = {
       `${BASE_URL}/${id}`,
       { action: "cancel", cancelReason: reason }
     ),
-
-  // exportExcel blob döndürdüğü için baseFetcher yerine fetch kullanıldı
+    
+  // Excel Export - Kendi mantığını koruyarak filtrelerle güncellendi
   exportExcel: async (params?: OrderExportParams): Promise<Blob> => {
     const searchParams = new URLSearchParams();
 
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
+        // "all" olanları veya boşları query string'e eklemiyoruz
         if (value !== undefined && value !== null && value !== "" && value !== "all") {
           searchParams.set(key, String(value));
         }
@@ -54,9 +62,14 @@ export const orderService = {
     let response: Response;
 
     try {
+      // POST isteği atarken hem URL'e query string ekliyoruz hem de body'e paramları basıyoruz
       response = await fetch(
         `${BASE_URL}/export${qs ? `?${qs}` : ""}`,
-        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(params ?? {}) }
+        { 
+          method: "POST", 
+          headers: { "Content-Type": "application/json" }, 
+          body: JSON.stringify(params ?? {}) 
+        }
       );
     } catch {
       throw createBlobError("Sunucuya bağlanılamadı.", 0, "NETWORK_ERROR");
