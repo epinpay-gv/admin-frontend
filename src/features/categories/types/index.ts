@@ -44,4 +44,10 @@ export interface Category {
   faqs: CategoryFaq[];
   createdAt: string;
   updatedAt: string;
+  [key: string]: unknown; 
+}
+export interface CategoryFilters {
+  name?: string;
+  status?: CATEGORY_STATUS | string;
+  [key: string]: string | number | boolean | undefined | null;
 }

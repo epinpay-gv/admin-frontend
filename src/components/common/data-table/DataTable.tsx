@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useDataTable } from "./hooks/useDataTable";
 import DataTableHeader, { ColumnDef } from "./components/DataTableHeader";
 import DataTableStatusFilter from "./components/DataTableStatusFilter";
@@ -15,9 +16,11 @@ interface DataTableProps<T extends Record<string, unknown>> {
   columns: ColumnDef<T>[];
   statusOptions?: StatusOption[];
   showStatusFilter?: boolean;
+  currentStatus?: string; // DIŞARIDAN GELEN SEÇİLİ DURUM
   dateKey?: string;
   actions?: (row: T) => React.ReactNode;
   onFilteredDataChange?: (filtered: T[]) => void;
+  onStatusChange?: (status: string) => void;
 }
 
 export default function DataTable<T extends Record<string, unknown>>({
@@ -25,49 +28,50 @@ export default function DataTable<T extends Record<string, unknown>>({
   columns,
   statusOptions,
   showStatusFilter = false,
+  currentStatus, // PROPS ALINDI
   dateKey = "createdAt",
   actions,
   onFilteredDataChange,
+  onStatusChange,
 }: DataTableProps<T>) {
   const {
     rows,
-    filteredRows,
-    totalRows,
+    statusFilter,
+    setStatusFilter,
     sort,
     handleSort,
     columnFilters,
     setColumnFilter,
     clearColumnFilter,
-    statusFilter,
-    setStatusFilter,
     dateRange,
     handleDateRangeChange,
     clearDateRange,
     pagination,
     setPagination,
+    totalRows,
     totalPages,
   } = useDataTable({ data, columns, dateKey });
+  useEffect(() => {
+    if (currentStatus !== undefined) {      
+      const targetValue = currentStatus === "" ? "all" : currentStatus;
+      if (statusFilter !== targetValue) {
+        setStatusFilter(targetValue);
+      }
+    }
+  }, [currentStatus, setStatusFilter, statusFilter]);
 
-  onFilteredDataChange?.(filteredRows);
+  onFilteredDataChange?.(rows);
 
   return (
-    <div
-      className="rounded-xl border overflow-hidden"
-      style={{
-        background: "var(--background-card)",
-        borderColor: "var(--border)",
-      }}
-    >
+    <div className="rounded-xl border overflow-hidden" style={{ background: "var(--background-card)", borderColor: "var(--border)" }}>
       {showStatusFilter && (
-        <div
-          className="flex items-center justify-end px-4 py-3 border-b"
-          style={{ borderColor: "var(--border-subtle)" }}
-        >
+        <div className="flex items-center justify-end px-4 py-3 border-b" style={{ borderColor: "var(--border-subtle)" }}>
           <DataTableStatusFilter
             value={statusFilter}
             onChange={(val) => {
               setStatusFilter(val);
               setPagination((prev) => ({ ...prev, page: 1 }));
+              onStatusChange?.(val);
             }}
             options={statusOptions}
           />
@@ -75,7 +79,7 @@ export default function DataTable<T extends Record<string, unknown>>({
       )}
 
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full text-left border-collapse">
           <DataTableHeader
             columns={columns}
             sort={sort}
@@ -84,49 +88,25 @@ export default function DataTable<T extends Record<string, unknown>>({
             onColumnFilter={setColumnFilter}
             onClearColumnFilter={clearColumnFilter}
             dateRange={dateRange}
-            onDateRangeChange={(range) => {
-              handleDateRangeChange(range);
-              setPagination((prev) => ({ ...prev, page: 1 }));
-            }}
-            onDateRangeClear={() => {
-              clearDateRange();
-              setPagination((prev) => ({ ...prev, page: 1 }));
-            }}
+            onDateRangeChange={handleDateRangeChange}
+            onDateRangeClear={clearDateRange}
           />
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td
-                  colSpan={columns.length + (actions ? 1 : 0)}
-                  className="px-4 py-12 text-center text-sm font-mono"
-                  style={{ color: "var(--text-muted)" }}
-                >
+                <td colSpan={columns.length + (actions ? 1 : 0)} className="px-4 py-12 text-center text-sm opacity-50 font-mono">
                   Kayıt bulunamadı
                 </td>
               </tr>
             ) : (
               rows.map((row, rowIndex) => (
-                <tr
-                  key={rowIndex}
-                  className="border-b transition-colors hover:bg-black/5 dark:hover:bg-white/[0.02]"
-                  style={{ borderColor: "var(--border-subtle)" }}
-                >
+                <tr key={rowIndex} className="border-b transition-colors hover:bg-black/5 dark:hover:bg-white/[0.02]" style={{ borderColor: "var(--border-subtle)" }}>
                   {columns.map((col) => (
-                    <td
-                      key={String(col.key)}
-                      className="px-4 py-3 text-sm"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      {col.render
-                        ? col.render(row[col.key], row)
-                        : String(row[col.key] ?? "-")}
+                    <td key={String(col.key)} className="px-4 py-3 text-sm">
+                      {col.render ? col.render(row[col.key], row) : String(row[col.key] ?? "-")}
                     </td>
                   ))}
-                  {actions && (
-                    <td className="px-4 py-3 text-right">
-                      {actions(row)}
-                    </td>
-                  )}
+                  {actions && <td className="px-4 py-3 text-right">{actions(row)}</td>}
                 </tr>
               ))
             )}
@@ -144,5 +124,3 @@ export default function DataTable<T extends Record<string, unknown>>({
     </div>
   );
 }
-
-export type { ColumnDef };

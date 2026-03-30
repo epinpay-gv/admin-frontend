@@ -24,6 +24,8 @@ export const PRODUCT_COLUMNS = (
     label: "ID",
     sortable: true,
     width: "60px",
+    searchable: true,
+    searchKey: "id"
   },
   {
     key: "translation",

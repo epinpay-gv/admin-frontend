@@ -39,7 +39,7 @@ export default function ProductsPage() {
         countLabel="ürün"
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={refresh} className="text-[var(--text-muted)]">
+            <Button variant="ghost" onClick={refresh} className="text-(--text-muted)">
               <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
             </Button>
 
