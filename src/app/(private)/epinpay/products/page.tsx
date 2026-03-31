@@ -43,13 +43,9 @@ export default function ProductsPage() {
   const router = useRouter();
   const { products, loading, error, filters, setFilters, resetFilters, refresh } = useProducts();
   const { isOpen, selectedProduct, open, close } = useProductModal();
-  
   const [showFilters, setShowFilters] = useState(false);
-  const [forbiddenModal, setForbiddenModal] = useState<Product | null>(null);
-
-  // Sütunları memoize ediyoruz, modal state değişiminde tablo titremesin
+  const [forbiddenModal, setForbiddenModal] = useState<Product | null>(null);  
   const columns = useMemo(() => PRODUCT_COLUMNS(setForbiddenModal), []);
-
   const hasActiveFilters = Object.entries(filters || {}).some(
     ([_, value]) => value && value !== "all" && value !== ""
   );
@@ -62,17 +58,18 @@ export default function ProductsPage() {
         countLabel="ürün"
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={refresh} className="text-(--text-muted)">
+            <Button variant="outline" onClick={refresh} className="text-(--text-muted)">
               <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
             </Button>
 
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={() => setShowFilters((v) => !v)}
               className="relative px-4"
               style={{ 
-                backgroundColor: showFilters ? "rgba(0, 198, 162, 0.1)" : "transparent",
-                color: showFilters ? "#00C6A2" : "var(--text-muted)" 
+                backgroundColor: showFilters || hasActiveFilters  ? "rgba(0, 198, 162, 0.1)" : "",
+                color: showFilters || hasActiveFilters ? "#00C6A2" : "var(--text-muted)",
+                borderColor: showFilters || hasActiveFilters ? "rgba(0, 198, 162, 0.1)" : "" 
               }}
             >
               <Filter size={14} className="mr-2" />

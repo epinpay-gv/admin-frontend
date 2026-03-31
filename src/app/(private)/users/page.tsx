@@ -1,193 +1,136 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { DataTable, ColumnDef } from "@/components/common/data-table";
+import { Filter, RefreshCw } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+
+import { DataTable } from "@/components/common/data-table";
+import { ColumnDef } from "@/components/common/data-table/components/DataTableHeader"; // Doğru ColumnDef importu
 import { useUsers } from "@/features/users/hooks/useUsers";
-import { UserListItem, USER_STATUS, UserFilters } from "@/features/users/types";
-import Spinner from "@/components/common/spinner/Spinner";
+import { UserFilters, UserListItem, USER_STATUS } from "@/features/users/types";
 import { PageState } from "@/components/common/page-state/PageState";
 import { EntityActions } from "@/components/common/entity-actions/EntityActions";
+import { FilterPanel } from "@/components/common/filter-panel/FilterPanel";
+import { FilterData } from "@/components/common/filter-panel/types";
+import PageHeader from "@/components/common/page-header/PageHeader";
+import { Button } from "@/components/ui/button";
 
-// Sabit etiket ve renk tanımları 
+import { USER_COLUMNS, USER_STATUS_LABELS } from "@/features/users/components/UserTableConfig";
+import { USER_FILTERS } from "@/features/users/hooks/UserFilterConfig";
 
-const STATUS_LABELS: Record<USER_STATUS, string> = {
-  [USER_STATUS.ACTIVE]: "Aktif",
-  [USER_STATUS.SUSPENDED]: "Askıya Alındı",
-  [USER_STATUS.LIMITED]: "Sınırlı",
-};
-
-const STATUS_COLORS: Record<USER_STATUS, { bg: string; color: string }> = {
-  [USER_STATUS.ACTIVE]: { bg: "rgba(0,198,162,0.15)", color: "#00C6A2" },
-  [USER_STATUS.SUSPENDED]: { bg: "rgba(255,80,80,0.15)", color: "#FF5050" },
-  [USER_STATUS.LIMITED]: { bg: "rgba(255,180,0,0.15)", color: "#FFB400" },
-};
-
-const STATUS_OPTIONS = [
-  { label: "Tümü", value: "all" },
-  { label: "Aktif", value: USER_STATUS.ACTIVE },
-  { label: "Askıya Alındı", value: USER_STATUS.SUSPENDED },
-  { label: "Sınırlı", value: USER_STATUS.LIMITED },
-];
-
-// Tablo kolon tanımları 
-
-type UserRow = UserListItem & Record<string, unknown>;
-
-const COLUMNS: ColumnDef<UserRow>[] = [
-  {
-    key: "id",
-    label: "ID",
-    sortable: true,
-    searchable: true,
-    width: "72px",
-  },
-  {
-    key: "username",
-    label: "Kullanıcı",
-    sortable: true,
-    searchable: true,
-    render: (value, row) => (
-      <div>
-        <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
-          {String(value)}
-        </p>
-        <p className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
-          {row.email as string}
-        </p>
-      </div>
-    ),
-  },
-  {
-    key: "country",
-    label: "Ülke",
-    sortable: true,
-    searchable: true,
-    width: "80px",
-  },
-  {
-    key: "isEmailVerified",
-    label: "Doğrulama",
-    render: (_, row) => (
-      <div className="flex items-center gap-2">
-        <span
-          className="text-[10px] font-mono px-1.5 py-0.5 rounded"
-          style={{
-            background: row.isEmailVerified ? "rgba(0,198,162,0.15)" : "rgba(255,80,80,0.15)",
-            color: row.isEmailVerified ? "#00C6A2" : "#FF5050",
-          }}
-        >
-          E-posta
-        </span>
-        <span
-          className="text-[10px] font-mono px-1.5 py-0.5 rounded"
-          style={{
-            background: row.isPhoneVerified ? "rgba(0,198,162,0.15)" : "rgba(255,80,80,0.15)",
-            color: row.isPhoneVerified ? "#00C6A2" : "#FF5050",
-          }}
-        >
-          Telefon
-        </span>
-        <span
-          className="text-[10px] font-mono px-1.5 py-0.5 rounded"
-          style={{
-            background: row.isKycVerified ? "rgba(0,198,162,0.15)" : "rgba(255,80,80,0.15)",
-            color: row.isKycVerified ? "#00C6A2" : "#FF5050",
-          }}
-        >
-          KYC
-        </span>
-      </div>
-    ),
-  },
-  {
-    key: "isPremium",
-    label: "Premium",
-    sortable: true,
-    render: (value) => (
-      <span
-        className="text-[11px] font-mono px-2 py-0.5 rounded-full"
-        style={{
-          background: value ? "rgba(0,133,255,0.15)" : "var(--background-subtle)",
-          color: value ? "#0085FF" : "var(--text-muted)",
-        }}
-      >
-        {value ? "Premium" : "Ücretsiz"}
-      </span>
-    ),
-  },
-  {
-    key: "referralCount",
-    label: "Referans",
-    sortable: true,
-    render: (value) => (
-      <span className="font-mono text-sm" style={{ color: "var(--text-secondary)" }}>
-        {String(value)}
-      </span>
-    ),
-  },
-  {
-    key: "lastLoginAt",
-    label: "Son Giriş",
-    sortable: true,
-    render: (value) => (
-      <span className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
-        {value ? new Date(value as string).toLocaleDateString("tr-TR") : "—"}
-      </span>
-    ),
-  },
-  {
-    key: "status",
-    label: "Durum",
-    sortable: true,
-    render: (value) => {
-      const status = value as USER_STATUS;
-      const colors = STATUS_COLORS[status];
-      return (
-        <span
-          className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-          style={{ background: colors.bg, color: colors.color }}
-        >
-          {STATUS_LABELS[status]}
-        </span>
-      );
-    },
-  },
-];
-
-// Page 
+type BaseRow = Record<string, unknown>;
 
 export default function UsersPage() {
+  const STATUS_OPTIONS = [
+    { label: "Tümü", value: "all" },
+      ...Object.entries(USER_STATUS_LABELS).map(([value, label]) => ({ label, value }))
+  ];
   const router = useRouter();
+  const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<UserFilters>({});
-  const { users, loading, error } = useUsers(filters);
+  const userHook = useUsers(filters) as { 
+    users: UserListItem[]; 
+    loading: boolean; 
+    error: string | null; 
+    refresh?: () => void 
+  };
+
+  const { users, loading, error, refresh } = userHook;
+  const displayColumns = useMemo(() => 
+    USER_COLUMNS as unknown as ColumnDef<BaseRow>[], 
+  []);
+
+  const displayData = useMemo(() => 
+    users as unknown as BaseRow[], 
+  [users]);
+
+  const hasActiveFilters = Object.values(filters).some(
+    v => v !== undefined && v !== "" && v !== "all"
+  );
+
+  const handleStatusChange = (status: string) => {
+    setFilters(prev => ({
+      ...prev,
+      status: status === "all" ? undefined : (status as USER_STATUS)
+    }));
+  };
 
   return (
-    <PageState loading={loading} error={error}>
-      <div>
-        <div className="mb-6">
-          <h1
-            className="text-2xl font-semibold tracking-tight"
-            style={{ color: "var(--text-primary)" }}
-          >
-            Kullanıcılar
-          </h1>
-          <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
-            Tüm kullanıcıları görüntüle ve yönet.
-          </p>
-        </div>
+    <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
+      <PageHeader
+        title="Kullanıcılar"
+        count={users.length}
+        countLabel="kullanıcı"
+        actions={
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={() => refresh?.()} 
+              disabled={loading}
+              title="Yenile"
+              className="text-(--text-muted)"
+            >
+              <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              onClick={() => setShowFilters(!showFilters)}
+              className="relative px-4"
+              style={{ 
+                backgroundColor: showFilters || hasActiveFilters  ? "rgba(0, 198, 162, 0.1)" : "",
+                color: showFilters || hasActiveFilters ? "#00C6A2" : "var(--text-muted)",
+                borderColor: showFilters || hasActiveFilters ? "rgba(0, 198, 162, 0.1)" : "" 
+              }}
+            >
+              <Filter size={14} className="mr-2" /> Filtre
+              {hasActiveFilters && (
+                <motion.span 
+                  initial={{ scale: 0 }} 
+                  animate={{ scale: 1 }} 
+                  className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-background bg-[#00C6A2]"
+                />
+              )}
+            </Button>
+          </div>
+        }
+      />
 
-        <DataTable
-          data={users as UserRow[]}
-          columns={COLUMNS}
-          showStatusFilter
-          statusOptions={STATUS_OPTIONS}
-          actions={(row) => (
-            <EntityActions
+      <AnimatePresence mode="popLayout">
+        {showFilters && (
+          <FilterPanel
+            configs={USER_FILTERS}
+            initialFilters={filters as unknown as FilterData}
+            
+            onApply={(f) => {
+              const validatedFilters = f as unknown as UserFilters;
+              setFilters(validatedFilters);
+            }}
+            onReset={() => setFilters({})}
+          />
+        )}
+      </AnimatePresence>
+
+      <PageState loading={loading} error={error}>
+        <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
+          <DataTable
+            data={displayData}
+            columns={displayColumns}
+            showStatusFilter
+            statusOptions={STATUS_OPTIONS}
+            currentStatus={filters.status || "all"}
+            onStatusChange={handleStatusChange}
+            actions={(row) => (
+              <EntityActions
                 row={row}
-                onView={() => router.push(`/users/${row.id}`)} />
-            )} />
-      </div>
-    </PageState>
+                onView={() => router.push(`/users/${(row as unknown as UserListItem).id}`)}
+              />
+            )}
+          />
+        </div>
+      </PageState>
+    </div>
   );
 }

@@ -72,18 +72,19 @@ export default function RafflesPage() {
         countLabel="çekiliş"
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={refresh} className="text-(--text-muted)">
+            <Button variant="outline" onClick={refresh} className="text-(--text-muted)">
               <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
               <span className="ml-2">Yenile</span>
             </Button>
             
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={() => setShowFilters((v) => !v)}
               className="relative px-4"
               style={{ 
-                backgroundColor: showFilters ? "rgba(0, 198, 162, 0.1)" : "transparent",
-                color: showFilters ? "#00C6A2" : "var(--text-muted)" 
+                backgroundColor: showFilters || hasActiveFilters  ? "rgba(0, 198, 162, 0.1)" : "",
+                color: showFilters || hasActiveFilters ? "#00C6A2" : "var(--text-muted)",
+                borderColor: showFilters || hasActiveFilters ? "rgba(0, 198, 162, 0.1)" : "" 
               }}
             >
               <Filter size={14} className="mr-2" />
@@ -94,7 +95,7 @@ export default function RafflesPage() {
                     initial={{ scale: 0 }} 
                     animate={{ scale: 1 }} 
                     exit={{ scale: 0 }}
-                    className="absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-background bg-[#00C6A2]"
+                    className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-background bg-[#00C6A2]" 
                   />
                 )}
               </AnimatePresence>

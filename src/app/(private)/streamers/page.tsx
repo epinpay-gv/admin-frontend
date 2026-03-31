@@ -1,425 +1,188 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { RefreshCw, Users, Package, Globe, ClipboardList } from "lucide-react";
-import { DataTable, ColumnDef } from "@/components/common/data-table";
+import { RefreshCw, Users, Package, Globe, ClipboardList, Filter } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+import { DataTable } from "@/components/common/data-table";
+import { ColumnDef } from "@/components/common/data-table/components/DataTableHeader";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
-import Spinner from "@/components/common/spinner/Spinner";
-import { PALETTE } from "@/lib/status-color"
+import { PageState } from "@/components/common/page-state/PageState";
+import { FilterPanel } from "@/components/common/filter-panel/FilterPanel";
+import { FilterData } from "@/components/common/filter-panel/types";
+import { EntityActions } from "@/components/common/entity-actions/EntityActions";
+
 import { useStreamers } from "@/features/streamers/hooks/useStreamers";
 import { usePackageTemplates } from "@/features/streamers/hooks/usePackageTemplates";
 import { useCountryVariants } from "@/features/streamers/hooks/useCountryVariants";
 import { usePackageRequests } from "@/features/streamers/hooks/usePackageRequests";
 
-import {
-  STREAMER_STATUS,
-  STREAMER_STATUS_LABELS,
-  PACKAGE_STATUS,
-  PACKAGE_STATUS_LABELS,
-  TEMPLATE_STATUS,
-  TEMPLATE_STATUS_LABELS,
-  VARIANT_STATUS,
-  VARIANT_STATUS_LABELS,
-  PACKAGE_REQUEST_STATUS,
-  PACKAGE_REQUEST_STATUS_LABELS,
-  PACKAGE_REQUEST_TYPE,
-  PACKAGE_REQUEST_TYPE_LABELS,
-  PACKAGE_LEVEL_LABELS,
+import { STREAMER_COLUMNS, TEMPLATE_COLUMNS, VARIANT_COLUMNS, REQUEST_COLUMNS } from "@/features/streamers/components/StreamerTableConfig";
+import { TAB_FILTERS } from "@/features/streamers/hooks/StreamerFilterConfig";
+import { 
+  Streamer, 
+  PackageTemplate, 
+  CountryPackageVariant, 
+  PackageRequest,
+  // Yeni eklenenler:
+  StreamerFilters,
+  PackageTemplateFilters,
+  CountryVariantFilters,
+  PackageRequestFilters 
 } from "@/features/streamers/types";
-import { PageState } from "@/components/common/page-state/PageState";
-import { EntityActions } from "@/components/common/entity-actions/EntityActions";
 
 type TabKey = "streamers" | "templates" | "variants" | "requests";
-
-type Row = Record<string, any>;
-
-
-const STREAMER_STATUS_COLOR: Record<STREAMER_STATUS, typeof PALETTE[keyof typeof PALETTE]> = {
-  [STREAMER_STATUS.PENDING]: PALETTE.yellow,
-  [STREAMER_STATUS.APPROVED]: PALETTE.green,
-  [STREAMER_STATUS.REJECTED]: PALETTE.red,
-};
-
-const PACKAGE_STATUS_COLOR: Record<PACKAGE_STATUS, typeof PALETTE[keyof typeof PALETTE]> = {
-  [PACKAGE_STATUS.ACTIVE]: PALETTE.green,
-  [PACKAGE_STATUS.EXPIRED]: PALETTE.red,
-  [PACKAGE_STATUS.NONE]: PALETTE.gray,
-};
-
-const TEMPLATE_STATUS_COLOR: Record<TEMPLATE_STATUS, typeof PALETTE[keyof typeof PALETTE]> = {
-  [TEMPLATE_STATUS.ACTIVE]: PALETTE.green,
-  [TEMPLATE_STATUS.INACTIVE]: PALETTE.gray,
-};
-
-const VARIANT_STATUS_COLOR: Record<VARIANT_STATUS, typeof PALETTE[keyof typeof PALETTE]> = {
-  [VARIANT_STATUS.ACTIVE]: PALETTE.green,
-  [VARIANT_STATUS.INACTIVE]: PALETTE.gray,
-};
-
-const REQUEST_STATUS_COLOR: Record<PACKAGE_REQUEST_STATUS, typeof PALETTE[keyof typeof PALETTE]> = {
-  [PACKAGE_REQUEST_STATUS.PENDING]: PALETTE.yellow,
-  [PACKAGE_REQUEST_STATUS.APPROVED]: PALETTE.green,
-  [PACKAGE_REQUEST_STATUS.REJECTED]: PALETTE.red,
-};
-
-const REQUEST_TYPE_COLOR: Record<PACKAGE_REQUEST_TYPE, typeof PALETTE[keyof typeof PALETTE]> = {
-  [PACKAGE_REQUEST_TYPE.RENEWAL]: PALETTE.blue,
-  [PACKAGE_REQUEST_TYPE.UPGRADE]: PALETTE.purple,
-};
-
-function Badge({ label, bg, color }: { label: string; bg: string; color: string }) {
-  return (
-    <span
-      className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono whitespace-nowrap"
-      style={{ background: bg, color }}
-    >
-      {label}
-    </span>
-  );
-}
-
-function DateText({ value }: { value: string | undefined }) {
-  if (!value) return <span style={{ color: "var(--text-muted)" }}>—</span>;
-  return (
-    <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>
-      {new Date(value).toLocaleDateString("tr-TR")}
-    </span>
-  );
-}
-
-const STREAMER_COLUMNS: ColumnDef<Row>[] = [
-  {
-    key: "id",
-    label: "ID",
-    width: "60px",
-    render: (v) => <span className="font-mono text-xs font-bold" style={{ color: "#0085FF" }}>#{v}</span>,
-  },
-  {
-    key: "name",
-    label: "Yayıncı",
-    sortable: true,
-    render: (_, r) => (
-      <div>
-        <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{r.name}</p>
-        <p className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>{r.email}</p>
-      </div>
-    ),
-  },
-  {
-    key: "countryCode",
-    label: "Ülke",
-    render: (_, r) => (
-      <span className="text-sm font-mono" style={{ color: "var(--text-secondary)" }}>
-        {r.countryCode} · {r.countryName}
-      </span>
-    ),
-  },
-  {
-    key: "streamerStatus",
-    label: "Başvuru",
-    sortable: true,
-    render: (v) => {
-      const c = STREAMER_STATUS_COLOR[v as STREAMER_STATUS];
-      return <Badge label={STREAMER_STATUS_LABELS[v as STREAMER_STATUS]} bg={c.bg} color={c.color} />;
-    },
-  },
-  {
-    key: "packageStatus",
-    label: "Paket",
-    sortable: true,
-    render: (_, r) => {
-      const c = PACKAGE_STATUS_COLOR[r.packageStatus as PACKAGE_STATUS];
-      return (
-        <div className="flex flex-col gap-0.5">
-          <Badge label={PACKAGE_STATUS_LABELS[r.packageStatus as PACKAGE_STATUS]} bg={c.bg} color={c.color} />
-          {r.currentPackageName && (
-            <span className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
-              {r.currentPackageName}
-            </span>
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    key: "packageEndDate",
-    label: "Bitiş",
-    sortable: true,
-    render: (v) => <DateText value={v} />,
-  },
-  {
-    key: "createdAt",
-    label: "Kayıt",
-    sortable: true,
-    render: (v) => <DateText value={v} />,
-  },
-];
-
-const TEMPLATE_COLUMNS: ColumnDef<Row>[] = [
-  {
-    key: "id",
-    label: "ID",
-    width: "60px",
-    render: (v) => <span className="font-mono text-xs font-bold" style={{ color: "#0085FF" }}>#{v}</span>,
-  },
-  {
-    key: "name",
-    label: "Şablon",
-    sortable: true,
-    render: (_, r) => (
-      <div>
-        <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{r.name}</p>
-        {r.description && (
-          <p className="text-[11px] font-mono truncate max-w-[240px]" style={{ color: "var(--text-muted)" }}>
-            {r.description}
-          </p>
-        )}
-      </div>
-    ),
-  },
-  {
-    key: "level",
-    label: "Seviye",
-    sortable: true,
-    render: (v) => (
-      <span className="text-sm font-mono font-semibold" style={{ color: "var(--text-secondary)" }}>
-        {PACKAGE_LEVEL_LABELS[v as keyof typeof PACKAGE_LEVEL_LABELS]}
-      </span>
-    ),
-  },
-  {
-    key: "status",
-    label: "Durum",
-    sortable: true,
-    render: (v) => {
-      const c = TEMPLATE_STATUS_COLOR[v as TEMPLATE_STATUS];
-      return <Badge label={TEMPLATE_STATUS_LABELS[v as TEMPLATE_STATUS]} bg={c.bg} color={c.color} />;
-    },
-  },
-  {
-    key: "contents",
-    label: "İçerik",
-    render: (v) => (
-      <span className="text-sm font-mono" style={{ color: "var(--text-muted)" }}>
-        {(v as unknown[]).length} madde
-      </span>
-    ),
-  },
-  {
-    key: "updatedAt",
-    label: "Güncellendi",
-    sortable: true,
-    render: (v) => <DateText value={v} />,
-  },
-];
-
-const VARIANT_COLUMNS: ColumnDef<Row>[] = [
-  {
-    key: "id",
-    label: "ID",
-    width: "60px",
-    render: (v) => <span className="font-mono text-xs font-bold" style={{ color: "#0085FF" }}>#{v}</span>,
-  },
-  {
-    key: "templateName",
-    label: "Şablon · Ülke",
-    sortable: true,
-    render: (_, r) => (
-      <div>
-        <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{r.templateName}</p>
-        <p className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
-          {r.countryCode} · {r.countryName}
-        </p>
-      </div>
-    ),
-  },
-  {
-    key: "currency",
-    label: "Para Birimi",
-    render: (v) => (
-      <span className="text-sm font-mono font-semibold" style={{ color: "var(--text-secondary)" }}>{v}</span>
-    ),
-  },
-  {
-    key: "durationDays",
-    label: "Süre",
-    sortable: true,
-    render: (v) => (
-      <span className="text-sm font-mono" style={{ color: "var(--text-secondary)" }}>{v} gün</span>
-    ),
-  },
-  {
-    key: "status",
-    label: "Durum",
-    sortable: true,
-    render: (v) => {
-      const c = VARIANT_STATUS_COLOR[v as VARIANT_STATUS];
-      return <Badge label={VARIANT_STATUS_LABELS[v as VARIANT_STATUS]} bg={c.bg} color={c.color} />;
-    },
-  },
-  {
-    key: "updatedAt",
-    label: "Güncellendi",
-    sortable: true,
-    render: (v) => <DateText value={v} />,
-  },
-];
-
-const REQUEST_COLUMNS: ColumnDef<Row>[] = [
-  {
-    key: "id",
-    label: "ID",
-    width: "60px",
-    render: (v) => <span className="font-mono text-xs font-bold" style={{ color: "#0085FF" }}>#{v}</span>,
-  },
-  {
-    key: "publisherName",
-    label: "Yayıncı",
-    sortable: true,
-    render: (_, r) => (
-      <div>
-        <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{r.publisherName}</p>
-        <p className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>{r.publisherEmail}</p>
-      </div>
-    ),
-  },
-  {
-    key: "requestType",
-    label: "Tür",
-    sortable: true,
-    render: (v) => {
-      const c = REQUEST_TYPE_COLOR[v as PACKAGE_REQUEST_TYPE];
-      return <Badge label={PACKAGE_REQUEST_TYPE_LABELS[v as PACKAGE_REQUEST_TYPE]} bg={c.bg} color={c.color} />;
-    },
-  },
-  {
-    key: "currentPackageName",
-    label: "Mevcut → Talep",
-    render: (_, r) => (
-      <span className="text-xs font-mono" style={{ color: "var(--text-secondary)" }}>
-        {r.currentPackageName} → {r.requestedPackageName}
-      </span>
-    ),
-  },
-  {
-    key: "status",
-    label: "Durum",
-    sortable: true,
-    render: (v) => {
-      const c = REQUEST_STATUS_COLOR[v as PACKAGE_REQUEST_STATUS];
-      return <Badge label={PACKAGE_REQUEST_STATUS_LABELS[v as PACKAGE_REQUEST_STATUS]} bg={c.bg} color={c.color} />;
-    },
-  },
-  {
-    key: "createdAt",
-    label: "Tarih",
-    sortable: true,
-    render: (v) => <DateText value={v} />,
-  },
-];
-
-
-
-const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
-  { key: "streamers", label: "Yayıncılar", icon: <Users size={13} /> },
-  { key: "templates", label: "Paket Şablonları", icon: <Package size={13} /> },
-  { key: "variants", label: "Ülke Varyantları", icon: <Globe size={13} /> },
-  { key: "requests", label: "Paket Talepleri", icon: <ClipboardList size={13} /> },
-];
-
-const DETAIL_ROUTE: Record<TabKey, string> = {
-  streamers: "/streamers",
-  templates: "/streamers/package-templates",
-  variants: "/streamers/country-variants",
-  requests: "/streamers",
-};
-
-const COUNT_LABEL: Record<TabKey, string> = {
-  streamers: "yayıncı",
-  templates: "şablon",
-  variants: "varyant",
-  requests: "talep",
-};
-
-
-function getDetailId(tab: TabKey, row: Row): number {
-  if (tab === "requests") return row.publisherId as number;
-  return row.id as number;
-}
+type BaseRow = Record<string, unknown>;
+type AllFilters = StreamerFilters & PackageTemplateFilters & CountryVariantFilters & PackageRequestFilters;
 
 export default function StreamersPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabKey>("streamers");
+  const [showFilters, setShowFilters] = useState(false);
 
-  const streamersHook = useStreamers();
-  const templatesHook = usePackageTemplates();
-  const variantsHook = useCountryVariants();
-  const requestsHook = usePackageRequests();
+  const streamers = useStreamers();
+  const templates = usePackageTemplates();
+  const variants = useCountryVariants();
+  const requests = usePackageRequests();
 
-  const hooks = { streamers: streamersHook, templates: templatesHook, variants: variantsHook, requests: requestsHook };
-  const data = { streamers: streamersHook.streamers, templates: templatesHook.templates, variants: variantsHook.variants, requests: requestsHook.requests };
-  const cols = { streamers: STREAMER_COLUMNS, templates: TEMPLATE_COLUMNS, variants: VARIANT_COLUMNS, requests: REQUEST_COLUMNS };
-
+  const hooks = { streamers, templates, variants, requests };
   const active = hooks[activeTab];
+  const displayData = useMemo(() => {
+    switch (activeTab) {
+      case "streamers": return streamers.streamers as unknown as BaseRow[];
+      case "templates": return templates.templates as unknown as BaseRow[];
+      case "variants": return variants.variants as unknown as BaseRow[]; // hook'tan gelen veri CountryPackageVariant[] olmalı
+      case "requests": return requests.requests as unknown as BaseRow[];
+      default: return [];
+    }
+  }, [activeTab, streamers.streamers, templates.templates, variants.variants, requests.requests]);
+
+  const displayColumns = useMemo(() => {
+    switch (activeTab) {
+      case "streamers": return STREAMER_COLUMNS as unknown as ColumnDef<BaseRow>[];
+      case "templates": return TEMPLATE_COLUMNS as unknown as ColumnDef<BaseRow>[];
+      case "variants": return VARIANT_COLUMNS as unknown as ColumnDef<BaseRow>[];
+      case "requests": return REQUEST_COLUMNS as unknown as ColumnDef<BaseRow>[];
+      default: return [];
+    }
+  }, [activeTab]);
+
+  const hasActiveFilters = Object.entries(active.filters || {}).some(([k, v]) => v && v !== "" && v !== "all");
 
   return (
-    <PageState loading={active.loading} error={active.error}>
-      <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
-        <PageHeader
-          title="Yayıncılar"
-          count={data[activeTab].length}
-          countLabel={COUNT_LABEL[activeTab]}
-          actions={
-            <Button
-              variant="ghost"
-              onClick={active.refresh}
-              className="flex items-center gap-2 text-sm"
-              style={{ color: "var(--text-muted)" }}
-            >
-              <RefreshCw size={14} />
-              Yenile
+    <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
+      <PageHeader
+        title="Yayıncılar"
+        count={displayData.length}
+        countLabel="kayıt"
+        actions={
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon" onClick={active.refresh} title="Yenile" className="text-(--text-muted)">
+              <RefreshCw size={14} className={active.loading ? "animate-spin" : ""} />
             </Button>
-          }
-        />
+            
+            {TAB_FILTERS[activeTab]?.length > 0 && TAB_FILTERS[activeTab] && (
+              <Button 
+                variant="outline" 
+                onClick={() => setShowFilters(!showFilters)}
+                className="relative px-4"
+                style={{ 
+                  backgroundColor: showFilters || hasActiveFilters  ? "rgba(0, 198, 162, 0.1)" : "",
+                  color: showFilters || hasActiveFilters ? "#00C6A2" : "var(--text-muted)",
+                  borderColor: showFilters || hasActiveFilters ? "rgba(0, 198, 162, 0.1)" : "" 
+                }}
+              >
+                <Filter size={14} className="mr-2" /> Filtre
+                {hasActiveFilters && (
+                  <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-background bg-[#00C6A2]" />
+                )}
+              </Button>
+            )}
+          </div>
+        }
+      />
 
-        {/* Tab Bar */}
-        <div
-          className="flex items-center gap-1 p-1 rounded-xl mb-4 shrink-0"
-          style={{ background: "var(--background-card)", border: "1px solid var(--border)" }}
-        >
-          {TABS.map((tab) => (
+      <div className="flex items-center gap-1 p-1 rounded-xl mb-4 shrink-0" style={{ background: "var(--background-card)", border: "1px solid var(--border)" }}>
+        {(Object.keys(hooks) as TabKey[]).map((key) => {
+          const tabInfo = {
+            streamers: { label: "Yayıncılar", icon: <Users size={13} /> },
+            templates: { label: "Paket Şablonları", icon: <Package size={13} /> },
+            variants: { label: "Ülke Varyantları", icon: <Globe size={13} /> },
+            requests: { label: "Paket Talepleri", icon: <ClipboardList size={13} /> },
+          }[key];
+          
+          return (
             <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
+              key={key}
+              onClick={() => { setActiveTab(key); setShowFilters(false); }}
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
               style={{
-                background: activeTab === tab.key ? "var(--background-secondary)" : "transparent",
-                color:      activeTab === tab.key ? "var(--text-primary)"         : "var(--text-muted)",
-                border:     activeTab === tab.key ? "1px solid var(--border)"     : "1px solid transparent",
+                background: activeTab === key ? "var(--background-secondary)" : "transparent",
+                color: activeTab === key ? "var(--text-primary)" : "var(--text-muted)",
+                border: activeTab === key ? "1px solid var(--border)" : "1px solid transparent",
               }}
             >
-              {tab.icon}
-              {tab.label}
+              {tabInfo.icon} {tabInfo.label}
             </button>
-          ))}
-        </div>
+          );
+        })}
+      </div>
 
-        {/* Tablo */}
+      <AnimatePresence mode="popLayout">
+        {showFilters && TAB_FILTERS[activeTab]?.length > 0 && (
+          <FilterPanel
+            configs={TAB_FILTERS[activeTab]}
+            initialFilters={active.filters as unknown as FilterData}
+            onApply={(f) => {
+              const raw = f as unknown;
+
+              if (activeTab === "streamers") {
+                // 'as unknown as Parameters<typeof streamers.setFilters>[0]' 
+                // Bu ifade: "Fonksiyon ne bekliyorsa ona dönüştür" demektir. any değildir.
+                streamers.setFilters(raw as unknown as Parameters<typeof streamers.setFilters>[0]);
+              } else if (activeTab === "templates") {
+                templates.setFilters(raw as unknown as Parameters<typeof templates.setFilters>[0]);
+              } else if (activeTab === "variants") {
+                variants.setFilters(raw as unknown as Parameters<typeof variants.setFilters>[0]);
+              } else if (activeTab === "requests") {
+                requests.setFilters(raw as unknown as Parameters<typeof requests.setFilters>[0]);
+              }
+            }}
+            onReset={() => {
+              if (activeTab === "streamers") streamers.setFilters({} as unknown as Parameters<typeof streamers.setFilters>[0]);
+              else if (activeTab === "templates") templates.setFilters({} as unknown as Parameters<typeof templates.setFilters>[0]);
+              else if (activeTab === "variants") variants.setFilters({} as unknown as Parameters<typeof variants.setFilters>[0]);
+              else if (activeTab === "requests") requests.setFilters({} as unknown as Parameters<typeof requests.setFilters>[0]);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <PageState loading={active.loading} error={active.error}>
         <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
           <DataTable
-            data={data[activeTab] as Row[]}
-            columns={cols[activeTab]}
-           actions={(row) => (
-            <EntityActions
-              row={row}
-              onView={() => router.push(`${DETAIL_ROUTE[activeTab]}/${getDetailId(activeTab, row)}`)}
-            />
-          )}
+            data={displayData}
+            columns={displayColumns}
+            actions={(row) => (
+              <EntityActions
+                row={row}
+                onView={() => {
+                  const id = activeTab === 'requests' ? (row as unknown as PackageRequest).publisherId : (row as unknown as {id: number}).id;
+                  const route = {
+                    streamers: "/streamers",
+                    templates: "/streamers/package-templates",
+                    variants: "/streamers/country-variants",
+                    requests: "/streamers",
+                  }[activeTab];
+                  router.push(`${route}/${id}`);
+                }}
+              />
+            )}
           />
         </div>
-      </div>
-    </PageState>
+      </PageState>
+    </div>
   );
 }

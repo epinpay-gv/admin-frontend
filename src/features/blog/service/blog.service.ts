@@ -1,11 +1,20 @@
 import { api } from "@/lib/api/baseFetcher";
-import { Blog, BlogTranslation } from "../types";
+import { Blog, BlogTranslation, BlogFilters } from "../types";
 
 const BASE_URL = "/api/blog";
 
 export const blogService = {
-  getAll: (): Promise<Blog[]> =>
-    api.get<Blog[]>(BASE_URL),
+  getAll: (filters: BlogFilters = {}): Promise<Blog[]> => {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "" && value !== "all") {
+        params.append(key, String(value));
+      }
+    });
+    const queryString = params.toString();
+    const url = queryString ? `${BASE_URL}?${queryString}` : BASE_URL;
+    return api.get<Blog[]>(url);
+  },
 
   getById: (id: number): Promise<Blog> =>
     api.get<Blog>(`${BASE_URL}/${id}`),
