@@ -201,3 +201,31 @@ export interface PackageRequest {
   createdAt: string;
   updatedAt: string;
 }
+
+
+// Filter Types
+
+export interface StreamerFilters {
+  search?: string;
+  countryCode?: string;
+  streamerStatus?: STREAMER_STATUS | "all";
+  packageStatus?: PACKAGE_STATUS | "all";
+}
+
+export interface PackageTemplateFilters {
+  name?: string;
+  status?: TEMPLATE_STATUS | "all";
+  level?: PACKAGE_LEVEL | "all";
+}
+
+export interface CountryVariantFilters {
+  templateName?: string;
+  countryCode?: string;
+  status?: VARIANT_STATUS | "all";
+}
+
+export interface PackageRequestFilters {
+  publisherName?: string;
+  requestType?: PACKAGE_REQUEST_TYPE | "all";
+  status?: PACKAGE_REQUEST_STATUS | "all";
+}

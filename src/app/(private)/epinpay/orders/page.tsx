@@ -68,10 +68,10 @@ export default function OrdersPage() {
               style={{ 
                 backgroundColor: showFilters || hasActiveFilters  ? "rgba(0, 198, 162, 0.1)" : "",
                 color: showFilters || hasActiveFilters ? "#00C6A2" : "var(--text-muted)",
-                borderColor: hasActiveFilters ? "rgba(0, 198, 162, 0.1)" : "" 
+                borderColor: showFilters || hasActiveFilters ? "rgba(0, 198, 162, 0.1)" : "" 
               }}
             >
-              <Filter size={14} className="mr-2" /> Detaylı Filtre
+              <Filter size={14} className="mr-2" /> Filtre
               {hasActiveFilters && (
                 <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-background bg-[#00C6A2]" />
               )}

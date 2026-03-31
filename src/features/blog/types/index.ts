@@ -28,3 +28,10 @@ export interface Blog {
   publishedAt: string | null;
   updatedAt: string;
 }
+
+export interface BlogFilters {
+  search?: string;
+  status?: BLOG_TRANSLATION_STATUS | "all";
+  sourceLanguage?: LANGUAGE | "all";
+  categoryId?: number;
+}
