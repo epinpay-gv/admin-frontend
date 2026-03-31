@@ -89,10 +89,18 @@ export interface OfferFormValues {
 
 // Filtre state'i
 export interface OfferFilters {
-  status?:       OFFER_STATUS;
-  deliveryType?: DELIVERY_TYPE;
+  status?:       OFFER_STATUS | "all";
+  deliveryType?: DELIVERY_TYPE | "all";
   minPrice?:     number;
   maxPrice?:     number;
   currency?:     Currency;
   search?:       string;
+}
+
+export interface UseOffersReturn {
+  offers: OfferListItem[];
+  loading: boolean;
+  error: string | null;
+  refresh: () => void;
+  updateOfferStatus: (id: number, status: OFFER_STATUS) => Promise<void>;
 }

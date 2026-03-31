@@ -1,184 +1,114 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, Plus, ToggleLeft, ToggleRight } from "lucide-react";
-import { DataTable, ColumnDef } from "@/components/common/data-table";
+import { Plus, Filter, RefreshCw, ToggleLeft, ToggleRight } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
-import { OfferListItem, OFFER_STATUS, DELIVERY_TYPE } from "@/features/store/types";
-import { Button } from "@/components/ui/button";
-import PageHeader from "@/components/common/page-header/PageHeader";
+import { DataTable } from "@/components/common/data-table";
+import { ColumnDef } from "@/components/common/data-table/components/DataTableHeader";
 import { useOffers } from "@/features/store/hooks/useOffers";
 import { useOfferToggle } from "@/features/store/hooks/useOfferToggle";
-import Spinner from "@/components/common/spinner/Spinner";
+import { OFFER_STATUS, OfferFilters } from "@/features/store/types";
 import { PageState } from "@/components/common/page-state/PageState";
-import { PALETTE } from "@/lib/status-color";
 import { EntityActions } from "@/components/common/entity-actions/EntityActions";
+import { FilterPanel } from "@/components/common/filter-panel/FilterPanel";
+import { FilterData } from "@/components/common/filter-panel/types";
+import PageHeader from "@/components/common/page-header/PageHeader";
+import { Button } from "@/components/ui/button";
+import { PALETTE } from "@/lib/status-color";
 
-// Sabitler 
-const STATUS_LABELS: Record<OFFER_STATUS, string> = {
-  [OFFER_STATUS.ACTIVE]: "Aktif",
-  [OFFER_STATUS.PASSIVE]: "Pasif",
-  [OFFER_STATUS.DRAFT]: "Taslak",
-};
+import { OFFER_COLUMNS, STATUS_LABELS, OfferRow } from "@/features/store/components/OfferTableConfig";
+import { OFFER_FILTERS } from "@/features/store/hooks/OfferFilterConfig";
 
-const STATUS_COLORS = {
-  [OFFER_STATUS.ACTIVE]: PALETTE.green,
-  [OFFER_STATUS.PASSIVE]: PALETTE.red,
-  [OFFER_STATUS.DRAFT]: PALETTE.yellow,
-};
-
-
-const DELIVERY_LABELS: Record<DELIVERY_TYPE, string> = {
-  [DELIVERY_TYPE.AUTOMATIC]: "Otomatik",
-  [DELIVERY_TYPE.ID_UPLOAD]: "ID Yükleme",
-  [DELIVERY_TYPE.DROPSHIPPING]: "Stoksuz",
-};
-
-const DELIVERY_COLORS = {
-  [DELIVERY_TYPE.AUTOMATIC]: PALETTE.blue,
-  [DELIVERY_TYPE.ID_UPLOAD]: PALETTE.purple,
-  [DELIVERY_TYPE.DROPSHIPPING]: PALETTE.yellow,
-};
-
-const STATUS_OPTIONS = [
-  { label: "Tümü", value: "all" },
-  { label: "Aktif", value: OFFER_STATUS.ACTIVE },
-  { label: "Pasif", value: OFFER_STATUS.PASSIVE },
-];
-
-type OfferRow = OfferListItem & Record<string, unknown>;
-
-// Sayfa 
+type BaseRow = Record<string, unknown>;
 
 export default function StorePage() {
   const router = useRouter();
-  const { offers, loading, error, updateOfferStatus } = useOffers();
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState<OfferFilters>({});
+
+  // Hook kullanımı (Refresh desteği ile)
+  const { offers, loading, error, refresh, updateOfferStatus } = useOffers(filters);
 
   const { toggle, loadingId } = useOfferToggle((id, status) => {
     updateOfferStatus(id, status);
   });
 
-  const COLUMNS: ColumnDef<OfferRow>[] = [
-    {
-      key: "id",
-      label: "ID",
-      sortable: true,
-      width: "60px",
-    },
-    {
-      key: "productName",
-      label: "Ürün",
-      sortable: true,
-      searchable: true,
-      render: (value) => (
-        <span
-          className="text-sm font-medium"
-          style={{ color: "var(--text-primary)" }}
-        >
-          {String(value)}
-        </span>
-      ),
-    },
-    {
-      key: "deliveryType",
-      label: "Teslimat",
-      sortable: true,
-      render: (value) => {
-        const type = value as DELIVERY_TYPE;
-        const colors = DELIVERY_COLORS[type];
-        return (
-          <span
-            className="text-[10px] font-bold px-2 py-0.5 rounded-full font-mono uppercase tracking-wider"
-            style={{ background: colors.bg, color: colors.color }}
-          >
-            {DELIVERY_LABELS[type]}
-          </span>
-        );
-      },
-    },
+  const STATUS_OPTIONS = useMemo(() => [
+    { label: "Tümü", value: "all" },
+    ...Object.entries(STATUS_LABELS).map(([value, label]) => ({ label, value }))
+  ], []);
 
-    {
-      key: "price",
-      label: "Fiyat",
-      sortable: true,
-      sortKey: "price.amount",
-      render: (_, row) => {
-        const price = row.price as OfferListItem["price"] | undefined;
+  const hasActiveFilters = Object.values(filters).some(v => v !== undefined && v !== "" && v !== "all");
 
-        if (!price?.amount) return <span style={{ color: "var(--text-muted)" }}>—</span>;
-
-        return (
-          <span className="font-mono text-sm" style={{ color: "var(--text-secondary)" }}>
-            {price.currency} {price.amount.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
-          </span>
-        );
-      },
-    },
-    {
-      key: "stock",
-      label: "Stok",
-      render: (_, row) => {
-        const stock = row.stock as OfferListItem["stock"];
-        const deliveryType = row.deliveryType as DELIVERY_TYPE;
-
-        if (deliveryType !== DELIVERY_TYPE.AUTOMATIC) {
-          return <span style={{ color: "var(--text-muted)" }}>—</span>;
-        }
-
-        const isEmpty = !stock || stock.total === 0;
-        return (
-          <span
-            className="font-mono text-sm font-medium"
-            style={{ color: isEmpty ? PALETTE.red.color : "var(--text-primary)" }}
-          >
-            {stock?.total ?? 0}
-          </span>
-        );
-      },
-    },
-    {
-      key: "status",
-      label: "Durum",
-      sortable: true,
-      render: (value) => {
-        const status = value as OFFER_STATUS;
-        const colors = STATUS_COLORS[status];
-        return (
-          <span
-            className="text-[10px] font-bold px-2 py-0.5 rounded-full font-mono uppercase tracking-wider"
-            style={{ background: colors.bg, color: colors.color }}
-          >
-            {STATUS_LABELS[status]}
-          </span>
-        );
-      },
-    },
-  ];
+  const handleStatusChange = (status: string) => {
+    setFilters((prev: OfferFilters) => ({
+      ...prev,
+      status: status === "all" ? undefined : (status as OFFER_STATUS)
+    }));
+  };
 
   return (
-    <PageState loading={loading} error={error}>
-      <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
-        <PageHeader
-          title="Tekliflerim"
-          count={offers.length}
-          countLabel="teklif"
-          actions={
+    <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
+      <PageHeader
+        title="Tekliflerim"
+        count={offers.length}
+        countLabel="teklif"
+        actions={
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon" onClick={() => refresh?.()} disabled={loading} title="Yenile" className="text-(--text-muted)">
+              <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              onClick={() => setShowFilters(!showFilters)}
+              className="relative px-4"
+              style={{ 
+                backgroundColor: showFilters || hasActiveFilters ? "rgba(0, 198, 162, 0.1)" : "",
+                color: showFilters || hasActiveFilters ? "#00C6A2" : "var(--text-muted)",
+                borderColor: showFilters || hasActiveFilters ? "rgba(0, 198, 162, 0.1)" : "" 
+              }}
+            >
+              <Filter size={14} className="mr-2" /> Filtre
+              {hasActiveFilters && (
+                <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-background bg-[#00C6A2]" />
+              )}
+            </Button>
+
             <Button
               onClick={() => router.push("/store/new")}
-              className="text-white flex items-center gap-2"
+              className="text-white flex items-center gap-2 px-6 h-10 shadow-lg shadow-emerald-500/20"
               style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
             >
               <Plus size={18} strokeWidth={2.5} />
               <span className="font-semibold text-sm">Yeni Teklif</span>
             </Button>
-          }
-        />
+          </div>
+        }
+      />
+
+      <AnimatePresence mode="popLayout">
+        {showFilters && (
+          <FilterPanel
+            configs={OFFER_FILTERS}
+            initialFilters={filters as unknown as FilterData}
+            onApply={(f) => setFilters(f as unknown as OfferFilters)}
+            onReset={() => setFilters({})}
+          />
+        )}
+      </AnimatePresence>
+
+      <PageState loading={loading} error={error}>
         <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
           <DataTable
-            data={offers as OfferRow[]}
-            columns={COLUMNS}
+            data={offers as unknown as BaseRow[]}
+            columns={OFFER_COLUMNS as unknown as ColumnDef<BaseRow>[]}
             showStatusFilter
             statusOptions={STATUS_OPTIONS}
+            currentStatus={filters.status || "all"}
+            onStatusChange={handleStatusChange}
             actions={(row) => (
               <div className="flex items-center justify-end gap-2">
                 <button
@@ -196,10 +126,7 @@ export default function StorePage() {
                     opacity: loadingId === row.id ? 0.5 : 1,
                   }}
                 >
-                  {row.status === OFFER_STATUS.ACTIVE
-                    ? <ToggleRight size={20} />
-                    : <ToggleLeft size={20} />
-                  }
+                  {row.status === OFFER_STATUS.ACTIVE ? <ToggleRight size={20} /> : <ToggleLeft size={20} />}
                 </button>
 
                 <EntityActions
@@ -210,7 +137,7 @@ export default function StorePage() {
             )}
           />
         </div>
-      </div>
-    </PageState>
+      </PageState>
+    </div>
   );
 }

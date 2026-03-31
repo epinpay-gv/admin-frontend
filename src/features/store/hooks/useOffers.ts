@@ -1,9 +1,13 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { OfferListItem, OfferFilters, OFFER_STATUS, DELIVERY_TYPE } from "@/features/store/types";
+import { 
+  OfferListItem, 
+  OfferFilters, 
+  OFFER_STATUS, 
+  UseOffersReturn 
+} from "@/features/store/types";
 import { offerService } from "@/features/store/services/offer.service";
-
 
 const FILTER_PREDICATES: {
   [K in keyof OfferFilters]: (
@@ -11,17 +15,17 @@ const FILTER_PREDICATES: {
     offer: OfferListItem
   ) => boolean;
 } = {
-  status:       (v, o) => o.status === v,
-  deliveryType: (v, o) => o.deliveryType === v,
-  currency:     (v, o) => o.price.currency === v,
-  minPrice:     (v, o) => o.price.amount >= v,
-  maxPrice:     (v, o) => o.price.amount <= v,
-  search:       (v, o) => o.productName.toLowerCase().includes(v.toLowerCase()),
+  status: (v, o) => v === "all" || o.status === v,
+  deliveryType: (v, o) => v === "all" || o.deliveryType === v,
+  currency: (v, o) => o.price.currency === v,
+  minPrice: (v, o) => o.price.amount >= (v as number),
+  maxPrice: (v, o) => o.price.amount <= (v as number),
+  search: (v, o) => o.productName.toLowerCase().includes((v as string).toLowerCase()),
 };
 
 function applyFiltersToPipeline(data: OfferListItem[], filters: OfferFilters): OfferListItem[] {
   return (Object.entries(filters) as [keyof OfferFilters, unknown][])
-    .filter(([, value]) => value !== undefined && value !== "" && value !== null)
+    .filter(([, value]) => value !== undefined && value !== "" && value !== null && value !== "all")
     .reduce((result, [key, value]) => {
       const predicate = FILTER_PREDICATES[key];
       return predicate
@@ -30,39 +34,46 @@ function applyFiltersToPipeline(data: OfferListItem[], filters: OfferFilters): O
     }, data);
 }
 
-export function useOffers() {
+export function useOffers(externalFilters: OfferFilters = {}): UseOffersReturn {
+  const [all, setAll] = useState<OfferListItem[]>([]); 
   const [offers, setOffers] = useState<OfferListItem[]>([]);
-  const [all, setAll]       = useState<OfferListItem[]>([]);
-  const [filters, setFilters] = useState<OfferFilters>({});
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
+  const fetchOffers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await offerService.getAll();
+      setAll(data);
+      setOffers(applyFiltersToPipeline(data, externalFilters));
+      setError(null);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Teklifler yüklenirken bir hata oluştu");
+    } finally {
+      setLoading(false);
+    }
+  }, [externalFilters]);
   useEffect(() => {
-    offerService
-      .getAll()
-      .then((data) => { setAll(data); setOffers(data); })
-      .catch((err: Error) => setError(err.message))
-      .finally(() => setLoading(false));
+    fetchOffers();
   }, []);
-
-  const applyFilters = useCallback((next: OfferFilters) => {
-    setFilters(next);
-    setOffers(applyFiltersToPipeline(all, next));
-  }, [all]);
-
-  const clearFilters = useCallback(() => {
-    setFilters({});
-    setOffers(all);
-  }, [all]);
-
-  // Toggle sonrası lokal state güncelleme 
-  const updateOfferStatus = useCallback((id: number, status: OFFER_STATUS) => {
-    const update = (list: OfferListItem[]) =>
+  useEffect(() => {
+    if (all.length > 0) {
+      const filtered = applyFiltersToPipeline(all, externalFilters);
+      setOffers(filtered);
+    }
+  }, [externalFilters, all]);
+  const updateOfferStatus = useCallback(async (id: number, status: OFFER_STATUS) => {
+    const updateFn = (list: OfferListItem[]) =>
       list.map((o) => (o.id === id ? { ...o, status } : o));
 
-    setAll(update);
-    setOffers(update);
+    setAll(prev => updateFn(prev));
   }, []);
 
-  return { offers, filters, loading, error, applyFilters, clearFilters, updateOfferStatus };
+  return { 
+    offers, 
+    loading, 
+    error, 
+    refresh: fetchOffers,
+    updateOfferStatus 
+  };
 }
