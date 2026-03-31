@@ -2,6 +2,7 @@
 
 import { OfferFormValues } from "@/features/store/types";
 import Input from "@/components/common/input/Input";
+import EpinInput from "@/features/store/components/EpinInput";
 
 interface Props {
   values:   OfferFormValues;
@@ -11,14 +12,9 @@ interface Props {
 export default function OfferFormAutomatic({ values, onChange }: Props) {
   return (
     <div className="space-y-4">
-      <Input
-        name="stock"
-        label="Stok Adedi"
-        type="number"
-        value={String(values.stock ?? "")}
-        onChange={(e) => onChange({ stock: Number(e.target.value) })}
-        placeholder="0"
-        hint="Kod havuzundaki mevcut stok sayısı."
+      <EpinInput
+        value={values.epins ?? []}
+        onChange={(epins) => onChange({ epins })}
       />
       <Input
         name="lowStockAlert"
@@ -29,7 +25,7 @@ export default function OfferFormAutomatic({ values, onChange }: Props) {
           onChange({ lowStockAlert: e.target.value ? Number(e.target.value) : undefined })
         }
         placeholder="Örn: 10"
-        hint="Stok bu sayının altına düşünce uyarı verilir. Opsiyonel."
+        hint="Stok bu sayının altına düşünce uyarı verilir."
       />
     </div>
   );

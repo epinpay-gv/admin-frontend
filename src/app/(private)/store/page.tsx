@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Plus, ToggleLeft, ToggleRight } from "lucide-react";
+import { Eye, Plus, ToggleLeft, ToggleRight } from "lucide-react";
 import { DataTable, ColumnDef } from "@/components/common/data-table";
 
 import { OfferListItem, OFFER_STATUS, DELIVERY_TYPE } from "@/features/store/types";
@@ -16,34 +16,34 @@ import { EntityActions } from "@/components/common/entity-actions/EntityActions"
 
 // Sabitler 
 const STATUS_LABELS: Record<OFFER_STATUS, string> = {
-  [OFFER_STATUS.ACTIVE]:  "Aktif",
+  [OFFER_STATUS.ACTIVE]: "Aktif",
   [OFFER_STATUS.PASSIVE]: "Pasif",
-  [OFFER_STATUS.DRAFT]:   "Taslak",
+  [OFFER_STATUS.DRAFT]: "Taslak",
 };
 
 const STATUS_COLORS = {
-  [OFFER_STATUS.ACTIVE]:  PALETTE.green,
+  [OFFER_STATUS.ACTIVE]: PALETTE.green,
   [OFFER_STATUS.PASSIVE]: PALETTE.red,
-  [OFFER_STATUS.DRAFT]:   PALETTE.yellow,
+  [OFFER_STATUS.DRAFT]: PALETTE.yellow,
 };
 
 
 const DELIVERY_LABELS: Record<DELIVERY_TYPE, string> = {
-  [DELIVERY_TYPE.AUTOMATIC]:    "Otomatik",
-  [DELIVERY_TYPE.ID_UPLOAD]:    "ID Yükleme",
+  [DELIVERY_TYPE.AUTOMATIC]: "Otomatik",
+  [DELIVERY_TYPE.ID_UPLOAD]: "ID Yükleme",
   [DELIVERY_TYPE.DROPSHIPPING]: "Stoksuz",
 };
 
 const DELIVERY_COLORS = {
-  [DELIVERY_TYPE.AUTOMATIC]:    PALETTE.blue,
-  [DELIVERY_TYPE.ID_UPLOAD]:    PALETTE.purple,
+  [DELIVERY_TYPE.AUTOMATIC]: PALETTE.blue,
+  [DELIVERY_TYPE.ID_UPLOAD]: PALETTE.purple,
   [DELIVERY_TYPE.DROPSHIPPING]: PALETTE.yellow,
 };
 
 const STATUS_OPTIONS = [
-  { label: "Tümü",   value: "all" },
-  { label: "Aktif",  value: OFFER_STATUS.ACTIVE },
-  { label: "Pasif",  value: OFFER_STATUS.PASSIVE },
+  { label: "Tümü", value: "all" },
+  { label: "Aktif", value: OFFER_STATUS.ACTIVE },
+  { label: "Pasif", value: OFFER_STATUS.PASSIVE },
 ];
 
 type OfferRow = OfferListItem & Record<string, unknown>;
@@ -52,11 +52,11 @@ type OfferRow = OfferListItem & Record<string, unknown>;
 
 export default function StorePage() {
   const router = useRouter();
-  const { offers, loading, error, updateOfferStatus  } = useOffers();
+  const { offers, loading, error, updateOfferStatus } = useOffers();
 
-const { toggle, loadingId } = useOfferToggle((id, status) => {
-  updateOfferStatus(id, status);
-});
+  const { toggle, loadingId } = useOfferToggle((id, status) => {
+    updateOfferStatus(id, status);
+  });
 
   const COLUMNS: ColumnDef<OfferRow>[] = [
     {
@@ -84,7 +84,7 @@ const { toggle, loadingId } = useOfferToggle((id, status) => {
       label: "Teslimat",
       sortable: true,
       render: (value) => {
-        const type   = value as DELIVERY_TYPE;
+        const type = value as DELIVERY_TYPE;
         const colors = DELIVERY_COLORS[type];
         return (
           <span
@@ -96,29 +96,29 @@ const { toggle, loadingId } = useOfferToggle((id, status) => {
         );
       },
     },
-    
+
     {
-  key: "price",
-  label: "Fiyat",
-  sortable: true,
-  sortKey: "price.amount",
-  render: (_, row) => {
-    const price = row.price as OfferListItem["price"] | undefined;
+      key: "price",
+      label: "Fiyat",
+      sortable: true,
+      sortKey: "price.amount",
+      render: (_, row) => {
+        const price = row.price as OfferListItem["price"] | undefined;
 
-    if (!price?.amount) return <span style={{ color: "var(--text-muted)" }}>—</span>;
+        if (!price?.amount) return <span style={{ color: "var(--text-muted)" }}>—</span>;
 
-    return (
-      <span className="font-mono text-sm" style={{ color: "var(--text-secondary)" }}>
-        {price.currency} {price.amount.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
-      </span>
-    );
-  },
-},
+        return (
+          <span className="font-mono text-sm" style={{ color: "var(--text-secondary)" }}>
+            {price.currency} {price.amount.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
+          </span>
+        );
+      },
+    },
     {
       key: "stock",
       label: "Stok",
       render: (_, row) => {
-        const stock        = row.stock as OfferListItem["stock"];
+        const stock = row.stock as OfferListItem["stock"];
         const deliveryType = row.deliveryType as DELIVERY_TYPE;
 
         if (deliveryType !== DELIVERY_TYPE.AUTOMATIC) {
@@ -172,45 +172,7 @@ const { toggle, loadingId } = useOfferToggle((id, status) => {
               <span className="font-semibold text-sm">Yeni Teklif</span>
             </Button>
           }
-      />
-
-      <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
-        <DataTable
-          data={offers as OfferRow[]}
-          columns={COLUMNS}
-          showStatusFilter
-          statusOptions={STATUS_OPTIONS}
-         actions={(row) => (
-  <div className="flex items-center justify-end gap-2">
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        toggle(row.id as number, row.status as OFFER_STATUS);
-      }}
-      disabled={loadingId === row.id}
-      className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5"
-      title={row.status === OFFER_STATUS.ACTIVE ? "Pasife Al" : "Aktif Et"}
-      style={{
-        background: "var(--background-card)",
-        borderColor: "var(--border)",
-        color: row.status === OFFER_STATUS.ACTIVE ? PALETTE.green.color : PALETTE.red.color,
-        opacity: loadingId === row.id ? 0.5 : 1,
-      }}
-    >
-      {row.status === OFFER_STATUS.ACTIVE
-        ? <ToggleRight size={20} />
-        : <ToggleLeft size={20} />
-      }
-    </button>
-
-    <EntityActions
-      row={row}
-      onView={() => router.push(`/store/${row.id}`)}
-    />
-  </div>
-)}
         />
-
         <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
           <DataTable
             data={offers as OfferRow[]}
@@ -219,7 +181,6 @@ const { toggle, loadingId } = useOfferToggle((id, status) => {
             statusOptions={STATUS_OPTIONS}
             actions={(row) => (
               <div className="flex items-center justify-end gap-2">
-                {/* Toggle butonu — loadingId ile hangi satırın işlemde olduğu belli */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -229,35 +190,26 @@ const { toggle, loadingId } = useOfferToggle((id, status) => {
                   className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5"
                   title={row.status === OFFER_STATUS.ACTIVE ? "Pasife Al" : "Aktif Et"}
                   style={{
-                    background:   "var(--background-card)",
-                    borderColor:  "var(--border)",
-                    color:        row.status === OFFER_STATUS.ACTIVE ? "#00C6A2" : "#FF5050",
-                    opacity:      loadingId === row.id ? 0.5 : 1,
+                    background: "var(--background-card)",
+                    borderColor: "var(--border)",
+                    color: row.status === OFFER_STATUS.ACTIVE ? PALETTE.green.color : PALETTE.red.color,
+                    opacity: loadingId === row.id ? 0.5 : 1,
                   }}
                 >
                   {row.status === OFFER_STATUS.ACTIVE
                     ? <ToggleRight size={20} />
-                    : <ToggleLeft  size={20} />
+                    : <ToggleLeft size={20} />
                   }
                 </button>
-                {/* Detay */}
-                <button
-                  onClick={() => router.push(`/store/${row.id}`)}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5"
-                  title="Teklif Detayı"
-                  style={{
-                    background:  "var(--background-card)",
-                    borderColor: "var(--border)",
-                    color:       "var(--text-muted)",
-                  }}
-                >
-                  <Eye size={14} />
-                </button>
+
+                <EntityActions
+                  row={row}
+                  onView={() => router.push(`/store/${row.id}`)}
+                />
               </div>
             )}
           />
         </div>
-      </div>
       </div>
     </PageState>
   );

@@ -53,7 +53,7 @@ export default function OfferFormSummary({ values, saving, onSubmit }: Props) {
       {/* Not alanı */}
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>
-          Not (opsiyonel)
+          Not 
         </label>
         <textarea
           rows={3}

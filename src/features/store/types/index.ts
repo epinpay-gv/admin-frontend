@@ -81,7 +81,7 @@ export interface OfferFormValues {
   currency:     Currency;
   status:       OFFER_STATUS;
   deliveryType: DELIVERY_TYPE;
-  stock?:       number;           
+  epins?:       string[];           
   lowStockAlert?: number;            
   idFields?:    IdUploadField[];     
   note?:        string;

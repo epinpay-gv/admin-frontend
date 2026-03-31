@@ -44,15 +44,15 @@ export default function OfferForm({
   const [values, setValues] = useState<OfferFormValues>(
     offer
       ? {
-          productId:    offer.product.id,
-          price:        offer.price.amount,
-          currency:     offer.price.currency,
-          status:       offer.status,
-          deliveryType: offer.deliveryType,
-          stock:        offer.stock?.total,
-          lowStockAlert: offer.stock?.lowStockAlert ?? undefined,
-          idFields:     offer.idFields,
-          note:         offer.note ?? undefined,
+               productId:     offer.product.id,
+        price:         offer.price.amount,
+        currency:      offer.price.currency,
+        status:        offer.status,
+        deliveryType:  offer.deliveryType,
+        epins:         [],   
+        lowStockAlert: offer.stock?.lowStockAlert ?? undefined,
+        idFields:      offer.idFields,
+        note:          offer.note ?? undefined,
         }
       : defaultValues
   );
@@ -71,7 +71,7 @@ export default function OfferForm({
       ...values,
       idFields: values.deliveryType === DELIVERY_TYPE.ID_UPLOAD ? fields : undefined,
       // AUTOMATIC değilse stok gönderilmez
-      stock:    values.deliveryType === DELIVERY_TYPE.AUTOMATIC ? values.stock : undefined,
+      epins:    values.deliveryType === DELIVERY_TYPE.AUTOMATIC ? values.epins : undefined,
     });
   };
 
