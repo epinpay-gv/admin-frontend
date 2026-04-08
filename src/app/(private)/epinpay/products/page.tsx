@@ -1,43 +1,20 @@
 "use client";
-
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, Pencil, Copy, Plus, Filter, RefreshCw } from "lucide-react";
+import { Copy, Plus, Filter, RefreshCw } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { DataTable } from "@/components/common/data-table";
 import { useProducts, useProductModal, ProductEditModal } from "@/features/products";
-import { Product, PRODUCT_STATUS, ProductFilters } from "@/features/products/types";
+import { Product, ProductFilters } from "@/features/products/types";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import { PageState } from "@/components/common/page-state/PageState";
-import Spinner from "@/components/common/spinner/Spinner";
-import { PALETTE } from "@/lib/status-color";
 import { EntityActions } from "@/components/common/entity-actions/EntityActions";
 import { FilterPanel } from "@/components/common/filter-panel/FilterPanel"; 
 import { FilterValue } from "@/components/common/filter-panel/types";
 import ForbiddenCountriesModal from "@/features/products/components/ForbiddenCountriesModal";
 import { PRODUCT_FILTER_CONFIG } from "@/features/products/hooks/ProductFilterConfig";
 import { PRODUCT_COLUMNS } from "@/features/products/components/ProductTableConfig";
-
-const STATUS_LABELS: Record<PRODUCT_STATUS, string> = {
-  [PRODUCT_STATUS.ACTIVE]: "Aktif",
-  [PRODUCT_STATUS.INACTIVE]: "Pasif",
-  [PRODUCT_STATUS.DRAFT]: "Taslak",
-};
-
-const STATUS_COLORS = {
-  [PRODUCT_STATUS.ACTIVE]: PALETTE.green,
-  [PRODUCT_STATUS.INACTIVE]: PALETTE.red,
-  [PRODUCT_STATUS.DRAFT]: PALETTE.yellow,
-};
-type ProductRow = Product & Record<string, unknown>;
-
-const STATUS_OPTIONS = [
-  { label: "Tümü", value: "all" },
-  { label: "Aktif", value: PRODUCT_STATUS.ACTIVE },
-  { label: "Pasif", value: PRODUCT_STATUS.INACTIVE },
-  { label: "Taslak", value: PRODUCT_STATUS.DRAFT },
-];
 
 export default function ProductsPage() {
   const router = useRouter();

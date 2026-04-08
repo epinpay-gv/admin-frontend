@@ -191,7 +191,7 @@ export const HUB_PAGES: Record<string, HubPage> = {
     description: "Ürün kataloğunu ve kategorileri yönet.",
     cards: [
       {
-        title: "Ürün Listesi & Detaylar",
+        title: "Ürünler",
         description: "Tüm ürünleri görüntüle, filtrele ve yönet.",
         href: "/epinpay/products",
         icon: Package,
@@ -199,7 +199,7 @@ export const HUB_PAGES: Record<string, HubPage> = {
       },
       {
         title: "Kategoriler",
-        description: "Ürün kategorilerini ve tag'leri yönet.",
+        description: "Ürün kategorilerini görüntüle, filtrele ve yönet.",
         href: "/epinpay/categories",
         icon: Tag,
         color: "#0085FF",

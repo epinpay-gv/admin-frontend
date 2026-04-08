@@ -93,7 +93,7 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           {
             href: "/epinpay/orders",
-            label: "Sipariş Listesi & Detaylar",
+            label: "Siparişler",
             icon: ShoppingCart,
           },
         ],
@@ -119,12 +119,12 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           {
             href: "/epinpay/products",
-            label: "Ürün Listesi & Detaylar",
+            label: "Ürünler",
             icon: List,
           },
           {
             href: "/epinpay/categories",
-            label: "Kategori Listesi & Detaylar",
+            label: "Kategoriler",
             icon: LayoutGrid,
           },
         ],
@@ -136,7 +136,7 @@ export const NAV_GROUPS: NavGroup[] = [
         children: [
           {
             href: "/epinpay/raffles",
-            label: "Çekiliş Listesi & Detaylar",
+            label: "Çekilişler",
             icon: Gift,
           },
         ],

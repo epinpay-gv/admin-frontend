@@ -13,10 +13,7 @@ function buildUrl(
   endpoint: string,
   params?: Record<string, string | number | boolean | undefined | null>
 ): string {
-  const isServer = typeof window === "undefined";
-  const base = isServer
-    ? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001"
-    : window.location.origin;
+  const base =  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3011";
 
   const url = new URL(`${base}${endpoint}`);
 
