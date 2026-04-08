@@ -30,7 +30,7 @@ export const CATEGORY_COLUMNS = (
       // Record'u Category tipine güvenli şekilde dönüştürüyoruz
       const c = (row as unknown) as Category;
       return (
-        <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-[var(--border)] bg-[var(--background-secondary)]">
+        <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-border bg-(--background-secondary)">
           <Image
             src={c.translation.imgUrl || "/placeholder.png"}
             alt={c.translation.imgAlt || "Kategori"}
@@ -52,10 +52,10 @@ export const CATEGORY_COLUMNS = (
       const c = (row as unknown) as Category;
       return (
         <div className="min-w-0">
-          <p className="text-sm font-medium truncate text-[var(--text-primary)]">
+          <p className="text-sm font-medium truncate text-(--text-primary)">
             {c.translation.name}
           </p>
-          <p className="text-[11px] font-mono opacity-60 truncate text-[var(--text-muted)]">
+          <p className="text-[11px] font-mono opacity-60 truncate text-(--text-muted)">
             {c.translation.slug}
           </p>
         </div>
@@ -74,7 +74,7 @@ export const CATEGORY_COLUMNS = (
             e.stopPropagation();
             setProductsModal(c);
           }}
-          className="flex items-center gap-1.5 text-xs font-mono px-2 py-1 rounded-lg border border-[rgba(0,133,255,0.2)] text-[#0085FF] bg-[var(--background-secondary)] hover:bg-[rgba(0,133,255,0.05)] transition-colors"
+          className="flex items-center gap-1.5 text-xs font-mono px-2 py-1 rounded-lg border border-[rgba(0,133,255,0.2)] text-[#0085FF] bg-(--background-secondary) hover:bg-[rgba(0,133,255,0.05)] transition-colors"
         >
           <Package size={11} />
           {String(value)} ürün
