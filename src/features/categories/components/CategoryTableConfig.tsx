@@ -27,17 +27,15 @@ export const CATEGORY_COLUMNS = (
     key: "image",
     label: "Görsel",
     render: (_, row) => {
-      // Record'u Category tipine güvenli şekilde dönüştürüyoruz
       const c = (row as unknown) as Category;
       return (
-        <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-[var(--border)] bg-[var(--background-secondary)]">
+        <div className="w-24 h-24 rounded-lg overflow-hidden shrink-0 border border-border bg-(--background-secondary)">
           <Image
             src={c.translation.imgUrl || "/placeholder.png"}
             alt={c.translation.imgAlt || "Kategori"}
-            width={40}
-            height={40}
+            width={96}
+            height={96}
             className="object-cover w-full h-full"
-            // Boş string hatasını engellemek için fallback
             priority={false}
           />
         </div>
@@ -50,13 +48,14 @@ export const CATEGORY_COLUMNS = (
     sortable: true,
     render: (_, row) => {
       const c = (row as unknown) as Category;
+      console.log("DATA :",c);
       return (
         <div className="min-w-0">
-          <p className="text-sm font-medium truncate text-[var(--text-primary)]">
+          <p className="text-lg font-medium truncate text-(--text-primary)">
             {c.translation.name}
           </p>
-          <p className="text-[11px] font-mono opacity-60 truncate text-[var(--text-muted)]">
-            {c.translation.slug}
+          <p className=" font-mono opacity-60 truncate text-(--text-muted)">
+            {c.slug}
           </p>
         </div>
       );

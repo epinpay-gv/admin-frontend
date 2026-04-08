@@ -18,32 +18,42 @@ export interface CategoryFaq {
 
 export interface CategoryFilters {
   name?: string;
-  status?: CATEGORY_STATUS | string;
-  [key: string]: string | number | boolean | undefined | null;
+  status?: string;
+  page?: number;
+  limit?: number;
+  [key: string]: string | number | undefined; 
 }
 
-
-// types.ts
 export interface CategoryTranslation {
+  locale: string;
   name: string;
-  description: string;
-  bannerImageUrl: string;
-  bannerImageAlt: string;
-  bannerImageStatus: string;
-  imgUrl: string;
-  imgAlt: string;
-  metaTitle: string;
-  metaDescription: string;
-  activation?: unknown;
-  faq?: unknown;
+  slug: string;
+  description?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  imgUrl?: string;
+  imgAlt?: string;
+  content?: string;
 }
-
 export interface Category {
   id: number;
   slug: string;
-  status: string;
+  status: CATEGORY_STATUS;
+  productCount: number;
   translation: CategoryTranslation;
+  availableLocales: string[];
+  forbiddenCountries: string[];
+  createdAt: string;
+  updatedAt: string;
 }
+
+export interface CatalogPagination {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 
 /* RESPONSE AND PAYLOAD TYPES */
 export interface CategoryListResponse {
