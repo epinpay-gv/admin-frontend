@@ -84,7 +84,7 @@ export const HUB_PAGES: Record<string, HubPage> = {
       {
         title: "Ödeme Yöntemi Görünürlüğü",
         description: "Ülke bazlı ödeme yöntemi ayarları.",
-        href: "/admin/policy/payments",
+        href: "/payment",
         icon: CreditCard,
         color: "#0085FF",
       },

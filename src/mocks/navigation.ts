@@ -60,7 +60,7 @@ export const NAV_GROUPS: NavGroup[] = [
         icon: Globe,
         children: [
           {
-            href: "/users",
+            href: "/payment",
             label: "Ödeme Yöntemi Görünürlüğü",
             icon: CreditCard,
           },
