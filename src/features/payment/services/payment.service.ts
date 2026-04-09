@@ -22,12 +22,12 @@ export const paymentService = {
   getById: (id: number): Promise<PaymentMethod> =>
     api.get<PaymentMethod>(`${BASE_URL}/${id}`),
 
-  updateForbiddenCountries: (
-    id: number,
-    forbiddenCountries: string[]
-  ): Promise<PaymentMethod> =>
-    api.put<PaymentMethod, { forbiddenCountries: string[] }>(
-      `${BASE_URL}/${id}`,
-      { forbiddenCountries }
-    ),
+updateForbiddenCountries: (
+  id: number,
+  forbiddenCountries: string[]
+): Promise<PaymentMethod> =>
+  api.put<PaymentMethod, { id: number; forbiddenCountries: string[] }>(
+    BASE_URL,
+    { id, forbiddenCountries }
+  ),
 };

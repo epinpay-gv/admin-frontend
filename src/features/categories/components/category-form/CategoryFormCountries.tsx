@@ -19,7 +19,7 @@ import { CategoryCountry } from "@/features/categories/types";
 import { useCountries } from "@/features/products/hooks/useCountries";
 import { cn } from "@/lib/utils";
 
-interface CategoryFormCountriesProps {
+ interface CategoryFormCountriesProps {
   forbidden: CategoryCountry[];
   onChange: (countries: CategoryCountry[]) => void;
 }
