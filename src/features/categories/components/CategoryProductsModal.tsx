@@ -30,6 +30,7 @@ interface CategoryProductsModalProps {
   category: Category | null;
 }
 
+
 export default function CategoryProductsModal({
   open,
   onClose,

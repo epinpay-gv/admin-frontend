@@ -32,7 +32,7 @@ export default function CategoriesPage() {
   const router = useRouter();
   const {
     categories,
-    pagination,   // ← add
+    pagination,  
     loading,
     error,
     filters,
@@ -40,7 +40,7 @@ export default function CategoriesPage() {
     resetFilters,
     refresh,
     updateCategory,
-    goToPage,     // ← add
+    goToPage,    
   } = useCategories();
 
   const [showFilters, setShowFilters] = useState(false);
@@ -57,12 +57,10 @@ export default function CategoriesPage() {
     [],
   );
 
-  // setFilters now takes Partial<filters>, not an updater function
   const handleStatusChange = (status: string) => {
     setFilters({ status: status === "all" ? undefined : status });
   };
 
-  // Active filters: anything in the URL except page/limit/status
   const hasActiveFilters = Object.entries(filters).some(
     ([k, v]) => v && v !== "" && k !== "status" && k !== "page" && k !== "limit",
   );
