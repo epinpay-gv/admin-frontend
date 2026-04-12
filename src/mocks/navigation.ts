@@ -72,7 +72,7 @@ export const NAV_GROUPS: NavGroup[] = [
         icon: PersonStanding,
         children: [
           { href: "/blog", label: "Blog Yönetimi", icon: Newspaper },
-          { href: "/admin/cms/redirects", label: "Yönlendirmeler", icon: ArrowLeftRight }, // TODO 
+          { href: "/redirect", label: "Yönlendirmeler", icon: ArrowLeftRight },
           { href: "/admin/cms/legal", label: "Yasal Sayfalar", icon: Newspaper }, // TODO 
         ],
       },
