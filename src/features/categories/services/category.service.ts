@@ -22,7 +22,6 @@ export const categoryService = {
   getById: (id: number): Promise<Category> =>
     api.get<Category>(`${BASE}/categories/${id}`),
 
-  /** Fast-revise modal: name and/or slug */
   quickUpdate: (id: number, payload: CategoryQuickUpdatePayload): Promise<{ success: boolean; category?: Category }> =>
     api.patch(`${BASE}/categories/${id}/quick-update`, payload),
 

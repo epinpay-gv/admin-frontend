@@ -84,6 +84,7 @@ export interface ProductSearchResponse {
 export interface CategoryQuickUpdatePayload {
   name?: string;
   slug?: string;
+  status?: CATEGORY_STATUS;
 }
 
 // POST /api/features/catalog/categories/ban-countries

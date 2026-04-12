@@ -32,7 +32,7 @@ export default function CategoriesPage() {
   const router = useRouter();
   const {
     categories,
-    pagination,  
+    pagination,
     loading,
     error,
     filters,
@@ -40,7 +40,7 @@ export default function CategoriesPage() {
     resetFilters,
     refresh,
     updateCategory,
-    goToPage,    
+    goToPage,
   } = useCategories();
 
   const [showFilters, setShowFilters] = useState(false);
@@ -53,6 +53,7 @@ export default function CategoriesPage() {
       CATEGORY_COLUMNS(
         setProductsModal,
         setCountryModal,
+        setEditModal,
       ) as unknown as ColumnDef<Record<string, unknown>>[],
     [],
   );
@@ -62,7 +63,8 @@ export default function CategoriesPage() {
   };
 
   const hasActiveFilters = Object.entries(filters).some(
-    ([k, v]) => v && v !== "" && k !== "status" && k !== "page" && k !== "limit",
+    ([k, v]) =>
+      v && v !== "" && k !== "status" && k !== "page" && k !== "limit",
   );
 
   return (
@@ -70,7 +72,7 @@ export default function CategoriesPage() {
       <div className="flex flex-col h-[calc(100vh-100px)] space-y-4 px-1">
         <PageHeader
           title="Kategoriler"
-          count={pagination.total}   // ← total from backend, not categories.length
+          count={pagination.total}
           countLabel="kategori"
           actions={
             <CategoriesHeaderAction
@@ -105,12 +107,11 @@ export default function CategoriesPage() {
               currentStatus={String(filters.status || "all")}
               onStatusChange={handleStatusChange}
               // Server-side pagination
-              serverPagination={pagination} 
+              serverPagination={pagination}
               onPageChange={goToPage}
               actions={(row) => (
                 <EntityActions
                   row={row}
-                  onEdit={() => setEditModal(row as unknown as Category)}
                   onView={() => router.push(`/epinpay/categories/${row.id}`)}
                   extraActions={[
                     {
@@ -130,18 +131,24 @@ export default function CategoriesPage() {
           open={!!countryModal}
           onClose={() => setCountryModal(null)}
           category={countryModal}
-          onUpdate={(u) => { updateCategory(u); setCountryModal(null); }}
-        />
-        <CategoryEditModal
-          open={!!editModal}
-          onClose={() => setEditModal(null)}
-          category={editModal}
-          onUpdate={(u) => { updateCategory(u); setEditModal(null); }}
+          onUpdate={(u) => {
+            updateCategory(u);
+            setCountryModal(null);
+          }}
         />
         <CategoryProductsModal
           open={!!productsModal}
           onClose={() => setProductsModal(null)}
           category={productsModal}
+        />
+        <CategoryEditModal
+          open={!!editModal}
+          onClose={() => setEditModal(null)}
+          category={editModal}
+          onUpdate={(u) => {
+            updateCategory(u);
+            setEditModal(null);
+          }}
         />
       </div>
     </Suspense>
