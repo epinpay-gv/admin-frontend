@@ -1,4 +1,3 @@
-// src/app/(private)/redirect/page.tsx
 "use client";
 
 import { useMemo } from "react";
