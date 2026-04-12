@@ -50,37 +50,37 @@ export const HUB_PAGES: Record<string, HubPage> = {
       },
     ],
   },
-  "admin/finance": {
-    title: "Ödeme & Finans Ayarları",
-    description: "Ödeme yöntemleri, limitler ve finans politikaları.",
-    cards: [
-      {
-        title: "Ödeme Yöntemleri",
-        description: "Ödeme yöntemlerini ve limit politikalarını yönet.",
-        href: "/admin/finance/payment-methods",
-        icon: CreditCard,
-        color: "#00C6A2",
-      },
-      {
-        title: "Para Birimi & Limitler",
-        description: "KYC limitleri ve para birimi politikalarını yönet.",
-        href: "/admin/finance/limits",
-        icon: Wallet,
-        color: "#0085FF",
-      },
-    ],
-  },
+  // "admin/finance": {
+  //   title: "Ödeme & Finans Ayarları",
+  //   description: "Ödeme yöntemleri, limitler ve finans politikaları.",
+  //   cards: [
+  //     {
+  //       title: "Ödeme Yöntemleri",
+  //       description: "Ödeme yöntemlerini ve limit politikalarını yönet.",
+  //       href: "/admin/finance/payment-methods",
+  //       icon: CreditCard,
+  //       color: "#00C6A2",
+  //     },
+  //     {
+  //       title: "Para Birimi & Limitler",
+  //       description: "KYC limitleri ve para birimi politikalarını yönet.",
+  //       href: "/admin/finance/limits",
+  //       icon: Wallet,
+  //       color: "#0085FF",
+  //     },
+  //   ],
+  // },
   "admin/policy": {
     title: "Konum & Policy Yönetimi",
     description: "Ülke bazlı görünürlük ve policy yönetimi.",
     cards: [
-      {
-        title: "Ürün Görünürlüğü",
-        description: "Ülke bazlı ürün görünürlük ayarları.",
-        href: "/admin/policy/products",
-        icon: Package,
-        color: "#00C6A2",
-      },
+      // {
+      //   title: "Ürün Görünürlüğü",
+      //   description: "Ülke bazlı ürün görünürlük ayarları.",
+      //   href: "/admin/policy/products",
+      //   icon: Package,
+      //   color: "#00C6A2",
+      // },
       {
         title: "Ödeme Yöntemi Görünürlüğü",
         description: "Ülke bazlı ödeme yöntemi ayarları.",
@@ -88,20 +88,20 @@ export const HUB_PAGES: Record<string, HubPage> = {
         icon: CreditCard,
         color: "#0085FF",
       },
-      {
-        title: "Feature Görünürlüğü",
-        description: "Çark, Premium ve diğer feature ayarları.",
-        href: "/admin/policy/features",
-        icon: Globe,
-        color: "#FFB400",
-      },
-      {
-        title: "Emergency Override",
-        description: "Acil durum kapatma işlemleri.",
-        href: "/admin/policy/emergency",
-        icon: Globe,
-        color: "#FF5050",
-      },
+      // {
+      //   title: "Feature Görünürlüğü",
+      //   description: "Çark, Premium ve diğer feature ayarları.",
+      //   href: "/admin/policy/features",
+      //   icon: Globe,
+      //   color: "#FFB400",
+      // },
+      // {
+      //   title: "Emergency Override",
+      //   description: "Acil durum kapatma işlemleri.",
+      //   href: "/admin/policy/emergency",
+      //   icon: Globe,
+      //   color: "#FF5050",
+      // },
     ],
   },
   "admin/cms": {
@@ -115,13 +115,13 @@ export const HUB_PAGES: Record<string, HubPage> = {
         icon: FileText,
         color: "#00C6A2",
       },
-      {
-        title: "Yönlendirmeler",
-        description: "URL yönlendirmelerini tekli veya toplu yönet.",
-        href: "/admin/cms/redirects",
-        icon: ArrowLeftRight,
-        color: "#0085FF",
-      },
+   {
+  title: "Yönlendirmeler",
+  description: "URL yönlendirmelerini tekli veya toplu yönet.",
+  href: "/redirect",
+  icon: ArrowLeftRight,
+  color: "#0085FF",
+},
       {
         title: "Yasal Sayfalar",
         description: "Yasal uyarı sayfalarını ve meta verilerini yönet.",
@@ -191,7 +191,7 @@ export const HUB_PAGES: Record<string, HubPage> = {
     description: "Ürün kataloğunu ve kategorileri yönet.",
     cards: [
       {
-        title: "Ürün Listesi & Detaylar",
+        title: "Ürünler",
         description: "Tüm ürünleri görüntüle, filtrele ve yönet.",
         href: "/epinpay/products",
         icon: Package,
@@ -199,7 +199,7 @@ export const HUB_PAGES: Record<string, HubPage> = {
       },
       {
         title: "Kategoriler",
-        description: "Ürün kategorilerini ve tag'leri yönet.",
+        description: "Ürün kategorilerini görüntüle, filtrele ve yönet.",
         href: "/epinpay/categories",
         icon: Tag,
         color: "#0085FF",

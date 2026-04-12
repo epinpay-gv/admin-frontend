@@ -71,7 +71,7 @@ export default function Pagination({
           <button
             onClick={() => onPageChange(page - 1)}
             disabled={page === 1}
-            className="w-7 h-7 rounded-lg flex items-center justify-center border transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            className="cursor-pointer w-7 h-7 rounded-lg flex items-center justify-center border transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             style={{
               background: "var(--background-card)",
               borderColor: "var(--border)",
@@ -94,7 +94,7 @@ export default function Pagination({
               <button
                 key={p}
                 onClick={() => onPageChange(p as number)}
-                className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono transition-all border"
+                className="cursor-pointer w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono transition-all border"
                 style={{
                   background: page === p
                     ? "linear-gradient(90deg, rgba(0,198,162,0.2) 0%, rgba(0,133,255,0.1) 100%)"

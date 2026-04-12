@@ -2,16 +2,29 @@ export enum CATEGORY_STATUS {
   ACTIVE = "active",
   INACTIVE = "inactive",
 }
-
 export interface CategoryCountry {
   code: string;
   code3: string;
   name: string;
   region: string;
 }
+export interface CategoryFaq {
+  id: number;
+  name: string;
+  description: string;
+  order: number;
+  isActive: boolean;
+}
+
+export interface CategoryFilters {
+  name?: string;
+  status?: string;
+  page?: number;
+  limit?: number;
+  [key: string]: string | number | undefined; 
+}
 
 export interface CategoryTranslation {
-  id: number;
   locale: string;
   name: string;
   slug: string;
@@ -22,32 +35,33 @@ export interface CategoryTranslation {
   imgAlt?: string;
   content?: string;
 }
-
-export interface CategoryFaq {
-  id: number;
-  name: string;
-  description: string;
-  order: number;
-  isActive: boolean;
-}
-
 export interface Category {
   id: number;
   slug: string;
   status: CATEGORY_STATUS;
   productCount: number;
-  genres: string[];
   translation: CategoryTranslation;
-  translations?: Record<string, CategoryTranslation>;
   availableLocales: string[];
-  forbiddenCountries: CategoryCountry[];
-  faqs: CategoryFaq[];
+  forbiddenCountries: string[];
   createdAt: string;
   updatedAt: string;
-  [key: string]: unknown; 
 }
-export interface CategoryFilters {
-  name?: string;
-  status?: CATEGORY_STATUS | string;
-  [key: string]: string | number | boolean | undefined | null;
+
+export interface CatalogPagination {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+
+/* RESPONSE AND PAYLOAD TYPES */
+export interface CategoryListResponse {
+  categories: (Category | null)[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }
