@@ -1,11 +1,86 @@
 'use client';
+import {
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  Heading1,
+  Heading2,
+  Pilcrow,
+  List,
+  ListOrdered,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Link,
+  Image,
+  Undo,
+  Redo,
+  type LucideIcon,
+} from "lucide-react";
 import { useRef, useCallback, useState, useEffect } from 'react';
-import { ToolItem, RichTextEditorProps, CommandTool } from './types';
-import { TOOL_GROUPS } from './data';
+
+interface RichTextEditorProps {
+  value?: string;
+  onChange?: (html: string) => void;
+  placeholder?: string;
+}
+
+type CommandTool = {
+  type: 'command';
+  label: LucideIcon;
+  cmd: string;
+  val?: string;
+  title: string;
+  className?: string;
+  stateKey?: string;
+};
+
+type ActionTool = {
+  type: 'action';
+  label: LucideIcon;
+  title: string;
+  actionKey: 'link' | 'image';
+  className?: string;
+};
+
+type DividerTool = { type: 'divider' };
+type ToolItem = CommandTool | ActionTool | DividerTool;
 
 const BTN_BASE = 'px-2 py-1 text-sm rounded transition-colors duration-100 select-none';
 const BTN_IDLE = 'hover:bg-gray-700 text-gray-200';
 const BTN_ACTIVE = 'bg-gray-600 text-white shadow-inner';
+
+const TOOL_GROUPS: ToolItem[][] = [
+  [
+    { type: 'command', label: Bold,         cmd: 'bold',          title: 'Kalın' },
+    { type: 'command', label: Italic,       cmd: 'italic',        title: 'İtalik' },
+    { type: 'command', label: Underline,    cmd: 'underline',     title: 'Altı Çizili' },
+    { type: 'command', label: Strikethrough,cmd: 'strikeThrough', title: 'Üstü Çizili' },
+  ],
+  [
+    { type: 'command', label: Heading1, cmd: 'formatBlock', val: 'H1', title: 'Başlık 1', stateKey: 'formatBlock:H1' },
+    { type: 'command', label: Heading2, cmd: 'formatBlock', val: 'H2', title: 'Başlık 2', stateKey: 'formatBlock:H2' },
+    { type: 'command', label: Pilcrow,  cmd: 'formatBlock', val: 'P',  title: 'Paragraf', stateKey: 'formatBlock:P' },
+  ],
+  [
+    { type: 'command', label: List,         cmd: 'insertUnorderedList', title: 'Madde listesi' },
+    { type: 'command', label: ListOrdered,   cmd: 'insertOrderedList',   title: 'Numaralı liste' },
+  ],
+  [
+    { type: 'command', label: AlignLeft,   cmd: 'justifyLeft',   title: 'Sola hizala' },
+    { type: 'command', label: AlignCenter, cmd: 'justifyCenter', title: 'Ortala' },
+    { type: 'command', label: AlignRight,  cmd: 'justifyRight',  title: 'Sağa hizala' },
+  ],
+  [
+    { type: 'action', label: Link,  title: 'Link ekle', actionKey: 'link' },
+    { type: 'action', label: Image, title: 'Resim yükle', actionKey: 'image' },
+  ],
+  [
+    { type: 'command', label: Undo, cmd: 'undo', title: 'Geri al' },
+    { type: 'command', label: Redo, cmd: 'redo', title: 'İleri al' },
+  ],
+];
 
 const isCommandActive = (cmd: string): boolean => {
   try { return document.queryCommandState(cmd); } catch { return false; }
@@ -22,22 +97,39 @@ export default function RichTextEditor({
 }: RichTextEditorProps) {
   const editorRef    = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Track the last value we wrote into the DOM ourselves,
+  // so we can distinguish "prop changed externally" from "user is typing".
+  const lastSyncedValue = useRef<string | undefined>(undefined);
+
   const [activeCommands, setActiveCommands] = useState<Set<string>>(new Set());
 
-  // ── Seed initial value ────────────────────────────────────────────────────
-  // Runs once on mount; also re-syncs when value changes from undefined → string
-  // (e.g. async form population) without clobbering mid-edit changes.
-  const seededRef = useRef(false);
+  // ── Sync incoming value → DOM ─────────────────────────────────────────────
+  // Runs whenever `value` changes. Only writes to the DOM when:
+  //   1. The editor is not currently focused (user isn't mid-edit), OR
+  //   2. The value is meaningfully different from what we last wrote
+  //      (covers async load and locale switches).
   useEffect(() => {
-    if (!editorRef.current) return;
-    if (!seededRef.current && value !== undefined) {
-      editorRef.current.innerHTML = value;
-      seededRef.current = true;
+    const el = editorRef.current;
+    if (!el) return;
+
+    // Normalize: treat undefined/null as empty string for comparison
+    const incoming = value ?? '';
+
+    // Skip if we already have this value in the DOM (avoid cursor-jump on every keystroke)
+    if (incoming === lastSyncedValue.current) return;
+
+    // Only overwrite if the editor doesn't currently have focus
+    // (i.e. not mid-edit) OR if the incoming is genuinely new external data
+    // (e.g. async fetch completed, locale switched).
+    const hasFocus = document.activeElement === el;
+    if (!hasFocus) {
+      el.innerHTML = incoming;
+      lastSyncedValue.current = incoming;
     }
   }, [value]);
 
   // ── Active-state detection ────────────────────────────────────────────────
-
   const refreshActiveCommands = useCallback(() => {
     const toggled = [
       'bold', 'italic', 'underline', 'strikeThrough',
@@ -56,21 +148,38 @@ export default function RichTextEditor({
   }, [refreshActiveCommands]);
 
   // ── Core exec ────────────────────────────────────────────────────────────
-
   const exec = useCallback((command: string, val?: string) => {
     document.execCommand(command, false, val);
     editorRef.current?.focus();
     refreshActiveCommands();
-    if (onChange && editorRef.current) onChange(editorRef.current.innerHTML);
+    if (onChange && editorRef.current) {
+      const html = editorRef.current.innerHTML;
+      lastSyncedValue.current = html; // keep ref in sync so effect won't overwrite
+      onChange(html);
+    }
   }, [onChange, refreshActiveCommands]);
 
-  // ── Event handlers ────────────────────────────────────────────────────────
-
+  // ── Input handler ─────────────────────────────────────────────────────────
   const handleInput = useCallback(() => {
     refreshActiveCommands();
-    if (onChange && editorRef.current) onChange(editorRef.current.innerHTML);
+    if (onChange && editorRef.current) {
+      const html = editorRef.current.innerHTML;
+      lastSyncedValue.current = html; // keep ref in sync
+      onChange(html);
+    }
   }, [onChange, refreshActiveCommands]);
 
+  // ── Action dispatcher ─────────────────────────────────────────────────────
+  const handleAction = useCallback((actionKey: 'link' | 'image') => {
+    if (actionKey === 'link') {
+      const val = prompt('URL girin:');
+      if (val) exec('createLink', val);
+    } else {
+      fileInputRef.current?.click();
+    }
+  }, [exec]);
+
+  // ── Image upload ──────────────────────────────────────────────────────────
   const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -79,33 +188,25 @@ export default function RichTextEditor({
     reader.onload = () => {
       editorRef.current?.focus();
       document.execCommand('insertImage', false, reader.result as string);
-      if (onChange && editorRef.current) onChange(editorRef.current.innerHTML);
+      if (onChange && editorRef.current) {
+        const html = editorRef.current.innerHTML;
+        lastSyncedValue.current = html;
+        onChange(html);
+      }
     };
     reader.readAsDataURL(file);
     e.target.value = '';
   }, [onChange]);
 
-  // ── Action dispatcher (replaces inline closures in toolGroups) ───────────
-
-  const handleAction = useCallback((actionKey: 'link' | 'image') => {
-    if (actionKey === 'link') {
-      const val = prompt('URL girin:');
-      if (val) exec('createLink', val);
-    } else {
-      fileInputRef.current?.click();   // ✅ ref accessed in handler, not render
-    }
-  }, [exec]);
-
   // ── Render helpers ────────────────────────────────────────────────────────
-
   const isActive = (tool: CommandTool) => activeCommands.has(tool.stateKey ?? tool.cmd);
 
   const renderTool = (tool: ToolItem, index: number) => {
     if (tool.type === 'divider') {
       return <span key={index} className="w-px self-stretch bg-gray-600 mx-1" />;
     }
-
     if (tool.type === 'action') {
+      const Icon = tool.label;
       return (
         <button
           key={index}
@@ -114,12 +215,12 @@ export default function RichTextEditor({
           onMouseDown={(e) => { e.preventDefault(); handleAction(tool.actionKey); }}
           className={`${BTN_BASE} ${BTN_IDLE} ${tool.className ?? ''}`}
         >
-          {tool.label}
+           <Icon size={16} />
         </button>
       );
     }
-
     const active = isActive(tool);
+    const Icon = tool.label;
     return (
       <button
         key={index}
@@ -129,12 +230,10 @@ export default function RichTextEditor({
         onMouseDown={(e) => { e.preventDefault(); exec(tool.cmd, tool.val); }}
         className={`${BTN_BASE} ${active ? BTN_ACTIVE : BTN_IDLE} ${tool.className ?? ''}`}
       >
-        {tool.label}
+         <Icon size={16} />
       </button>
     );
   };
-
-  // ── JSX ───────────────────────────────────────────────────────────────────
 
   return (
     <div className="border border-gray-700 rounded-lg overflow-hidden shadow-sm">
