@@ -25,7 +25,7 @@ export default function CategoryTitleLabel({
   mode,
 }: CategoryTitleLabelProps) {
   return (
-    <div>
+    <div className="flex items-center gap-2">
       {category && mode === "edit" && (
         <span
           className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"

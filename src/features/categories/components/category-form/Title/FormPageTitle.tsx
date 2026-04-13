@@ -1,22 +1,11 @@
 "use client";
 import { ArrowLeft, Save, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PALETTE } from "@/lib/status-color";
 import { useRouter } from "next/navigation";
-import { Category, CATEGORY_STATUS } from "@/features/categories/types";
+import { Category } from "@/features/categories/types";
 import CategoryTitleLabel from "./CategoryTitleLabel";
 
 type PageMode = "create" | "edit" | "duplicate";
-
-const STATUS_COLORS = {
-  [CATEGORY_STATUS.ACTIVE]: PALETTE.green,
-  [CATEGORY_STATUS.INACTIVE]: PALETTE.red,
-};
-
-const STATUS_LABELS: Record<CATEGORY_STATUS, string> = {
-  [CATEGORY_STATUS.ACTIVE]: "Aktif",
-  [CATEGORY_STATUS.INACTIVE]: "Pasif",
-};
 
 interface FormPageTitleProps {
   isDirty: boolean;

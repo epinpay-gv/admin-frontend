@@ -43,7 +43,6 @@ const EMPTY_LOCALE_DATA: LocaleFormData = {
   faq: [],
 };
 
-
 export function useCategoryForm(
   category: Category | null,
   mode: "create" | "edit" | "duplicate",
@@ -55,10 +54,14 @@ export function useCategoryForm(
   const [status, setStatus] = useState<CATEGORY_STATUS>(CATEGORY_STATUS.ACTIVE);
 
   // Forbidden countries — CategoryCountry[] matching what CategoryFormCountries expects
-  const [forbiddenCountries, setForbiddenCountries] = useState<CategoryCountry[]>([]);
+  const [forbiddenCountries, setForbiddenCountries] = useState<
+    CategoryCountry[]
+  >([]);
 
   // Per-locale translation data
-  const [translations, setTranslations] = useState<Record<string, LocaleFormData>>({
+  const [translations, setTranslations] = useState<
+    Record<string, LocaleFormData>
+  >({
     tr: { ...EMPTY_LOCALE_DATA },
   });
 
@@ -67,7 +70,9 @@ export function useCategoryForm(
   const [enabledLocales, setEnabledLocales] = useState<string[]>(["tr"]);
 
   // Other state
-  const [errors, setErrors] = useState<Partial<Record<keyof CategoryFormData, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof CategoryFormData, string>>
+  >({});
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
@@ -83,33 +88,41 @@ export function useCategoryForm(
 
       // Shared fields
       setSlug(mode === "duplicate" ? `${t.slug}-kopya` : t.slug);
-      setStatus(mode === "duplicate" ? CATEGORY_STATUS.INACTIVE : category.status);
+      setStatus(
+        mode === "duplicate" ? CATEGORY_STATUS.INACTIVE : category.status,
+      );
       setImgUrl(t.imgUrl ?? null);
       setIsDirty(false);
       setSlugManuallyEdited(false);
       setPendingFile(null);
 
-      const locales = category.availableLocales?.length ? category.availableLocales : ["tr"];
+      const locales = category.availableLocales?.length
+        ? category.availableLocales
+        : ["tr"];
       setEnabledLocales(locales);
       const preferred = locales.includes("tr") ? "tr" : locales[0];
       setActiveLocale(preferred);
 
       const initialTranslations: Record<string, LocaleFormData> = {};
 
-      if (category.translations && Object.keys(category.translations).length > 0) {
+      if (
+        category.translations &&
+        Object.keys(category.translations).length > 0
+      ) {
         locales.forEach((code) => {
           const lt = category.translations![code];
           if (lt) {
             initialTranslations[code] = {
-              name:            mode === "duplicate" && code === preferred
-                                 ? `${lt.name} (Kopya)`
-                                 : lt.name,
-              imgAlt:          lt.imgAlt          ?? "",
-              imgUrl:          lt.imgUrl          ?? "",
-              metaTitle:       lt.metaTitle       ?? "",
-              description:     lt.description     ?? "",
+              name:
+                mode === "duplicate" && code === preferred
+                  ? `${lt.name} (Kopya)`
+                  : lt.name,
+              imgAlt: lt.imgAlt ?? "",
+              imgUrl: lt.imgUrl ?? "",
+              metaTitle: lt.metaTitle ?? "",
+              description: lt.description ?? "",
               metaDescription: lt.metaDescription ?? "",
-              faq:             lt.faq             ?? [],
+              faq: lt.faq ?? [],
             };
           } else {
             initialTranslations[code] = { ...EMPTY_LOCALE_DATA };
@@ -121,13 +134,13 @@ export function useCategoryForm(
         });
         const seedLocale = t.locale || preferred;
         initialTranslations[seedLocale] = {
-          name:            mode === "duplicate" ? `${t.name} (Kopya)` : t.name,
-          imgAlt:          t.imgAlt          ?? "",
-          imgUrl:          t.imgUrl          ?? "",
-          metaTitle:       t.metaTitle       ?? "",
-          description:     t.description     ?? "",
+          name: mode === "duplicate" ? `${t.name} (Kopya)` : t.name,
+          imgAlt: t.imgAlt ?? "",
+          imgUrl: t.imgUrl ?? "",
+          metaTitle: t.metaTitle ?? "",
+          description: t.description ?? "",
           metaDescription: t.metaDescription ?? "",
-          faq:             t.faq             ?? [],
+          faq: t.faq ?? [],
         };
       }
 
@@ -158,7 +171,9 @@ export function useCategoryForm(
   }, [category?.id, countries]);
 
   // ── Derived form (always reflects activeLocale) ────────────────────────────
-  const currentLocaleData = translations[activeLocale] ?? { ...EMPTY_LOCALE_DATA };
+  const currentLocaleData = translations[activeLocale] ?? {
+    ...EMPTY_LOCALE_DATA,
+  };
   const form: CategoryFormData = { slug, status, ...currentLocaleData };
 
   // ── Field handlers ─────────────────────────────────────────────────────────
@@ -197,7 +212,10 @@ export function useCategoryForm(
       } else {
         setTranslations((prev) => ({
           ...prev,
-          [activeLocale]: { ...(prev[activeLocale] ?? EMPTY_LOCALE_DATA), [name]: value },
+          [activeLocale]: {
+            ...(prev[activeLocale] ?? EMPTY_LOCALE_DATA),
+            [name]: value,
+          },
         }));
       }
       setErrors((prev) => ({ ...prev, [name]: undefined }));
@@ -227,7 +245,10 @@ export function useCategoryForm(
     (updatedFaqs: CategoryFaq[]) => {
       setTranslations((prev) => ({
         ...prev,
-        [activeLocale]: { ...(prev[activeLocale] ?? EMPTY_LOCALE_DATA), faq: updatedFaqs },
+        [activeLocale]: {
+          ...(prev[activeLocale] ?? EMPTY_LOCALE_DATA),
+          faq: updatedFaqs,
+        },
       }));
       setIsDirty(true);
     },
@@ -272,15 +293,17 @@ export function useCategoryForm(
     const t = translations[activeLocale] ?? EMPTY_LOCALE_DATA;
     const newErrors: Partial<Record<keyof CategoryFormData, string>> = {};
 
-    if (!t.name.trim())            newErrors.name            = "Kategori adı zorunludur.";
-    if (!slug.trim())              newErrors.slug            = "URL zorunludur.";
-    if (!t.metaTitle.trim())       newErrors.metaTitle       = "Meta title zorunludur.";
-    if (!t.metaDescription.trim()) newErrors.metaDescription = "Meta description zorunludur.";
-    if (!t.imgAlt.trim())          newErrors.imgAlt          = "Alt etiket zorunludur.";
+    if (!t.name.trim()) newErrors.name = "Kategori adı zorunludur.";
+    if (!slug.trim()) newErrors.slug = "URL zorunludur.";
+    if (!t.metaTitle.trim()) newErrors.metaTitle = "Meta title zorunludur.";
+    if (!t.metaDescription.trim())
+      newErrors.metaDescription = "Meta description zorunludur.";
+    if (!t.imgAlt.trim()) newErrors.imgAlt = "Alt etiket zorunludur.";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
 
   const save = async (onSuccess?: (category: Category) => void) => {
     if (!validate()) {
@@ -302,20 +325,19 @@ export function useCategoryForm(
         }
       }
 
-      // Build translations payload for all enabled locales
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const translationsPayload: Record<string, any> = {};
       enabledLocales.forEach((code) => {
         const t = translations[code] ?? EMPTY_LOCALE_DATA;
         translationsPayload[code] = {
-          name: t.name,
+          name:            t.name,
           slug,
-          description: t.description,
-          metaTitle: t.metaTitle,
+          description:     t.description,
+          metaTitle:       t.metaTitle,
           metaDescription: t.metaDescription,
-          imgAlt: t.imgAlt,
-          imgUrl: finalImgUrl || t.imgUrl,
-          faq: t.faq,
+          imgAlt:          t.imgAlt,
+          imgUrl:          finalImgUrl || t.imgUrl,
+          faq:             t.faq,
         };
       });
 
@@ -329,14 +351,46 @@ export function useCategoryForm(
         };
         const response = await categoryService.update(category.id, payload);
         result = response.category;
+
+        const originalCodes = category.forbiddenCountries ?? [];        
+        const currentCodes  = forbiddenCountries.map((c) => c.code);   
+
+        const toBan   = currentCodes.filter((c) => !originalCodes.includes(c));
+        const toUnban = originalCodes.filter((c) => !currentCodes.includes(c));
+
+        await Promise.all([
+          toBan.length > 0
+            ? categoryService.banCountries({
+                categoryIds: [category.id],
+                countries:   toBan,
+              })
+            : Promise.resolve(),
+          toUnban.length > 0
+            ? categoryService.unbanCountries({
+                categoryIds: [category.id],
+                countries:   toUnban,
+              })
+            : Promise.resolve(),
+        ]);
+
         toast.success("Güncellendi", `${translations[activeLocale]?.name} başarıyla güncellendi.`);
       } else {
+        // create / duplicate — no existing category to diff against, just create
         const payload: CategoryCreatePayload = {
           slug,
           status,
           translations: translationsPayload,
         };
         result = await categoryService.create(payload);
+
+        // Ban countries on the newly created category if any are forbidden
+        if (forbiddenCountries.length > 0) {
+          await categoryService.banCountries({
+            categoryIds: [result.id],
+            countries:   forbiddenCountries.map((c) => c.code),
+          });
+        }
+
         toast.success(
           mode === "duplicate" ? "Kopyalandı" : "Oluşturuldu",
           `Kategori başarıyla ${mode === "duplicate" ? "kopyalandı" : "oluşturuldu"}.`,
@@ -348,26 +402,25 @@ export function useCategoryForm(
       onSuccess?.(result);
     } catch (err) {
       const message = (err as Error).message;
+      console.error("Save failed:", message);
       if (message.includes("409") || message.includes("slug")) {
         setErrors((prev) => ({ ...prev, slug: "Bu URL zaten kullanılıyor." }));
         toast.error("Hata", "Bu URL zaten kullanılıyor.");
       } else {
         toast.error(
           "Hata",
-          mode === "edit" ? "Kategori güncellenemedi." : "Kategori oluşturulamadı.",
+          message || (mode === "edit" ? "Kategori güncellenemedi." : "Kategori oluşturulamadı."),
         );
       }
     } finally {
       setSaving(false);
     }
   };
-
   const handleSave = async () => {
     await save((saved) => {
       router.push(`/epinpay/categories/${saved.id}`);
     });
   };
-
 
   return {
     form,
