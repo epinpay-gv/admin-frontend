@@ -11,16 +11,26 @@ interface StatusOption {
   value: string;
 }
 
+interface ServerPagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
 interface DataTableProps<T extends Record<string, unknown>> {
   data: T[];
   columns: ColumnDef<T>[];
   statusOptions?: StatusOption[];
   showStatusFilter?: boolean;
-  currentStatus?: string; // DIŞARIDAN GELEN SEÇİLİ DURUM
+  currentStatus?: string;
   dateKey?: string;
   actions?: (row: T) => React.ReactNode;
   onFilteredDataChange?: (filtered: T[]) => void;
   onStatusChange?: (status: string) => void;
+  // Server-side pagination (optional — omit to keep client-side behaviour)
+  serverPagination?: ServerPagination;
+  onPageChange?: (page: number) => void;
 }
 
 export default function DataTable<T extends Record<string, unknown>>({
@@ -28,11 +38,13 @@ export default function DataTable<T extends Record<string, unknown>>({
   columns,
   statusOptions,
   showStatusFilter = false,
-  currentStatus, // PROPS ALINDI
+  currentStatus,
   dateKey = "createdAt",
   actions,
   onFilteredDataChange,
   onStatusChange,
+  serverPagination,
+  onPageChange,
 }: DataTableProps<T>) {
   const {
     rows,
@@ -46,13 +58,14 @@ export default function DataTable<T extends Record<string, unknown>>({
     dateRange,
     handleDateRangeChange,
     clearDateRange,
-    pagination,
+    pagination: clientPagination,
     setPagination,
-    totalRows,
-    totalPages,
+    totalRows: clientTotalRows,
+    totalPages: clientTotalPages,
   } = useDataTable({ data, columns, dateKey });
+
   useEffect(() => {
-    if (currentStatus !== undefined) {      
+    if (currentStatus !== undefined) {
       const targetValue = currentStatus === "" ? "all" : currentStatus;
       if (statusFilter !== targetValue) {
         setStatusFilter(targetValue);
@@ -62,15 +75,49 @@ export default function DataTable<T extends Record<string, unknown>>({
 
   onFilteredDataChange?.(rows);
 
+  // Decide which pagination values to use
+  const isServerPaginated = !!serverPagination;
+  const activePagination = isServerPaginated
+    ? { page: serverPagination.page, pageSize: serverPagination.limit }
+    : clientPagination;
+  const activeTotalRows  = isServerPaginated ? serverPagination.total     : clientTotalRows;
+  const activeTotalPages = isServerPaginated ? serverPagination.totalPages : clientTotalPages;
+
+  const handlePageChange = (page: number) => {
+    if (isServerPaginated) {
+      onPageChange?.(page);
+    } else {
+      setPagination((prev) => ({ ...prev, page }));
+    }
+  };
+
+  const handlePageSizeChange = (pageSize: number) => {
+    if (!isServerPaginated) {
+      setPagination({ page: 1, pageSize });
+    }
+    // For server-side, page size is controlled by the hook/URL — ignore here
+  };
+
+  // When server-paginated, render `data` directly (already sliced by backend)
+  const displayRows = isServerPaginated ? data : rows;
+
   return (
-    <div className="rounded-xl border overflow-hidden" style={{ background: "var(--background-card)", borderColor: "var(--border)" }}>
+    <div
+      className="rounded-xl border overflow-hidden"
+      style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
+    >
       {showStatusFilter && (
-        <div className="flex items-center justify-end px-4 py-3 border-b" style={{ borderColor: "var(--border-subtle)" }}>
+        <div
+          className="flex items-center justify-end px-4 py-3 border-b"
+          style={{ borderColor: "var(--border-subtle)" }}
+        >
           <DataTableStatusFilter
             value={statusFilter}
             onChange={(val) => {
               setStatusFilter(val);
-              setPagination((prev) => ({ ...prev, page: 1 }));
+              if (!isServerPaginated) {
+                setPagination((prev) => ({ ...prev, page: 1 }));
+              }
               onStatusChange?.(val);
             }}
             options={statusOptions}
@@ -92,21 +139,32 @@ export default function DataTable<T extends Record<string, unknown>>({
             onDateRangeClear={clearDateRange}
           />
           <tbody>
-            {rows.length === 0 ? (
+            {displayRows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + (actions ? 1 : 0)} className="px-4 py-12 text-center text-sm opacity-50 font-mono">
+                <td
+                  colSpan={columns.length + (actions ? 1 : 0)}
+                  className="px-4 py-12 text-center text-sm opacity-50 font-mono"
+                >
                   Kayıt bulunamadı
                 </td>
               </tr>
             ) : (
-              rows.map((row, rowIndex) => (
-                <tr key={rowIndex} className="border-b transition-colors hover:bg-black/5 dark:hover:bg-white/[0.02]" style={{ borderColor: "var(--border-subtle)" }}>
+              displayRows.map((row, rowIndex) => (
+                <tr
+                  key={rowIndex}
+                  className="border-b transition-colors hover:bg-black/5 dark:hover:bg-white/[0.02]"
+                  style={{ borderColor: "var(--border-subtle)" }}
+                >
                   {columns.map((col) => (
                     <td key={String(col.key)} className="px-4 py-3 text-sm">
-                      {col.render ? col.render(row[col.key], row) : String(row[col.key] ?? "-")}
+                      {col.render
+                        ? col.render(row[col.key], row)
+                        : String(row[col.key] ?? "-")}
                     </td>
                   ))}
-                  {actions && <td className="px-4 py-3 text-right">{actions(row)}</td>}
+                  {actions && (
+                    <td className="px-4 py-3 text-right">{actions(row)}</td>
+                  )}
                 </tr>
               ))
             )}
@@ -115,11 +173,11 @@ export default function DataTable<T extends Record<string, unknown>>({
       </div>
 
       <DataTablePagination
-        pagination={pagination}
-        totalRows={totalRows}
-        totalPages={totalPages}
-        onPageChange={(page) => setPagination((prev) => ({ ...prev, page }))}
-        onPageSizeChange={(pageSize) => setPagination({ page: 1, pageSize })}
+        pagination={activePagination}
+        totalRows={activeTotalRows}
+        totalPages={activeTotalPages}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
       />
     </div>
   );

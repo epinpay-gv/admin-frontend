@@ -1,9 +1,10 @@
 "use client";
-
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { SidebarLogo, NavGroup, useNavigation } from "@/features/navigation";
+import { useLogout } from "@/features/auth";
+import { LogOut } from "lucide-react";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -11,7 +12,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
-  const { navGroups, activeHref, navigate, loading } = useNavigation();
+  const { navGroups, activeHref, navigate } = useNavigation();
+  const { logout, loading } = useLogout();
   const pathname = usePathname();
 
   const findOpenHref = () =>
@@ -43,22 +45,13 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
         background: "var(--background-secondary)",
         borderColor: "var(--border-subtle)",
       }}
-    >     
+    >
       <SidebarLogo collapsed={collapsed} onToggle={onToggle} />
 
-      <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-5 custom-scrollbar">
-        {loading ? (
-          <div className="space-y-2 px-2">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div
-                key={i}
-                className="h-9 rounded-lg animate-pulse"
-                style={{ background: "var(--background-card)" }}
-              />
-            ))}
-          </div>
-        ) : (
-          navGroups.map((group, index) => (
+      <nav className="flex flex-col h-full py-4 px-2">
+        {/* TOP: Navigation */}
+        <div className="flex flex-col space-y-5 custom-scrollbar overflow-y-auto overflow-x-hidden">
+          {navGroups.map((group, index) => (
             <NavGroup
               key={group.title}
               group={group}
@@ -68,8 +61,20 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
               openHref={openHref}
               onNavClick={handleNavClick}
             />
-          ))
-        )}
+          ))}
+        </div>
+
+        {/* BOTTOM: Logout */}
+        <div className="mt-auto">
+          <button
+            onClick={logout}
+            disabled={loading}
+            className="cursor-pointer flex items-center justify-center border-t py-4 gap-2 text-red-400 hover:bg-red-400/10 hover:rounded-lg w-full"
+          >
+            <LogOut size={14} />
+            {!collapsed && (loading ? "Çıkış yapılıyor..." : "Çıkış Yap")}
+          </button>
+        </div>
       </nav>
     </motion.aside>
   );

@@ -10,8 +10,15 @@ export interface CategoryCountry {
   region: string;
 }
 
+export interface CategoryFilters {
+  name?: string;
+  status?: string;
+  page?: number;
+  limit?: number;
+  [key: string]: string | number | undefined;
+}
+
 export interface CategoryTranslation {
-  id: number;
   locale: string;
   name: string;
   slug: string;
@@ -20,15 +27,7 @@ export interface CategoryTranslation {
   metaDescription?: string;
   imgUrl?: string;
   imgAlt?: string;
-  content?: string;
-}
-
-export interface CategoryFaq {
-  id: number;
-  name: string;
-  description: string;
-  order: number;
-  isActive: boolean;
+  faq?: CategoryFaq[];
 }
 
 export interface Category {
@@ -36,18 +35,111 @@ export interface Category {
   slug: string;
   status: CATEGORY_STATUS;
   productCount: number;
-  genres: string[];
-  translation: CategoryTranslation;
-  translations?: Record<string, CategoryTranslation>;
+  translation: CategoryTranslation;           // primary locale (list views)
+  translations?: Record<string, {             // all locales (detail/edit page)
+    name: string;
+    slug: string;
+    description?: string;
+    imgUrl?: string;
+    imgAlt?: string;
+    metaTitle?: string;
+    metaDescription?: string;
+    faq?: CategoryFaq[];
+  }>;
   availableLocales: string[];
-  forbiddenCountries: CategoryCountry[];
-  faqs: CategoryFaq[];
+  forbiddenCountries: string[];
   createdAt: string;
   updatedAt: string;
-  [key: string]: unknown; 
 }
-export interface CategoryFilters {
+
+export interface AdminProduct {
+  id: number;
+  slug: string;
+  name: string;
+  imgUrl?: string;
+  categoryId: number;
+  basePrice: number;
+}
+
+export interface CatalogPagination {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface CategoryFaq {
+  id: number;
+  name: string;
+  description: string;
+}
+
+/* ── Response / Payload types ───────────────────────────────── */
+
+// GET /api/features/catalog/categories
+export interface CategoryListResponse {
+  categories: Category[];
+  pagination: CatalogPagination;
+}
+
+// GET /api/features/catalog/categories/:id/products
+export interface CategoryProductsResponse {
+  success: boolean;
+  products: AdminProduct[];
+  pagination: CatalogPagination;
+}
+
+// GET /api/features/catalog/products/search
+export interface ProductSearchResponse {
+  success: boolean;
+  products: AdminProduct[];
+  pagination: CatalogPagination;
+}
+
+// PATCH /api/features/catalog/categories/:id/quick-update
+export interface CategoryQuickUpdatePayload {
   name?: string;
-  status?: CATEGORY_STATUS | string;
-  [key: string]: string | number | boolean | undefined | null;
+  slug?: string;
+  status?: CATEGORY_STATUS;
+}
+
+// POST /api/features/catalog/categories/ban-countries
+// POST /api/features/catalog/categories/unban-countries
+export interface BanCountriesPayload {
+  categoryIds: number[]; // ← number[], not string[]
+  countries: string[]; // ISO-2 codes e.g. ["TR", "DE"]
+}
+
+export interface BanCountriesResponse {
+  success: boolean;
+  message: string;
+  updated: number;
+}
+
+// POST /api/features/catalog/categories/:id/products
+export interface AddProductToCategoryPayload {
+  productId: number; 
+}
+
+export interface CategoryTranslationPayload {
+  name: string;
+  slug: string;
+  description?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  imgUrl?: string;
+  imgAlt?: string;
+  faq?: Array<{ id: number; name: string; description: string }>;
+}
+ 
+export interface CategoryCreatePayload {
+  slug: string;
+  status?: string;
+  translations: Record<string, CategoryTranslationPayload>;
+}
+ 
+export interface CategoryUpdatePayload {
+  slug?: string;
+  status?: string;
+  translations?: Record<string, Partial<CategoryTranslationPayload>>;
 }

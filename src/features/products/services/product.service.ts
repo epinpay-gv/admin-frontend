@@ -14,21 +14,31 @@ export const productService = {
   create: (data: Partial<Product>): Promise<Product> =>
     api.post<Product, Partial<Product>>(BASE_URL, data),
 
-  update: (id: number, data: Partial<Product>, locale: string = "en"): Promise<Product> =>
+  update: (
+    id: number,
+    data: Partial<Product>,
+    locale: string = "en",
+  ): Promise<Product> =>
     api.put<Product, Partial<Product> & { locale: string }>(
       `${BASE_URL}/${id}`,
       { ...data, locale },
     ),
 
-  delete: (id: number): Promise<void> =>
-    api.delete<void>(`${BASE_URL}/${id}`),
+  delete: (id: number): Promise<void> => api.delete<void>(`${BASE_URL}/${id}`),
 
-  updateForbiddenCountries: (id: number, forbiddenCountries: Country[]): Promise<Product> =>
-    api.patch<Product, { forbiddenCountries: Country[] }>(
-      `${BASE_URL}/${id}`,
-      { forbiddenCountries }
-    ),
+  updateForbiddenCountries: (
+    id: number,
+    forbiddenCountries: Country[],
+  ): Promise<Product> =>
+    api.patch<Product, { forbiddenCountries: Country[] }>(`${BASE_URL}/${id}`, {
+      forbiddenCountries,
+    }),
 
-  getCountries: (): Promise<Country[]> =>
-    api.get<Country[]>(COUNTRIES_URL),
+  getCountries: async (): Promise<Country[]> => {
+    const res = await fetch("/api/countries");
+    if (!res.ok) {
+      throw new Error("Failed to fetch countries");
+    }
+    return res.json();
+  },
 };

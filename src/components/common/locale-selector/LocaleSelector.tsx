@@ -1,9 +1,8 @@
 "use client";
-
 import { useState } from "react";
 import { useLocales } from "./hooks/useLocale";
 import { Locale } from "./locale.service";
-import { Check, ChevronsUpDown, Plus, X } from "lucide-react";
+import { Check, Plus, X } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -17,7 +16,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
 
 interface LocaleSelectorProps {
   activeLocale: string;
@@ -80,7 +78,7 @@ export default function LocaleSelector({
             <button
               type="button"
               onClick={() => onLocaleRemove(locale.code)}
-              className="flex items-center justify-center w-6 h-[30px] rounded-r-lg border border-l-0 transition-all"
+              className="flex items-center justify-center w-6 h-7.5 rounded-r-lg border border-l-0 transition-all"
               style={{
                 background:
                   activeLocale === locale.code
@@ -98,7 +96,7 @@ export default function LocaleSelector({
           )}
           {enabledLocales.length === 1 && (
             <div
-              className="flex items-center justify-center w-6 h-[30px] rounded-r-lg border border-l-0"
+              className="flex items-center justify-center w-6 h-7.5 rounded-r-lg border border-l-0"
               style={{
                 background: "var(--background-card)",
                 borderColor: "var(--border)",
