@@ -11,7 +11,7 @@ import FileUpload from "@/components/common/file-upload/FileUpload";
 import { toast } from "@/components/common/toast/toast";
 import { BLOG_TRANSLATION_STATUS } from "@/features/blog/types";
 import { blogService } from "@/features/blog/service/blog.service";
-import RichTextEditor from "@/components/common/rick-test/contentEditable";
+import RichTextEditor from "@/components/common/rich-text/RichTextEditor";
 import LocaleSelector from "@/components/common/locale-selector/LocaleSelector";
 import { Locale } from "@/components/common/locale-selector/locale.service";
 import { PALETTE } from "@/lib/status-color";

@@ -94,9 +94,6 @@ export function useCategoryForm(
   const [pendingFile, setPendingFile] = useState<File | null>(null);
 
   // ── Populate from category ─────────────────────────────────────────────────
-// In useCategoryForm.ts
-// Replace the category population useEffect.
-// Key fix: slug is NOT part of LocaleFormData — don't include it when seeding locale slots.
 
   useEffect(() => {
     if (category) {
@@ -118,7 +115,6 @@ export function useCategoryForm(
       const initialTranslations: Record<string, LocaleFormData> = {};
 
       if (category.translations && Object.keys(category.translations).length > 0) {
-        // Full translations map available — seed every locale correctly
         locales.forEach((code) => {
           const lt = category.translations![code];
           if (lt) {
@@ -132,14 +128,12 @@ export function useCategoryForm(
               description:     lt.description     ?? "",
               metaDescription: lt.metaDescription ?? "",
               faq:             lt.faq             ?? [],
-              // slug is NOT here — it's shared state, set via setSlug above
             };
           } else {
             initialTranslations[code] = { ...EMPTY_LOCALE_DATA };
           }
         });
       } else {
-        // Fallback: only primary translation available (e.g. from list-view fetch)
         locales.forEach((code) => {
           initialTranslations[code] = { ...EMPTY_LOCALE_DATA };
         });

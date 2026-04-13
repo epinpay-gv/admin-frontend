@@ -5,12 +5,15 @@ import {
   CategoryFaq,
 } from "@/features/categories/types";
 import { CategoryFormData } from "@/features/categories/hooks/useCategoryForm";
-import CategoryFormGeneral from "./CategoryFormGeneral";
-import CategoryFormSeo from "./CategoryFormSeo";
-import CategoryFormMedia from "./CategoryFormMedia";
-import CategoryFormCountries from "./CategoryFormCountries";
 import { Suspense } from "react";
 import FormSectionContainer from "@/components/common/container/FormSectionContainer";
+import {
+  TranslationForm,
+  GeneralInfoForm,
+  CountryRestrictionForm,
+  MediaForm,
+} from "./index";
+
 interface CategoryFormProps {
   product: Category | null;
   mode: "create" | "edit" | "duplicate";
@@ -22,7 +25,6 @@ interface CategoryFormProps {
   handleChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
-  handleSelect: (name: keyof CategoryFormData, value: string) => void;
   handleFileChange: (file: File | null) => void;
   handleFaqsChange: (faqs: CategoryFaq[]) => void;
   handleForbiddenCountriesChange: (countries: CategoryCountry[]) => void;
@@ -34,25 +36,22 @@ export default function CategoryForm({
   imgUrl,
   forbiddenCountries,
   handleChange,
-  handleSelect,
   handleFileChange,
   handleFaqsChange,
   handleForbiddenCountriesChange,
 }: CategoryFormProps) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-6 pb-10">
+    <div className="md:flex w-full gap-6 pt-6 pb-10">
       {/* Sol: Formlar */}
-      <div className="lg:col-span-2 space-y-6">
-        
+      <div className="lg:flex-2 space-y-6">
         {/* Genel Bilgiler */}
         <FormSectionContainer
           title="Genel Bilgiler"
           content={
-            <CategoryFormGeneral
+            <GeneralInfoForm
               form={form}
               errors={errors}
               onChange={handleChange}
-              onSelect={handleSelect}
             />
           }
         />
@@ -61,7 +60,7 @@ export default function CategoryForm({
         <FormSectionContainer
           title="Dile Göre İçerik"
           content={
-            <CategoryFormSeo
+            <TranslationForm
               form={form}
               errors={errors}
               onChange={handleChange}
@@ -74,7 +73,7 @@ export default function CategoryForm({
         <FormSectionContainer
           title="Ülke Kısıtlamaları"
           content={
-            <CategoryFormCountries
+            <CountryRestrictionForm
               forbidden={forbiddenCountries}
               onChange={handleForbiddenCountriesChange}
             />
@@ -83,11 +82,12 @@ export default function CategoryForm({
       </div>
 
       {/* Sağ: Medya */}
-      <Suspense fallback={null}>
+      <div className="flex-1">
+        <Suspense fallback={null}>
           <FormSectionContainer
             title="Medya"
             content={
-              <CategoryFormMedia
+              <MediaForm
                 imgUrl={imgUrl}
                 form={form}
                 errors={errors}
@@ -96,7 +96,8 @@ export default function CategoryForm({
               />
             }
           />
-      </Suspense>
+        </Suspense>
+      </div>
     </div>
   );
 }

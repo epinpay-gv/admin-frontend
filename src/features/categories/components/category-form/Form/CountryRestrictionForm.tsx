@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { ShieldOff, Globe, ChevronsUpDown, X, Check } from "lucide-react";
 import {
@@ -19,15 +18,15 @@ import { CategoryCountry } from "@/features/categories/types";
 import { useCountries } from "@/features/products/hooks/useCountries";
 import { cn } from "@/lib/utils";
 
-interface CategoryFormCountriesProps {
+interface CountryRestrictionFormProps {
   forbidden: CategoryCountry[];
   onChange: (countries: CategoryCountry[]) => void;
 }
 
-export default function CategoryFormCountries({
+export default function CountryRestrictionForm({
   forbidden,
   onChange,
-}: CategoryFormCountriesProps) {
+}: CountryRestrictionFormProps) {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const { countries, loading } = useCountries();
 
@@ -125,7 +124,7 @@ export default function CategoryFormCountries({
           </button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-[500px] p-0 border"
+          className="w-125 p-0 border"
           style={{
             background: "var(--background-secondary)",
             borderColor: "var(--border)",

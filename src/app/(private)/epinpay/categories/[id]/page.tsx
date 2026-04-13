@@ -1,14 +1,10 @@
 "use client";
-import { use, useEffect } from "react";
-import {
-  useCategory,
-  useCategoryForm,
-  CategoryForm,
-} from "@/features/categories";
+import { use } from "react";
+import { useCategory, useCategoryForm } from "@/features/categories";
 import LocaleSelector from "@/components/common/locale-selector/LocaleSelector";
 import { PageState } from "@/components/common/page-state/PageState";
-import FormPageTitle from "@/features/categories/components/category-form/Title/FormPageTitle";
 import FormSectionContainer from "@/components/common/container/FormSectionContainer";
+import { FormPageTitle, CategoryForm } from "@/features/categories/components/category-form";
 
 type PageMode = "create" | "edit" | "duplicate";
 
@@ -44,11 +40,8 @@ export default function CategoryDetailPage({
     activeLocale,
     enabledLocales,
     forbiddenCountries,
-    setEnabledLocales,
-    setActiveLocale,
     setForbiddenCountries,
     handleChange,
-    handleSelect,
     handleFileChange,
     handleFaqsChange,
     handleLocaleChange,
@@ -78,7 +71,6 @@ export default function CategoryDetailPage({
         />
 
         {/* Dil Seçimi / Ekleme */}
-
         <FormSectionContainer
           content={
             <LocaleSelector
@@ -101,7 +93,6 @@ export default function CategoryDetailPage({
           imgUrl={imgUrl}
           forbiddenCountries={forbiddenCountries}
           handleChange={handleChange}
-          handleSelect={handleSelect}
           handleFileChange={handleFileChange}
           handleFaqsChange={handleFaqsChange}
           handleForbiddenCountriesChange={setForbiddenCountries}

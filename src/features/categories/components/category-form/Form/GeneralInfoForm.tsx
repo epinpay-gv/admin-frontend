@@ -1,27 +1,19 @@
 "use client";
-
 import Input from "@/components/common/input/Input";
 import { CategoryFormData } from "@/features/categories/hooks/useCategoryForm";
-import { CATEGORY_STATUS } from "@/features/categories/types";
 
-interface CategoryFormGeneralProps {
+interface GeneralInfoFormProps {
   form: CategoryFormData;
   errors: Partial<Record<keyof CategoryFormData, string>>;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  onSelect: (name: keyof CategoryFormData, value: string) => void;
 }
 
-const STATUS_OPTIONS = [
-  { label: "Aktif", value: CATEGORY_STATUS.ACTIVE, color: "#00C6A2" },
-  { label: "Pasif", value: CATEGORY_STATUS.INACTIVE, color: "#FF5050" },
-];
 
-export default function CategoryFormGeneral({
+export default function GeneralInfoForm({
   form,
   errors,
   onChange,
-  onSelect,
-}: CategoryFormGeneralProps) {
+}: GeneralInfoFormProps) {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

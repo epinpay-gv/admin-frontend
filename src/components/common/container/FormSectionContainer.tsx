@@ -17,7 +17,7 @@ export default function FormSectionContainer({
     >
       {/* TITLE */}
       {title && (
-        <div className="flex items-center gap-3 py-2">
+        <div className="flex items-center gap-3">
           <div
             className="flex-1 h-px"
             style={{ background: "var(--border)" }}
@@ -35,7 +35,7 @@ export default function FormSectionContainer({
         </div>
       )}
 
-      {/* TITLE */}
+      {/* CONTENT */}
       <div className="mt-4">{content}</div>
     </div>
   );

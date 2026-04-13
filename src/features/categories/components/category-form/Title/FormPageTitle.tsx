@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PALETTE } from "@/lib/status-color";
 import { useRouter } from "next/navigation";
 import { Category, CATEGORY_STATUS } from "@/features/categories/types";
+import CategoryTitleLabel from "./CategoryTitleLabel";
 
 type PageMode = "create" | "edit" | "duplicate";
 
@@ -32,7 +33,7 @@ export default function FormPageTitle({
   category,
   mode,
   saving,
-  handleSave
+  handleSave,
 }: FormPageTitleProps) {
   const router = useRouter();
 
@@ -44,7 +45,8 @@ export default function FormPageTitle({
         borderColor: "var(--border)",
       }}
     >
-      <div className="flex items-center gap-3 min-w-0">
+      {/* Başlık */}
+      <div className="flex items-center gap-4 min-w-0">
         <button
           onClick={() => {
             if (isDirty) {
@@ -68,67 +70,18 @@ export default function FormPageTitle({
         >
           <ArrowLeft size={16} />
         </button>
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <h1
-              className="text-xl font-semibold tracking-tight truncate"
-              style={{ color: "var(--text-primary)" }}
-            >
-              {pageTitle}
-            </h1>
-            {category && mode === "edit" && (
-              <span
-                className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                style={{
-                  background: STATUS_COLORS[category.status].bg,
-                  color: STATUS_COLORS[category.status].color,
-                }}
-              >
-                {STATUS_LABELS[category.status]}
-              </span>
-            )}
-            {mode === "create" && (
-              <span
-                className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                style={{
-                  background: PALETTE.yellow.bg,
-                  color: PALETTE.yellow.color,
-                }}
-              >
-                Yeni
-              </span>
-            )}
-            {mode === "duplicate" && (
-              <span
-                className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                style={{
-                  background: PALETTE.blue.bg,
-                  color: PALETTE.blue.color,
-                }}
-              >
-                Kopya
-              </span>
-            )}
-            {isDirty && (
-              <span
-                className="text-[11px] font-mono px-2 py-0.5 rounded-full"
-                style={{
-                  background: PALETTE.yellow.bg,
-                  color: PALETTE.yellow.color,
-                }}
-              >
-                Kaydedilmemiş değişiklikler
-              </span>
-            )}
-          </div>
-          {category && (
-            <p
-              className="text-xs font-mono mt-0.5"
-              style={{ color: "var(--text-muted)" }}
-            >
-              #{category.id} · {category.translation.slug}
-            </p>
-          )}
+        <div className="flex flex-wrap items-center gap-4">
+          <h1
+            className="text-xl font-semibold tracking-tight truncate"
+            style={{ color: "var(--text-primary)" }}
+          >
+            {pageTitle}
+          </h1>
+          <CategoryTitleLabel
+            isDirty={isDirty}
+            category={category}
+            mode={mode}
+          />
         </div>
       </div>
 
