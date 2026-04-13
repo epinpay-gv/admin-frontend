@@ -7,7 +7,7 @@ export interface ProductFaq {
   id: number;
   name: string;
   description: string;
-  order: number;   
+  order: number;
   isActive: boolean;
 }
 
@@ -80,4 +80,11 @@ export interface ProductFilters {
   region_id?: string;
 
   [key: string]: string | number | boolean | undefined | null;
+}
+
+// PATCH /api/features/catalog/products/:id/quick-update
+export interface ProductQuickUpdatePayload {
+  basePrice?: string;
+  spreadRate?: string;
+  status?: PRODUCT_STATUS;
 }

@@ -1,12 +1,23 @@
 import { api } from "@/lib/api/baseFetcher";
-import { Product, Country, ProductFilters } from "@/features/products/types";
+import {
+  Product,
+  Country,
+  ProductFilters,
+  ProductQuickUpdatePayload,
+} from "@/features/products/types";
+import { CatalogPagination } from "@/features/categories";
 
-const BASE_URL = "/api/products";
-const COUNTRIES_URL = "/api/countries";
+const BASE_URL = "/api/features/catalog";
 
 export const productService = {
-  getAll: (filters?: ProductFilters): Promise<Product[]> =>
-    api.get<Product[], ProductFilters>(BASE_URL, filters),
+  /* ── Products ─────────────────────────────────────────── */
+  getAll: (
+    filters?: ProductFilters,
+  ): Promise<{ products: Product[]; pagination: CatalogPagination }> =>
+    api.get<
+      { products: Product[]; pagination: CatalogPagination },
+      ProductFilters
+    >(`${BASE_URL}/products`, filters),
 
   getById: (id: number, locale: string = "en"): Promise<Product> =>
     api.get<Product>(`${BASE_URL}/${id}`, { locale }),
@@ -24,15 +35,15 @@ export const productService = {
       { ...data, locale },
     ),
 
+  quickUpdate: (
+    id: number,
+    payload: ProductQuickUpdatePayload,
+  ): Promise<{ success: boolean; product?: Product }> =>
+    api.patch(`${BASE_URL}/products/${id}/quick-update`, payload),
+
   delete: (id: number): Promise<void> => api.delete<void>(`${BASE_URL}/${id}`),
 
-  updateForbiddenCountries: (
-    id: number,
-    forbiddenCountries: Country[],
-  ): Promise<Product> =>
-    api.patch<Product, { forbiddenCountries: Country[] }>(`${BASE_URL}/${id}`, {
-      forbiddenCountries,
-    }),
+  /* ── Country ban/unban ──────────────────────────────────── */
 
   getCountries: async (): Promise<Country[]> => {
     const res = await fetch("/api/countries");
@@ -41,4 +52,22 @@ export const productService = {
     }
     return res.json();
   },
+
+  banCountries: (payload: {
+    productIds: number[];
+    countries: string[];
+  }): Promise<void> =>
+    api.post<void, { productIds: number[]; countries: string[] }>(
+      `${BASE_URL}/products/ban-countries`,
+      payload,
+    ),
+
+  unbanCountries: (payload: {
+    productIds: number[];
+    countries: string[];
+  }): Promise<void> =>
+    api.post<void, { productIds: number[]; countries: string[] }>(
+      `${BASE_URL}/products/unban-countries`,
+      payload,
+    ),
 };

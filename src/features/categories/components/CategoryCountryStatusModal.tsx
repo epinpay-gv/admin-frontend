@@ -1,11 +1,10 @@
 "use client";
-
 import { useState } from "react";
 import Modal from "@/components/common/modal/Modal";
 import { Button } from "@/components/ui/button";
-import { Category, CategoryCountry } from "@/features/categories/types";
+import { Category } from "@/features/categories/types";
 import { useCategoryCountryStatus } from "@/features/categories/hooks/useCategoryCountryStatus";
-import { ShieldOff, X, Check, ChevronsUpDown } from "lucide-react";
+import { ShieldOff, X, Check, ChevronsUpDown, LucideInfo } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -59,8 +58,7 @@ export default function CategoryCountryStatusModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Ülke Kısıtlamaları"
-      description={category?.translation.name}
+      title={`Ülke Kısıtlamaları : ${category?.translation.name}`}
       size="lg"
       footer={
         <div className="flex items-center justify-between w-full">
@@ -83,8 +81,7 @@ export default function CategoryCountryStatusModal({
               disabled={saving}
               className="text-white"
               style={{
-                background:
-                  "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)",
+                background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)",
               }}
             >
               {saving ? (
@@ -101,35 +98,54 @@ export default function CategoryCountryStatusModal({
       }
     >
       <div className="space-y-4">
-        {/* Toplu aksiyonlar */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={setAllActive}
-            className="text-xs px-3 py-1.5 rounded-lg border transition-all"
-            style={{
-              background: "rgba(0,198,162,0.1)",
-              borderColor: "rgba(0,198,162,0.2)",
-              color: "#00C6A2",
-            }}
-          >
-            Tümünü Aktif Yap
-          </button>
-          <button
-            type="button"
-            onClick={setAllInactive}
-            className="text-xs px-3 py-1.5 rounded-lg border transition-all"
-            style={{
-              background: "rgba(255,80,80,0.1)",
-              borderColor: "rgba(255,80,80,0.2)",
-              color: "#FF5050",
-            }}
-          >
-            Tümünü Pasif Yap
-          </button>
+        {/* Info Box */}
+        <div
+          className="text-xs p-2 flex items-center gap-2 rounded-lg"
+          style={{
+            background: "var(--background-secondary)",
+            color: "rgb(0, 133, 255)",
+            border: "1px solid rgba(0, 133, 255, 0.2)",
+          }}
+        >
+          <span>
+            <LucideInfo size={24} />
+          </span>
+          Yasaklı olmayan tüm ülkeler satışa açıktır. Ülke kısıtlaması eklemek,
+          ürünün o ülkede görünmemesine ve satın alınamamasına neden olur.
         </div>
 
-        {/* Combobox */}
+        {/* Hızlı aksiyonlar */}
+        <div className="flex justify-between items-center gap-2">
+          <p>Hızlı düzenlemeler : </p>
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={setAllActive}
+              className="text-xs px-3 py-1.5 rounded-lg border transition-all"
+              style={{
+                background: "rgba(0,198,162,0.1)",
+                borderColor: "rgba(0,198,162,0.2)",
+                color: "#00C6A2",
+              }}
+            >
+              Tümünü Aktif Yap
+            </button>
+            <button
+              type="button"
+              onClick={setAllInactive}
+              className="text-xs px-3 py-1.5 rounded-lg border transition-all"
+              style={{
+                background: "rgba(255,80,80,0.1)",
+                borderColor: "rgba(255,80,80,0.2)",
+                color: "#FF5050",
+              }}
+            >
+              Tümünü Pasif Yap
+            </button>
+          </div>
+        </div>
+
+        {/* Ülke Seçimi */}
         <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
           <PopoverTrigger asChild>
             <button
@@ -222,9 +238,7 @@ export default function CategoryCountryStatusModal({
                             size={13}
                             className={cn(
                               "transition-opacity",
-                              banned
-                                ? "opacity-100 text-red-400"
-                                : "opacity-0"
+                              banned ? "opacity-100 text-red-400" : "opacity-0",
                             )}
                           />
                         </CommandItem>

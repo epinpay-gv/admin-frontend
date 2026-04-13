@@ -6,36 +6,19 @@ import Input from "@/components/common/input/Input";
 import { Button } from "@/components/ui/button";
 import { Product, PRODUCT_STATUS } from "@/features/products/types";
 import { toast } from "@/components/common/toast/toast";
+import { productService } from "../services/product.service";
+
+interface ProductEditForm {
+  basePrice: string;
+  spreadRate: string;
+  status: PRODUCT_STATUS;
+}
 
 interface ProductEditModalProps {
   open: boolean;
   onClose: () => void;
   product: Product | null;
   onUpdate?: (updated: Product) => void;
-}
-
-interface ProductEditForm {
-  name: string;
-  slug: string;
-  basePrice: string;
-  spreadRate: string;
-  status: PRODUCT_STATUS;
-  slugManuallyEdited: boolean;
-}
-
-function generateSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/ğ/g, "g")
-    .replace(/ü/g, "u")
-    .replace(/ş/g, "s")
-    .replace(/ı/g, "i")
-    .replace(/ö/g, "o")
-    .replace(/ç/g, "c")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
 }
 
 const STATUS_OPTIONS = [
@@ -51,81 +34,35 @@ export default function ProductEditModal({
   onUpdate,
 }: ProductEditModalProps) {
   const [form, setForm] = useState<ProductEditForm>({
-    name: "",
-    slug: "",
     basePrice: "",
     spreadRate: "",
     status: PRODUCT_STATUS.ACTIVE,
-    slugManuallyEdited: false,
   });
-  const [errors, setErrors] = useState<{ name?: string; slug?: string }>({});
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (product) {
       setForm({
-        name: product.translation.name,
-        slug: product.translation.slug,
-        basePrice: String(product.basePrice),
-        spreadRate: String(product.spreadRate),
+        basePrice: product.basePrice != null ? String(product.basePrice) : "",
+        spreadRate: product.spreadRate != null ? String(product.spreadRate) : "",
         status: product.status,
-        slugManuallyEdited: false,
       });
-      setErrors({});
     }
   }, [product]);
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setForm((prev) => ({
-      ...prev,
-      name: value,
-      slug: prev.slugManuallyEdited ? prev.slug : generateSlug(value),
-    }));
-    setErrors((prev) => ({ ...prev, name: undefined }));
-  };
-
-  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm((prev) => ({
-      ...prev,
-      slug: generateSlug(e.target.value),
-      slugManuallyEdited: true,
-    }));
-    setErrors((prev) => ({ ...prev, slug: undefined }));
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const validate = (): boolean => {
-    const newErrors: { name?: string; slug?: string } = {};
-    if (!form.name.trim()) newErrors.name = "Ürün adı zorunludur.";
-    if (!form.slug.trim()) newErrors.slug = "URL zorunludur.";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async () => {
-    if (!validate()) return;
+  const handleSave = async () => {
+    if (!product) return;
     setSaving(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      toast.success("Ürün güncellendi", `${form.name} başarıyla güncellendi.`);
-      onUpdate?.({
-        ...product!,
+      const result  = await productService.quickUpdate(product.id, {
+        basePrice: form.basePrice ? form.basePrice : undefined,
+        spreadRate: form.spreadRate ? form.spreadRate : undefined,
         status: form.status,
-        translation: {
-          ...product!.translation,
-          name: form.name,
-          slug: form.slug,
-        },
-        basePrice: Number(form.basePrice),
-        spreadRate: Number(form.spreadRate),
       });
+       onUpdate?.(result.product ?? product);
       onClose();
-    } catch {
-      toast.error("Hata oluştu", "Ürün güncellenirken bir hata oluştu.");
+    } catch (err) {
+      toast.error("Hata", `Ürün güncellenemedi. ${err}`);
     } finally {
       setSaving(false);
     }
@@ -135,8 +72,7 @@ export default function ProductEditModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Ürün Güncelle"
-      description={product?.translation.slug}
+      title={`Hızlı Düzenle : ${product?.translation.name}`}
       size="md"
       footer={
         <div className="flex items-center justify-end gap-2 w-full">
@@ -149,7 +85,7 @@ export default function ProductEditModal({
             İptal
           </Button>
           <Button
-            onClick={handleSubmit}
+            onClick={handleSave}
             disabled={saving}
             className="text-sm text-white"
             style={{
@@ -169,30 +105,13 @@ export default function ProductEditModal({
       }
     >
       <div className="space-y-4">
-        <Input
-          name="name"
-          label="Ürün Adı"
-          value={form.name}
-          onChange={handleNameChange}
-          error={errors.name}
-          placeholder="Ürün adı"
-        />
-        <Input
-          name="slug"
-          label="URL / Slug"
-          value={form.slug}
-          onChange={handleSlugChange}
-          error={errors.slug}
-          placeholder="urun-slug"
-          hint="Ürün adından otomatik oluşturulur."
-        />
         <div className="grid grid-cols-2 gap-4">
           <Input
             name="basePrice"
             label="Fiyat"
             type="number"
             value={form.basePrice}
-            onChange={handleChange}
+            onChange={(e) => setForm((prev) => ({ ...prev, basePrice: e.target.value }))}
             placeholder="0.00"
             leftIcon={<span className="text-xs">₺</span>}
           />
@@ -201,11 +120,12 @@ export default function ProductEditModal({
             label="Makas Oranı"
             type="number"
             value={form.spreadRate}
-            onChange={handleChange}
+            onChange={(e) => setForm((prev) => ({ ...prev, spreadRate: e.target.value }))}
             placeholder="0.00"
             leftIcon={<span className="text-xs">%</span>}
           />
         </div>
+
         <div className="flex flex-col gap-1.5">
           <label
             className="text-[11px] font-semibold uppercase tracking-widest font-mono"
@@ -222,17 +142,11 @@ export default function ProductEditModal({
                 className="px-4 py-2 rounded-lg text-xs font-bold font-mono border transition-all"
                 style={{
                   background:
-                    form.status === s.value
-                      ? `${s.color}20`
-                      : "var(--background-card)",
+                    form.status === s.value ? `${s.color}20` : "var(--background-card)",
                   borderColor:
-                    form.status === s.value
-                      ? `${s.color}40`
-                      : "var(--border)",
+                    form.status === s.value ? `${s.color}40` : "var(--border)",
                   color:
-                    form.status === s.value
-                      ? s.color
-                      : "var(--text-secondary)",
+                    form.status === s.value ? s.color : "var(--text-secondary)",
                 }}
               >
                 {s.label}

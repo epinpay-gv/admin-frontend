@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import Modal from "@/components/common/modal/Modal";
 import { Button } from "@/components/ui/button";
-import { Country, Product } from "@/features/products/types";
-import { useCountries } from "@/features/products/hooks/useCountries";
+import { Product } from "@/features/products/types";
 import { useForbiddenCountries } from "@/features/products/hooks/useForbiddenCountries";
 import { ShieldOff, X, ChevronsUpDown, Check, LucideInfo } from "lucide-react";
 import {
@@ -35,9 +34,17 @@ export default function ForbiddenCountriesModal({
   product,
   onUpdate,
 }: ForbiddenCountriesModalProps) {
-  const { countries, loading: countriesLoading } = useCountries();
-  const { forbidden, isForbidden, toggleCountry, save, saving } =
-    useForbiddenCountries(product);
+  const {
+    forbidden,
+    isForbidden,
+    toggleCountry,
+    setAllActive,
+    setAllInactive,
+    save,
+    saving,
+    countries,
+    countriesLoading,
+  } = useForbiddenCountries(product);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const handleSave = async () => {
@@ -51,12 +58,14 @@ export default function ForbiddenCountriesModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Ülke Kısıtlamaları"
-      description={product?.translation.name}
+      title={`Ülke Kısıtlamaları : ${product?.translation.name}`}
       size="lg"
       footer={
         <div className="flex items-center justify-between w-full">
-          <p className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>
+          <p
+            className="text-xs font-mono"
+            style={{ color: "var(--text-muted)" }}
+          >
             {forbidden.length} ülke yasaklı
           </p>
           <div className="flex items-center gap-2">
@@ -89,15 +98,54 @@ export default function ForbiddenCountriesModal({
       }
     >
       <div className="space-y-4">
-        <div className="text-xs p-2 flex items-center gap-2 rounded-lg" 
+        {/* Info Box */}
+        <div
+          className="text-xs p-2 flex items-center gap-2 rounded-lg"
           style={{
             background: "var(--background-secondary)",
             color: "rgb(0, 133, 255)",
             border: "1px solid rgba(0, 133, 255, 0.2)",
-          }}>
-            <span><LucideInfo size={24}/></span>
-          Yasaklı olmayan tüm ülkeler satışa açıktır. Ülke kısıtlaması eklemek, ürünün o ülkede görünmemesine ve satın alınamamasına neden olur.
+          }}
+        >
+          <span>
+            <LucideInfo size={24} />
+          </span>
+          Yasaklı olmayan tüm ülkeler satışa açıktır. Ülke kısıtlaması eklemek,
+          ürünün o ülkede görünmemesine ve satın alınamamasına neden olur.
         </div>
+
+        {/* Hızlı aksiyonlar */}
+        <div className="flex justify-between items-center gap-2">
+          <p>Hızlı düzenlemeler : </p>
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={setAllActive}
+              className="text-xs px-3 py-1.5 rounded-lg border transition-all"
+              style={{
+                background: "rgba(0,198,162,0.1)",
+                borderColor: "rgba(0,198,162,0.2)",
+                color: "#00C6A2",
+              }}
+            >
+              Tümünü Aktif Yap
+            </button>
+            <button
+              type="button"
+              onClick={setAllInactive}
+              className="text-xs px-3 py-1.5 rounded-lg border transition-all"
+              style={{
+                background: "rgba(255,80,80,0.1)",
+                borderColor: "rgba(255,80,80,0.2)",
+                color: "#FF5050",
+              }}
+            >
+              Tümünü Pasif Yap
+            </button>
+          </div>
+        </div>
+
+        {/* Ülke Seçimi */}
         <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
           <PopoverTrigger asChild>
             <button
@@ -108,12 +156,21 @@ export default function ForbiddenCountriesModal({
                 color: "var(--text-secondary)",
               }}
             >
-              <span style={{ color: forbidden.length ? "var(--text-primary)" : "var(--text-muted)" }}>
+              <span
+                style={{
+                  color: forbidden.length
+                    ? "var(--text-primary)"
+                    : "var(--text-muted)",
+                }}
+              >
                 {forbidden.length > 0
                   ? `${forbidden.length} ülke seçili`
                   : "Yasaklanacak ülke seç..."}
               </span>
-              <ChevronsUpDown size={14} style={{ color: "var(--text-muted)" }} />
+              <ChevronsUpDown
+                size={14}
+                style={{ color: "var(--text-muted)" }}
+              />
             </button>
           </PopoverTrigger>
           <PopoverContent
@@ -123,9 +180,7 @@ export default function ForbiddenCountriesModal({
               borderColor: "var(--border)",
             }}
           >
-            <Command
-              style={{ background: "var(--background-secondary)" }}
-            >
+            <Command style={{ background: "var(--background-secondary)" }}>
               <CommandInput
                 placeholder="Ülke ara..."
                 className="text-sm"
@@ -160,7 +215,9 @@ export default function ForbiddenCountriesModal({
                           className="flex items-center justify-between cursor-pointer"
                           style={{
                             color: banned ? "#FF5050" : "var(--text-primary)",
-                            background: banned ? "rgba(255,80,80,0.05)" : "transparent",
+                            background: banned
+                              ? "rgba(255,80,80,0.05)"
+                              : "transparent",
                           }}
                         >
                           <div className="flex items-center gap-2">
@@ -179,7 +236,7 @@ export default function ForbiddenCountriesModal({
                             size={13}
                             className={cn(
                               "transition-opacity",
-                              banned ? "opacity-100 text-red-400" : "opacity-0"
+                              banned ? "opacity-100 text-red-400" : "opacity-0",
                             )}
                           />
                         </CommandItem>
@@ -191,7 +248,6 @@ export default function ForbiddenCountriesModal({
             </Command>
           </PopoverContent>
         </Popover>
-
         {/* Seçili yasaklı ülkeler */}
         {forbidden.length > 0 && (
           <div>

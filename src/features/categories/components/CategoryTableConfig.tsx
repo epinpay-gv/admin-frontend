@@ -21,42 +21,33 @@ export const CATEGORY_COLUMNS = (
   {
     key: "id",
     label: "ID",
-    sortable: true,
     width: "60px",
   },
-  {
-    key: "image",
-    label: "Görsel",
-    render: (_, row) => {
-      const c = row as unknown as Category;
-      return (
-        <div className="w-24 h-24 rounded-lg overflow-hidden shrink-0 border border-border bg-(--background-secondary)">
-          <Image
-            src={c.translation.imgUrl || "/placeholder.png"}
-            alt={c.translation.imgAlt || "Kategori"}
-            width={96}
-            height={96}
-            className="object-cover w-full h-full"
-            priority={false}
-          />
-        </div>
-      );
-    },
-  },
+
   {
     key: "translation",
     label: "Kategori",
-    sortable: true,
     render: (_, row) => {
       const c = row as unknown as Category;
       return (
-        <div className="min-w-0">
-          <p className="text-lg font-medium truncate text-(--text-primary)">
-            {c.translation.name}
-          </p>
-          <p className=" font-mono opacity-60 truncate text-(--text-muted)">
-            {c.slug}
-          </p>
+        <div className="flex min-w-50 items-center gap-3">
+          <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-border bg-(--background-secondary)">
+            <Image
+              src={c.translation.imgUrl || "/placeholder.png"}
+              alt={c.translation.imgAlt || "Kategori"}
+              width={64}
+              height={64}
+              className="object-cover w-full h-full"
+            />
+          </div>
+          <div className="min-w-0">
+            <p className="text-lg font-medium truncate text-(--text-primary)">
+              {c.translation.name}
+            </p>
+            <p className="font-mono opacity-60 truncate text-(--text-muted)">
+              {c.slug}
+            </p>
+          </div>
         </div>
       );
     },
@@ -64,7 +55,6 @@ export const CATEGORY_COLUMNS = (
   {
     key: "productCount",
     label: "Ürün Sayısı",
-    sortable: true,
     render: (value, row) => {
       const c = row as unknown as Category;
       return (
@@ -112,7 +102,6 @@ export const CATEGORY_COLUMNS = (
   {
     key: "status",
     label: "Durum",
-    sortable: true,
     render: (_, row) => {
       const c = row as unknown as Category;
       const isActive = c.status === CATEGORY_STATUS.ACTIVE;

@@ -17,15 +17,13 @@ const STATUS_COLORS = {
 };
 
 export const PRODUCT_COLUMNS = (
-  setForbiddenModal: (p: Product) => void
+  setForbiddenModal: (p: Product) => void,
+  setEditModal:  (p: Product) => void,
 ): ColumnDef<Record<string, unknown>>[] => [
   {
     key: "id",
     label: "ID",
-    sortable: true,
     width: "60px",
-    searchable: true,
-    searchKey: "id"
   },
   {
     key: "translation",
@@ -34,20 +32,20 @@ export const PRODUCT_COLUMNS = (
       const translation = row.translation as Product["translation"];
       return (
         <div className="flex min-w-50 items-center gap-3">
-          <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-[var(--border)] bg-[var(--background-secondary)]">
+          <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-border bg-(--background-secondary)">
             <Image
               src={translation.imgUrl}
               alt={translation.imgAlt}
-              width={40}
-              height={40}
+              width={64}
+              height={64}
               className="object-cover w-full h-full"
             />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-medium truncate text-[var(--text-primary)]">
+            <p className="text-lg font-medium truncate text-(--text-primary)">
               {translation.name}
             </p>
-            <p className="text-[11px] font-mono opacity-60 truncate text-[var(--text-muted)]">
+            <p className="font-mono opacity-60 truncate text-(--text-muted)">
               {translation.slug}
             </p>
           </div>
@@ -59,21 +57,24 @@ export const PRODUCT_COLUMNS = (
     key: "category",
     label: "Kategori",
     render: (_, row) => {
+      console.log("ROW : ", row);
       const category = row.category as Product["category"];
-      if (!category) return <span className="text-[var(--text-muted)]">-</span>;
+      if (!category) return <span className="text-(--text-muted)">-</span>;
       return (
-        <span className="text-[11px] font-mono px-2 py-0.5 rounded-md border border-[var(--border)] bg-[var(--background-secondary)] text-[var(--text-secondary)]">
+        <a
+          href={`/epinpay/categories/${category.id}`}
+          className="text-sm font-mono px-2 py-0.5 rounded-md border border-border bg-(--background-secondary) text-[var(--text-secondary)]"
+        >
           {category.name}
-        </span>
+        </a>
       );
     },
   },
   {
     key: "basePrice",
     label: "Fiyat",
-    sortable: true,
     render: (value) => (
-      <span className="font-mono text-sm text-[var(--text-secondary)]">
+      <span className="font-mono text-sm text-(--text-secondary)">
         ₺ {Number(value).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
       </span>
     ),
@@ -90,11 +91,15 @@ export const PRODUCT_COLUMNS = (
             e.stopPropagation();
             setForbiddenModal(row as unknown as Product);
           }}
-          className="flex items-center gap-1.5 text-[10px] font-mono px-2 py-1 rounded-lg transition-all hover:scale-105 active:scale-95 border"
+          className="cursor-pointer flex items-center gap-1.5 text-[10px] font-mono px-2 py-1 rounded-lg transition-all hover:scale-105 active:scale-95 border"
           style={{
-            background: hasForbidden ? PALETTE.red.bg : "var(--background-secondary)",
+            background: hasForbidden
+              ? PALETTE.red.bg
+              : "var(--background-secondary)",
             color: hasForbidden ? PALETTE.red.color : "var(--text-muted)",
-            borderColor: hasForbidden ? `${PALETTE.red.color}33` : "var(--border)",
+            borderColor: hasForbidden
+              ? `${PALETTE.red.color}33`
+              : "var(--border)",
           }}
         >
           <ShieldOff size={11} />
@@ -106,16 +111,21 @@ export const PRODUCT_COLUMNS = (
   {
     key: "status",
     label: "Durum",
-    render: (value) => {
-      const status = value as PRODUCT_STATUS;
-      const colors = STATUS_COLORS[status];
+    render: (_, row) => {
+      const c = row as unknown as Product;
+      const colors = STATUS_COLORS[c.status];
+
       return (
-        <span
-          className="text-[10px] font-bold px-2 py-0.5 rounded-full font-mono uppercase tracking-wider"
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setEditModal(c);
+          }}
           style={{ background: colors.bg, color: colors.color }}
+          className={`cursor-pointer text-xs font-mono px-2 py-1 rounded-lg border transition-all`}
         >
-          {STATUS_LABELS[status]}
-        </span>
+          {STATUS_LABELS[c.status]}
+        </button>
       );
     },
   },

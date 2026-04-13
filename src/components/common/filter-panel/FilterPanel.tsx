@@ -1,8 +1,7 @@
 "use client";
-
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { Search, ChevronDown, RotateCcw, X, Tag } from "lucide-react";
+import { Search, ChevronDown, RotateCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FilterField, FilterValue } from "./types";
 
@@ -61,14 +60,14 @@ export function FilterPanel({ configs, initialFilters, onApply, onReset }: Filte
       animate="visible"
       exit="hidden"
       variants={panelVariants}
-      className="overflow-hidden border border-[var(--border)] bg-[var(--background-card)] rounded-xl mb-6 shadow-sm"
+      className="overflow-hidden border border-border bg-(--background-card) rounded-xl mb-6 shadow-sm"
     >
       <div className="p-5 space-y-5">
         {/* Filtre Form Alanı */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {configs.map((config) => (
             <div key={config.key} className="space-y-1.5">
-              <label className="text-[11px] font-bold uppercase text-[var(--text-muted)] ml-1">
+              <label className="text-[11px] font-bold uppercase text-(--text-muted) ml-1">
                 {config.label}
               </label>
               {config.type === "select" ? (
@@ -76,14 +75,14 @@ export function FilterPanel({ configs, initialFilters, onApply, onReset }: Filte
                   <select
                     value={String(localFilters[config.key] || "all")}
                     onChange={(e) => setLocalFilters(p => ({ ...p, [config.key]: e.target.value }))}
-                    className="w-full h-10 pl-3 pr-10 bg-[var(--background-secondary)] border border-[var(--border)] rounded-lg text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-[#00C6A2]/20 transition-all"
+                    className="w-full h-10 pl-3 pr-10 bg-(--background-secondary) border border-border rounded-lg text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-[#00C6A2]/20 transition-all"
                   >
                     <option value="all">Tümü</option>
                     {config.options?.map((opt) => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}
                   </select>
-                  <ChevronDown size={14} className="absolute right-3 top-3 text-[var(--text-muted)] pointer-events-none" />
+                  <ChevronDown size={14} className="absolute right-3 top-3 text-(--text-muted) pointer-events-none" />
                 </div>
               ) : (
                 <div className="relative">
@@ -92,9 +91,9 @@ export function FilterPanel({ configs, initialFilters, onApply, onReset }: Filte
                     placeholder={config.placeholder}
                     value={String(localFilters[config.key] || "")}
                     onChange={(e) => setLocalFilters(p => ({ ...p, [config.key]: e.target.value }))}
-                    className="w-full h-10 px-3 bg-[var(--background-secondary)] border border-[var(--border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00C6A2]/20 transition-all"
+                    className="w-full h-10 px-3 bg-(--background-secondary) border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00C6A2]/20 transition-all"
                   />
-                  {config.type === "text" && <Search size={14} className="absolute right-3 top-3 text-[var(--text-muted)]" />}
+                  {config.type === "text" && <Search size={14} className="absolute right-3 top-3 text-(--text-muted)" />}
                 </div>
               )}
             </div>
@@ -102,9 +101,9 @@ export function FilterPanel({ configs, initialFilters, onApply, onReset }: Filte
         </div>
 
         {/* Footer: Aktif Badge'ler ve Aksiyonlar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-[var(--border)]">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-border">
           <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-[11px] text-[var(--text-muted)] font-medium mr-1">Uygulanan:</span>
+            <span className="text-[11px] text-(--text-muted) font-medium mr-1">Uygulanan:</span>
             <AnimatePresence>
               {activeFilters.length > 0 ? (
                 activeFilters.map((f) => (
@@ -116,7 +115,7 @@ export function FilterPanel({ configs, initialFilters, onApply, onReset }: Filte
                     className="flex items-center gap-1.5 pl-2 pr-1 py-1 bg-[#00C6A2]/10 border border-[#00C6A2]/20 rounded-md group"
                   >
                     <span className="text-[10px] font-bold text-[#00C6A2]">{f.label}:</span>
-                    <span className="text-[10px] font-medium text-[var(--text-primary)]">{f.value}</span>
+                    <span className="text-[10px] font-medium text-(--text-primary)">{f.value}</span>
                     <button 
                       onClick={() => removeFilter(f.key)}
                       className="p-0.5 hover:bg-[#00C6A2]/20 rounded-full text-[#00C6A2] transition-colors"
@@ -126,7 +125,7 @@ export function FilterPanel({ configs, initialFilters, onApply, onReset }: Filte
                   </motion.div>
                 ))
               ) : (
-                <span className="text-[11px] text-[var(--text-muted)] italic">Filtre yok</span>
+                <span className="text-[11px] text-(--text-muted) italic">Filtre yok</span>
               )}
             </AnimatePresence>
           </div>
@@ -135,7 +134,7 @@ export function FilterPanel({ configs, initialFilters, onApply, onReset }: Filte
             <Button 
               variant="ghost" 
               onClick={() => { setLocalFilters({}); onReset(); }}
-              className="h-9 text-xs font-semibold text-[var(--text-muted)] hover:bg-red-50 hover:text-red-500"
+              className="h-9 text-xs font-semibold text-(--text-muted) hover:bg-red-50 hover:text-red-500"
             >
               <RotateCcw size={14} className="mr-2" /> Sıfırla
             </Button>
