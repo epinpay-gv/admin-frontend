@@ -13,7 +13,8 @@ import { uploadService } from "@/features/products/services/upload.service";
 import { useCountries } from "@/features/products/hooks/useCountries";
 import { toast } from "@/components/common/toast/toast";
 import { useRouter } from "next/navigation";
-import { Locale } from "@/components/common/locale-selector/locale.service";
+import { Locale } from "@/components/common/locale-selector/hooks/useLocale";
+import { generateSlug } from "../utils";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -42,32 +43,13 @@ const EMPTY_LOCALE_DATA: LocaleFormData = {
   faq: [],
 };
 
-function generateSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/ğ/g, "g")
-    .replace(/ü/g, "u")
-    .replace(/ş/g, "s")
-    .replace(/ı/g, "i")
-    .replace(/ö/g, "o")
-    .replace(/ç/g, "c")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
-
-// ── Hook ──────────────────────────────────────────────────────────────────────
 
 export function useCategoryForm(
   category: Category | null,
   mode: "create" | "edit" | "duplicate",
 ) {
   const router = useRouter();
-
-  // Countries list — used to resolve string codes → CategoryCountry objects
   const { countries } = useCountries();
-
   // Shared fields
   const [slug, setSlug] = useState("");
   const [status, setStatus] = useState<CATEGORY_STATUS>(CATEGORY_STATUS.ACTIVE);
@@ -286,8 +268,6 @@ export function useCategoryForm(
     [enabledLocales, activeLocale],
   );
 
-  // ── Validation ─────────────────────────────────────────────────────────────
-
   const validate = (): boolean => {
     const t = translations[activeLocale] ?? EMPTY_LOCALE_DATA;
     const newErrors: Partial<Record<keyof CategoryFormData, string>> = {};
@@ -301,8 +281,6 @@ export function useCategoryForm(
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
-  // ── Save ───────────────────────────────────────────────────────────────────
 
   const save = async (onSuccess?: (category: Category) => void) => {
     if (!validate()) {
@@ -390,7 +368,6 @@ export function useCategoryForm(
     });
   };
 
-  // ── Return ─────────────────────────────────────────────────────────────────
 
   return {
     form,
