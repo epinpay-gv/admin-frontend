@@ -1,5 +1,4 @@
 "use client";
-
 import {
   Dialog,
   DialogContent,
@@ -8,7 +7,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { X } from "lucide-react";
 
 interface ModalProps {
   open: boolean;
@@ -17,14 +15,15 @@ interface ModalProps {
   description?: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl" | "mega";
 }
 
 const SIZE_STYLES = {
-  sm: "max-w-sm",
-  md: "max-w-md",
-  lg: "max-w-lg",
-  xl: "max-w-2xl",
+  sm: "!max-w-sm",
+  md: "!max-w-md",
+  lg: "!max-w-lg",
+  xl: "!max-w-2xl",
+  mega: "!max-w-4xl"
 };
 
 export default function Modal({
@@ -39,7 +38,7 @@ export default function Modal({
   return (
     <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
       <DialogContent
-        className={`${SIZE_STYLES[size]} border p-0 gap-0 shadow-2xl`}
+        className={`w-full ${SIZE_STYLES[size]} border p-0 gap-0 shadow-2xl`}
         style={{
           background: "var(--background-secondary)",
           borderColor: "var(--border)",

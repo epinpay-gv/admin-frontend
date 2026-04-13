@@ -1,10 +1,9 @@
 "use client";
-
 import FileUpload from "@/components/common/file-upload/FileUpload";
 import Input from "@/components/common/input/Input";
 import { CategoryFormData } from "@/features/categories/hooks/useCategoryForm";
 
-interface CategoryFormMediaProps {
+interface MediaFormProps {
   imgUrl: string | null;
   form: CategoryFormData;
   errors: Partial<Record<keyof CategoryFormData, string>>;
@@ -12,13 +11,13 @@ interface CategoryFormMediaProps {
   onFileChange: (file: File | null) => void;
 }
 
-export default function CategoryFormMedia({
+export default function MediaForm({
   imgUrl,
   form,
   errors,
   onChange,
   onFileChange,
-}: CategoryFormMediaProps) {
+}: MediaFormProps) {
   return (
     <div className="space-y-4">
       <FileUpload

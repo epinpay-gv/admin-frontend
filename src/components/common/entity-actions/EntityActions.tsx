@@ -22,7 +22,8 @@ export function EntityActions<T>({ row, onEdit, onView, extraActions = [] }: Pro
   ];
 
   return (
-    <div className="flex items-center justify-end gap-1.5">
+    <div className="cursor-poine
+    flex items-center justify-end gap-1.5">
       {actions.map((action) => (
         <ActionButton key={action.title} {...action} />
       ))}
@@ -36,7 +37,7 @@ export function ActionButton({ icon, title, onClick }: ActionItem) {
       onClick={onClick}
       title={title}
       aria-label={title}
-      className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors"
+      className="w-8 h-8 cursor-pointer rounded-lg flex items-center justify-center border transition-colors"
       style={{
         background: "var(--background-card)",
         borderColor: "var(--border)",

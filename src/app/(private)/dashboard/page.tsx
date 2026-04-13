@@ -3,10 +3,10 @@ export default function DashboardPage() {
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-white tracking-tight">
-          Dashboard
+          Hoşgeldin, BURAYA İSİM GELECEK !
         </h1>
         <p className="text-sm text-white/40 mt-1">
-          Hoş geldin, genel duruma göz at.
+          Genel duruma göz at.
         </p>
       </div>
 

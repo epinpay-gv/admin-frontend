@@ -5,6 +5,6 @@ export { useCategoryForm } from "./hooks/useCategoryForm";
 export { useCategoryCountryStatus } from "./hooks/useCategoryCountryStatus";
 export { categoryService } from "./services/category.service";
 export { default as CategoryCountryStatusModal } from "./components/CategoryCountryStatusModal";
-export { default as CategoryForm } from "./components/category-form/CategoryForm";
+export { default as CategoryForm } from "./components/category-form/Form/CategoryForm";
 export { default as CategoryEditModal } from "./components/CategoryEditModal";
 export { default as CategoryProductsModal } from "./components/CategoryProductsModal";

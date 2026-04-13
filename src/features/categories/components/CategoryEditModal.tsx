@@ -1,8 +1,6 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import Modal from "@/components/common/modal/Modal";
-import Input from "@/components/common/input/Input";
 import { Button } from "@/components/ui/button";
 import { Category, CATEGORY_STATUS } from "@/features/categories/types";
 import { categoryService } from "@/features/categories/services/category.service";
@@ -13,21 +11,6 @@ interface CategoryEditModalProps {
   onClose: () => void;
   category: Category | null;
   onUpdate: (updated: Category) => void;
-}
-
-function generateSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/ğ/g, "g")
-    .replace(/ü/g, "u")
-    .replace(/ş/g, "s")
-    .replace(/ı/g, "i")
-    .replace(/ö/g, "o")
-    .replace(/ç/g, "c")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
 }
 
 const STATUS_OPTIONS = [
@@ -41,73 +24,29 @@ export default function CategoryEditModal({
   category,
   onUpdate,
 }: CategoryEditModalProps) {
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
   const [status, setStatus] = useState<CATEGORY_STATUS>(CATEGORY_STATUS.ACTIVE);
-  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
-  const [errors, setErrors] = useState<{ name?: string; slug?: string }>({});
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (category) {
-      setName(category.translation.name);
-      setSlug(category.translation.slug);
       setStatus(category.status);
-      setSlugManuallyEdited(false);
-      setErrors({});
     }
   }, [category]);
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setName(value);
-    if (!slugManuallyEdited) {
-      setSlug(generateSlug(value));
-    }
-    setErrors((prev) => ({ ...prev, name: undefined }));
-  };
-
-  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSlugManuallyEdited(true);
-    setSlug(generateSlug(e.target.value));
-    setErrors((prev) => ({ ...prev, slug: undefined }));
-  };
-
-  const validate = (): boolean => {
-    const newErrors: { name?: string; slug?: string } = {};
-    if (!name.trim()) newErrors.name = "Kategori adı zorunludur.";
-    if (!slug.trim()) newErrors.slug = "URL zorunludur.";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSave = async () => {
-    if (!category || !validate()) return;
+    if (!category) return;
 
     setSaving(true);
     try {
-      const updated = await categoryService.update(category.id, {
+      const updated = await categoryService.quickUpdate(category.id, {
         status,
-        slug,
-        translation: {
-          ...category.translation,
-          name,
-          slug,
-        },
       });
-      toast.success("Güncellendi", `${name} başarıyla güncellendi.`);
-      onUpdate(updated);
+      onUpdate(updated.category || category);
       onClose();
     } catch (err) {
-      const message = (err as Error).message;
-      if (message.includes("URL zaten")) {
-        setErrors((prev) => ({ ...prev, slug: "Bu URL zaten kullanılıyor." }));
-        toast.error("Hata", "Bu URL zaten kullanılıyor.");
-      } else {
-        toast.error("Hata", "Kategori güncellenemedi.");
-      }
+      toast.error("Hata", `Kategori güncellenemedi. ${err}`);
     } finally {
-      setSaving(false);
+      setSaving(false); 
     }
   };
 
@@ -115,8 +54,7 @@ export default function CategoryEditModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Hızlı Düzenle"
-      description={category?.translation.name}
+      title={`Hızlı Düzenle : ${category?.translation.name}`}
       size="md"
       footer={
         <div className="flex items-center justify-end gap-2 w-full">
@@ -148,23 +86,6 @@ export default function CategoryEditModal({
       }
     >
       <div className="space-y-4">
-        <Input
-          name="name"
-          label="Kategori Adı"
-          value={name}
-          onChange={handleNameChange}
-          error={errors.name}
-          placeholder="PUBG Mobile"
-        />
-        <Input
-          name="slug"
-          label="URL / Slug"
-          value={slug}
-          onChange={handleSlugChange}
-          error={errors.slug}
-          placeholder="pubg-mobile"
-          hint="Kategori adından otomatik oluşturulur."
-        />
         <div className="flex flex-col gap-1.5">
           <label
             className="text-[11px] font-semibold uppercase tracking-widest font-mono"
@@ -181,7 +102,9 @@ export default function CategoryEditModal({
                 className="px-4 py-2 rounded-lg text-xs font-bold font-mono border transition-all"
                 style={{
                   background:
-                    status === s.value ? `${s.color}20` : "var(--background-card)",
+                    status === s.value
+                      ? `${s.color}20`
+                      : "var(--background-card)",
                   borderColor:
                     status === s.value ? `${s.color}40` : "var(--border)",
                   color: status === s.value ? s.color : "var(--text-secondary)",
