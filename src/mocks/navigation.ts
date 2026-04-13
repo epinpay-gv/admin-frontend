@@ -67,11 +67,7 @@ export const NAV_GROUPS: NavGroup[] = [
             label: "Yönlendirmeler",
             icon: ArrowLeftRight,
           }, 
-          {
-            href: "/admin/cms/legal",
-            label: "Yasal Sayfalar",
-            icon: Newspaper,
-          }, 
+         { href: "/legal-pages", label: "Yasal Sayfalar", icon: Newspaper },
         ],
       },
     ],

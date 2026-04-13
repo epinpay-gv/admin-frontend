@@ -75,13 +75,13 @@ export const HUB_PAGES: Record<string, HubPage> = {
         icon: ArrowLeftRight,
         color: "#0085FF",
       },
-      {
-        title: "Yasal Sayfalar",
-        description: "Yasal sayfaları yönet.",
-        href: "/admin/cms/legal",
-        icon: Newspaper,
-        color: "#FFB400",
-      },
+     {
+  title: "Yasal Sayfalar",
+  description: "Yasal sayfaları yönet.",
+  href: "/legal-pages",
+  icon: Newspaper,
+  color: "#FFB400",
+},
     ],
   },
 
