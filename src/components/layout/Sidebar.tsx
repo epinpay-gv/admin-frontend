@@ -4,7 +4,9 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { SidebarLogo, NavGroup, useNavigation } from "@/features/navigation";
 import { useLogout } from "@/features/auth";
-import { LogOut } from "lucide-react";
+import { LogOut, User as UserIcon } from "lucide-react";
+import { useAuthStore } from "@/store/useAuthStore";
+import { parseJwt, getInitials } from "@/lib/utils/auth";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -14,7 +16,13 @@ interface SidebarProps {
 export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const { navGroups, activeHref, navigate } = useNavigation();
   const { logout, loading } = useLogout();
+  const { user, token } = useAuthStore();
   const pathname = usePathname();
+
+  // Parse identity from JWT if token exists
+  const tokenData = parseJwt(token);
+  const displayName = tokenData?.name || user?.displayName || "Admin";
+  const initials = getInitials(displayName);
 
   const findOpenHref = () =>
     navGroups
@@ -65,11 +73,11 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </div>
 
         {/* BOTTOM: Logout */}
-        <div className="mt-auto">
+        <div className="mt-auto pt-4 border-t border-white/5">
           <button
             onClick={logout}
             disabled={loading}
-            className="cursor-pointer flex items-center justify-center border-t py-4 gap-2 text-red-400 hover:bg-red-400/10 hover:rounded-lg w-full"
+            className="cursor-pointer flex items-center justify-center py-4 gap-2 text-red-400 hover:bg-red-400/10 hover:rounded-lg w-full transition-colors"
           >
             <LogOut size={14} />
             {!collapsed && (loading ? "Çıkış yapılıyor..." : "Çıkış Yap")}

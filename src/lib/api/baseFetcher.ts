@@ -13,9 +13,22 @@ function buildUrl(
   endpoint: string,
   params?: Record<string, string | number | boolean | undefined | null>
 ): string {
-  const base =  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3011";
+  const base = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3011";
 
-  const url = new URL(`${base}${endpoint}`);
+  // Create an absolute URL to avoid 'Invalid URL' errors with relative bases
+  let url: URL;
+  try {
+    if (base.startsWith("http")) {
+      url = new URL(`${base}${endpoint}`);
+    } else {
+      // For relative base (like /api), use window.location.origin if available
+      const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+      url = new URL(`${origin}${base}${endpoint}`);
+    }
+  } catch (e) {
+    console.error("URL build error:", e);
+    return `${base}${endpoint}`;
+  }
 
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
