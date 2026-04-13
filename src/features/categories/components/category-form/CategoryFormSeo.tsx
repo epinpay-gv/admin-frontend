@@ -1,24 +1,30 @@
 "use client";
-
+import FaqFormSection from "@/components/common/faq/FaqFormSecion";
 import Input from "@/components/common/input/Input";
 import { CategoryFormData } from "@/features/categories/hooks/useCategoryForm";
+import { CategoryFaq } from "../../types";
 
 interface CategoryFormSeoProps {
   form: CategoryFormData;
   errors: Partial<Record<keyof CategoryFormData, string>>;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
+  handleFaqsChange: (faqs: CategoryFaq[]) => void;
 }
 
 export default function CategoryFormSeo({
   form,
   errors,
   onChange,
+  handleFaqsChange,
 }: CategoryFormSeoProps) {
   const titleLength = form.metaTitle.length;
   const descLength = form.metaDescription.length;
 
   return (
     <div className="space-y-5">
+      {/* META TITLE */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
           <label
@@ -29,7 +35,9 @@ export default function CategoryFormSeo({
           </label>
           <span
             className="text-[11px] font-mono"
-            style={{ color: titleLength > 60 ? "#FF5050" : "var(--text-muted)" }}
+            style={{
+              color: titleLength > 60 ? "#FF5050" : "var(--text-muted)",
+            }}
           >
             {titleLength}/60
           </span>
@@ -44,6 +52,7 @@ export default function CategoryFormSeo({
         />
       </div>
 
+      {/* META DESC */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
           <label
@@ -54,7 +63,9 @@ export default function CategoryFormSeo({
           </label>
           <span
             className="text-[11px] font-mono"
-            style={{ color: descLength > 160 ? "#FF5050" : "var(--text-muted)" }}
+            style={{
+              color: descLength > 160 ? "#FF5050" : "var(--text-muted)",
+            }}
           >
             {descLength}/160
           </span>
@@ -68,12 +79,19 @@ export default function CategoryFormSeo({
           className="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-all resize-none"
           style={{
             background: "var(--background-card)",
-            borderColor: descLength > 160 ? "rgba(255,80,80,0.5)" : errors.metaDescription ? "rgba(255,80,80,0.5)" : "var(--border)",
+            borderColor:
+              descLength > 160
+                ? "rgba(255,80,80,0.5)"
+                : errors.metaDescription
+                  ? "rgba(255,80,80,0.5)"
+                  : "var(--border)",
             color: "var(--text-primary)",
           }}
         />
         {errors.metaDescription && (
-          <p className="text-xs text-red-400 font-mono">{errors.metaDescription}</p>
+          <p className="text-xs text-red-400 font-mono">
+            {errors.metaDescription}
+          </p>
         )}
         {descLength > 160 && (
           <p className="text-xs text-red-400 font-mono">
@@ -82,22 +100,26 @@ export default function CategoryFormSeo({
         )}
       </div>
 
+      {/* SERP ONİZLEME */}
       {(form.metaTitle || form.metaDescription) && (
-        <div
-          className="rounded-xl border p-4"
-          style={{
-            background: "var(--background-secondary)",
-            borderColor: "var(--border)",
-          }}
-        >
+        <div>
           <p
             className="text-[11px] font-semibold uppercase tracking-widest font-mono mb-3"
             style={{ color: "var(--text-muted)" }}
           >
             SERP Önizleme
           </p>
-          <div className="space-y-1">
-            <p className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>
+          <div
+            className="space-y-1 rounded-xl border p-4"
+            style={{
+              background: "var(--background-secondary)",
+              borderColor: "var(--border)",
+            }}
+          >
+            <p
+              className="text-xs font-mono"
+              style={{ color: "var(--text-muted)" }}
+            >
               epinpay.com › {form.slug || "kategori-slug"}
             </p>
             <p className="text-base font-medium text-blue-400">
@@ -109,6 +131,39 @@ export default function CategoryFormSeo({
           </div>
         </div>
       )}
+
+      {/* AÇIKLAMA */}
+      <div className="flex flex-col gap-1.5">
+        <label
+          className="text-[11px] font-semibold uppercase tracking-widest font-mono"
+          style={{ color: "var(--text-muted)" }}
+        >
+          Kategori Açıklaması
+        </label>
+        <textarea
+          name="description"
+          value={form.description}
+          onChange={onChange}
+          placeholder="Kategori açıklaması..."
+          rows={3}
+          className="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-all resize-none"
+          style={{
+            background: "var(--background-card)",
+            borderColor: "var(--border)",
+            color: "var(--text-primary)",
+          }}
+        />
+      </div>
+      {/* FAQ */}
+      <div className="category-faq-wrapper">
+        <p
+          className="text-[11px] font-semibold uppercase tracking-widest font-mono mb-3"
+          style={{ color: "var(--text-muted)" }}
+        >
+          Sık Sorulan Sorular
+        </p>
+        <FaqFormSection faqs={form.faq} onChange={handleFaqsChange} />
+      </div>
     </div>
   );
 }

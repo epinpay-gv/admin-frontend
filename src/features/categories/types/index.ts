@@ -27,7 +27,7 @@ export interface CategoryTranslation {
   metaDescription?: string;
   imgUrl?: string;
   imgAlt?: string;
-  content?: string;
+  faq?: CategoryFaq[];
 }
 
 export interface Category {
@@ -35,9 +35,19 @@ export interface Category {
   slug: string;
   status: CATEGORY_STATUS;
   productCount: number;
-  translation: CategoryTranslation;
+  translation: CategoryTranslation;           // primary locale (list views)
+  translations?: Record<string, {             // all locales (detail/edit page)
+    name: string;
+    slug: string;
+    description?: string;
+    imgUrl?: string;
+    imgAlt?: string;
+    metaTitle?: string;
+    metaDescription?: string;
+    faq?: CategoryFaq[];
+  }>;
   availableLocales: string[];
-  forbiddenCountries: string[]; // ← string[] (ISO codes), matches BFF AdminCategory
+  forbiddenCountries: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -56,6 +66,12 @@ export interface CatalogPagination {
   page: number;
   limit: number;
   totalPages: number;
+}
+
+export interface CategoryFaq {
+  id: number;
+  name: string;
+  description: string;
 }
 
 /* ── Response / Payload types ───────────────────────────────── */
@@ -90,8 +106,8 @@ export interface CategoryQuickUpdatePayload {
 // POST /api/features/catalog/categories/ban-countries
 // POST /api/features/catalog/categories/unban-countries
 export interface BanCountriesPayload {
-  categoryIds: number[];   // ← number[], not string[]
-  countries: string[];     // ISO-2 codes e.g. ["TR", "DE"]
+  categoryIds: number[]; // ← number[], not string[]
+  countries: string[]; // ISO-2 codes e.g. ["TR", "DE"]
 }
 
 export interface BanCountriesResponse {
@@ -102,5 +118,28 @@ export interface BanCountriesResponse {
 
 // POST /api/features/catalog/categories/:id/products
 export interface AddProductToCategoryPayload {
-  productId: number;   // ← number, not string
+  productId: number; 
+}
+
+export interface CategoryTranslationPayload {
+  name: string;
+  slug: string;
+  description?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  imgUrl?: string;
+  imgAlt?: string;
+  faq?: Array<{ id: number; name: string; description: string }>;
+}
+ 
+export interface CategoryCreatePayload {
+  slug: string;
+  status?: string;
+  translations: Record<string, CategoryTranslationPayload>;
+}
+ 
+export interface CategoryUpdatePayload {
+  slug?: string;
+  status?: string;
+  translations?: Record<string, Partial<CategoryTranslationPayload>>;
 }
