@@ -3,14 +3,11 @@ import {
   Users,
   Store,
   Globe,
-  Wallet,
   PersonStanding,
   HandCoins,
-  Handshake,
   Package,
   TrendingUp,
   Gift,
-  MessageSquare,
   Newspaper,
   List,
   LayoutGrid,
@@ -47,20 +44,13 @@ export const NAV_GROUPS: NavGroup[] = [
           },
         ],
       },
-      // {
-      //   href: "/hub/admin/finance",
-      //   label: "Ödeme & Finans Ayarları",
-      //   icon: Wallet,
-      //   children: [
-      //   ],
-      // },
       {
         href: "/hub/admin/policy",
         label: "Konum & Policy Yönetimi",
         icon: Globe,
         children: [
           {
-            href: "/users",
+            href: "/admin/payment-policy",
             label: "Ödeme Yöntemi Görünürlüğü",
             icon: CreditCard,
           },
@@ -68,18 +58,21 @@ export const NAV_GROUPS: NavGroup[] = [
       },
       {
         href: "/hub/admin/cms",
-        label: "İçerik ve SEO Yönetimi",
+        label: "İçerik ve SEO",
         icon: PersonStanding,
         children: [
           { href: "/blog", label: "Blog Yönetimi", icon: Newspaper },
-          { href: "/admin/cms/redirects", label: "Yönlendirmeler", icon: ArrowLeftRight }, // TODO 
-          { href: "/admin/cms/legal", label: "Yasal Sayfalar", icon: Newspaper }, // TODO 
+          {
+            href: "/admin/cms/redirects",
+            label: "Yönlendirmeler",
+            icon: ArrowLeftRight,
+          }, 
+          {
+            href: "/admin/cms/legal",
+            label: "Yasal Sayfalar",
+            icon: Newspaper,
+          }, 
         ],
-      },
-      {
-        href: "/store",
-        label: "Epinpay Mağazaları",
-        icon: Store,
       },
     ],
   },
@@ -96,25 +89,16 @@ export const NAV_GROUPS: NavGroup[] = [
             label: "Siparişler",
             icon: ShoppingCart,
           },
+          {
+            href: "/store",
+            label: "Epinpay Mağazaları",
+            icon: Store,
+          },
         ],
       },
-      // {
-      //   href: "/hub/epinpay/store",
-      //   label: "Mağaza Yönetimi",
-      //   icon: Store,
-      //   children: [
-      //   ]
-      // },
-      // {
-      //   href: "/hub/epinpay/offers",
-      //   label: "Teklif & Stok Yönetimi",
-      //   icon: Handshake,
-      //   children: [
-      //   ]
-      // },
       {
         href: "/hub/epinpay/products",
-        label: "Ürün & Katalog Yönetimi",
+        label: "Ürün & Katalog",
         icon: Package,
         children: [
           {
@@ -131,7 +115,7 @@ export const NAV_GROUPS: NavGroup[] = [
       },
       {
         href: "/hub/epinpay/marketing",
-        label: "Pazarlama & Kampanya Yönetimi",
+        label: "Pazarlama & Kampanya",
         icon: TrendingUp,
         children: [
           {
@@ -139,19 +123,12 @@ export const NAV_GROUPS: NavGroup[] = [
             label: "Çekilişler",
             icon: Gift,
           },
+          {
+            href: "/streamers",
+            label: "Yayıncılar",
+            icon: Gamepad,
+          },
         ],
-      },
-      // {
-      //   href: "/hub/epinpay/support",
-      //   label: "Destek & İletişim Yönetimi",
-      //   icon: MessageSquare,
-      //   children: [
-      //   ]
-      // },
-      {
-        href: "/streamers",
-        label: "Yayıncılar",
-        icon: Gamepad,
       },
     ],
   },
