@@ -68,7 +68,6 @@ export const HUB_PAGES: Record<string, HubPage> = {
         icon: Newspaper,
         color: "#00C6A2",
       },
-<<<<<<< HEAD
    {
   title: "Yönlendirmeler",
   description: "URL yönlendirmelerini tekli veya toplu yönet.",
@@ -76,15 +75,6 @@ export const HUB_PAGES: Record<string, HubPage> = {
   icon: ArrowLeftRight,
   color: "#0085FF",
 },
-=======
-      {
-        title: "Yönlendirmeler",
-        description: "URL yönlendirmelerini yönet.",
-        href: "/admin/cms/redirects",
-        icon: ArrowLeftRight,
-        color: "#0085FF",
-      },
->>>>>>> development
       {
         title: "Yasal Sayfalar",
         description: "Yasal sayfaları yönet.",
