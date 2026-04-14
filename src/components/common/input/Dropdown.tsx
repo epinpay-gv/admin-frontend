@@ -1,3 +1,4 @@
+"use client";
 import { ChevronDown } from "lucide-react";
 
 export default function Dropdown({
@@ -15,6 +16,9 @@ export default function Dropdown({
   loading?: boolean;
   error?: string;
 }) {
+  const valueInOptions = options.some((o) => o.value === value);
+  const needsPlaceholder = value && !valueInOptions;
+
   return (
     <div className="flex flex-col gap-1.5">
       <label
@@ -38,6 +42,11 @@ export default function Dropdown({
           <option value="" style={{ background: "var(--background-secondary)" }}>
             Seçiniz...
           </option>
+          {needsPlaceholder && (
+            <option value={value} style={{ background: "var(--background-secondary)" }}>
+              {loading ? "Yükleniyor..." : value}
+            </option>
+          )}
           {options.map((opt) => (
             <option
               key={opt.value}

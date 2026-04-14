@@ -26,10 +26,19 @@ export default function ProductDetailPage({
     errors,
     saving,
     isDirty,
+    imgUrl,
     activeLocale,
     enabledLocales,
+    forbiddenCountries,
+    setForbiddenCountries,
+    types,
+    platforms,
+    regions,
+    metaLoading,
     handleChange,
     handleSelect,
+    handleFileChange,
+    handleFaqsChange,
     handleLocaleChange,
     handleLocaleAdd,
     handleLocaleRemove,
@@ -86,21 +95,17 @@ export default function ProductDetailPage({
         <ProductForm
           form={form}
           errors={errors}
+          imgUrl={imgUrl}
+          forbiddenCountries={forbiddenCountries}
+          types={types}
+          platforms={platforms}
+          regions={regions}
+          metaLoading={metaLoading}
           handleChange={handleChange}
           handleSelect={handleSelect}
-          forbiddenCountries={[]}
-          handleFaqsChange={function (faqs: CategoryFaq[]): void {
-            throw new Error("Function not implemented.");
-          }}
-          handleForbiddenCountriesChange={function (
-            countries: CategoryCountry[],
-          ): void {
-            throw new Error("Function not implemented.");
-          }}
-          imgUrl={null}
-          handleFileChange={function (file: File | null): void {
-            throw new Error("Function not implemented.");
-          }}
+          handleFileChange={handleFileChange}
+          handleFaqsChange={handleFaqsChange}
+          handleForbiddenCountriesChange={setForbiddenCountries}
         />
       </div>
 

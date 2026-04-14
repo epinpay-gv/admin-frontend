@@ -25,9 +25,9 @@ export interface ProductMeta {
   regions: ProductRegion[];
 }
 
-const BASE_URL = "/api/product-meta";
-
+const BASE_URL = "/api/features/catalog";
+ 
 export const productMetaService = {
   getAll: (): Promise<ProductMeta> =>
-    api.get<ProductMeta>(BASE_URL),
+    api.get<ProductMeta>(`${BASE_URL}/specs/meta`),
 };

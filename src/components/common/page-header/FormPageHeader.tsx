@@ -74,7 +74,7 @@ export function FormPageHeader({
       },
     });
   }
-  
+
   return (
     <div
       className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 mb-4 rounded-xl border gap-4"
@@ -84,16 +84,15 @@ export function FormPageHeader({
       }}
     >
       <div className="flex items-center gap-4 min-w-0">
-        <>
-          <BackButton isDirty={isDirty} />
-          <StatusBadges badges={badges} />
-        </>
+        <BackButton isDirty={isDirty} />
+
         <h1
           className="text-xl font-semibold tracking-tight truncate"
           style={{ color: "var(--text-primary)" }}
         >
           {title}
         </h1>
+        <StatusBadges badges={badges} />
       </div>
 
       <div className="flex flex-wrap items-center gap-3">

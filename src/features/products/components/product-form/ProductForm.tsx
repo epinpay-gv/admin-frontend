@@ -14,6 +14,10 @@ interface ProductFormProps {
   errors: ReturnType<typeof useProductForm>["errors"];
   forbiddenCountries: CategoryCountry[];
   imgUrl: string | null;
+  types: ReturnType<typeof useProductForm>["types"];
+  platforms: ReturnType<typeof useProductForm>["platforms"];
+  regions: ReturnType<typeof useProductForm>["regions"];
+  metaLoading: boolean;
   handleFileChange: (file: File | null) => void;
   handleChange: ReturnType<typeof useProductForm>["handleChange"];
   handleSelect: ReturnType<typeof useProductForm>["handleSelect"];
@@ -21,13 +25,15 @@ interface ProductFormProps {
   handleForbiddenCountriesChange: (countries: CategoryCountry[]) => void;
 }
 
-
-
 export default function ProductForm({
   form,
   errors,
   forbiddenCountries,
   imgUrl,
+  types,
+  platforms,
+  regions,
+  metaLoading,
   handleFileChange,
   handleChange,
   handleSelect,
@@ -45,6 +51,10 @@ export default function ProductForm({
             <GeneralInfoForm
               form={form}
               errors={errors}
+              types={types}
+              platforms={platforms}
+              regions={regions}
+              metaLoading={metaLoading}
               onChange={handleChange}
               onSelect={handleSelect}
             />

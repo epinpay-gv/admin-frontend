@@ -3,6 +3,7 @@ export enum PRODUCT_STATUS {
   INACTIVE = "inactive",
   DRAFT = "draft",
 }
+
 export interface ProductFaq {
   id: number;
   name: string;
@@ -12,21 +13,15 @@ export interface ProductFaq {
 }
 
 export interface ProductTranslation {
-  id: number;
-  locale: string;
+  locale?: string;
   name: string;
   slug: string;
-  category_slug: string;
-  description: string;
-  metaTitle: string;
-  metaDescription: string;
-  imgUrl: string;
-  imgAlt: string;
+  description?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  imgUrl?: string;
+  imgAlt?: string;
   faq?: ProductFaq[];
-}
-
-export interface CheapestOffer {
-  id: number;
 }
 
 export interface Category {
@@ -44,16 +39,14 @@ export interface Country {
 
 export interface Product {
   id: number;
-  category_id: number;
-  category: Category;
-  region_id: number;
-  platform_id: number;
-  type_id: number;
+  slug: string;
   status: PRODUCT_STATUS;
-  translation: ProductTranslation;
-  translations?: Record<string, ProductTranslation>;
-  availableLocales: string[];
-  cheapestOffer: CheapestOffer | null;
+  // camelCase — matches actual API response
+  categoryId: number | null;
+  category: Category | null;
+  regionId: number;
+  platformId: number;
+  typeId: number;
   basePrice: number | null;
   spreadRate: number | null;
   discountRate: number;
@@ -63,11 +56,14 @@ export interface Product {
   region: string;
   platform: string;
   type: string;
-  platform_icon: string;
+  platform_icon?: string;
   totalStock: number;
+  availableLocales: string[];
   forbiddenCountries: Country[];
-  updatedAt: string;
+  translation: ProductTranslation;
+  translations?: Record<string, ProductTranslation>;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface ProductFilters {
@@ -78,11 +74,9 @@ export interface ProductFilters {
   max_price?: number;
   is_favorite?: boolean;
   region_id?: string;
-
   [key: string]: string | number | boolean | undefined | null;
 }
 
-// PATCH /api/features/catalog/products/:id/quick-update
 export interface ProductQuickUpdatePayload {
   basePrice?: string;
   spreadRate?: string;

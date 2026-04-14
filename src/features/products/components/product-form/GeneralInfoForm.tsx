@@ -2,7 +2,6 @@
 import Input from "@/components/common/input/Input";
 import { ProductFormData } from "../../hooks/useProductForm";
 import Dropdown from "@/components/common/input/Dropdown";
-import { useProductMeta } from "../../hooks/useProductMeta";
 import { PRODUCT_STATUS } from "../../types";
 
 const STATUS_OPTIONS = [
@@ -14,6 +13,10 @@ const STATUS_OPTIONS = [
 interface GeneralInfoFormProps {
   form: ProductFormData;
   errors: Partial<Record<keyof ProductFormData, string>>;
+  types: { label: string; value: string }[];
+  platforms: { label: string; value: string }[];
+  regions: { label: string; value: string }[];
+  metaLoading: boolean;
   onChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
@@ -23,11 +26,13 @@ interface GeneralInfoFormProps {
 export default function GeneralInfoForm({
   form,
   errors,
+  types,
+  platforms,
+  regions,
+  metaLoading,
   onChange,
   onSelect,
 }: GeneralInfoFormProps) {
-  const { types, platforms, regions, loading } = useProductMeta();
-
   return (
     <div className="space-y-5">
       {/* Ürün Adı & Slug */}
@@ -50,14 +55,14 @@ export default function GeneralInfoForm({
         />
       </div>
 
-      {/* Tip, Platform, Bölge */}
+      {/* Kategori, Tip, Platform, Bölge */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <Dropdown
           label="Kategori"
           value={form.category_id}
           options={regions}
           onChange={(val) => onSelect("category_id", val)}
-          loading={loading}
+          loading={metaLoading}
           error={errors.category_id}
         />
         <Dropdown
@@ -65,7 +70,7 @@ export default function GeneralInfoForm({
           value={form.type_id}
           options={types}
           onChange={(val) => onSelect("type_id", val)}
-          loading={loading}
+          loading={metaLoading}
           error={errors.type_id}
         />
         <Dropdown
@@ -73,7 +78,7 @@ export default function GeneralInfoForm({
           value={form.platform_id}
           options={platforms}
           onChange={(val) => onSelect("platform_id", val)}
-          loading={loading}
+          loading={metaLoading}
           error={errors.platform_id}
         />
         <Dropdown
@@ -81,11 +86,11 @@ export default function GeneralInfoForm({
           value={form.region_id}
           options={regions}
           onChange={(val) => onSelect("region_id", val)}
-          loading={loading}
+          loading={metaLoading}
           error={errors.region_id}
         />
       </div>
-      
+
       {/* Durum */}
       <div className="flex flex-col gap-1.5">
         <label
