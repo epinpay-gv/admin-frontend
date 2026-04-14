@@ -16,6 +16,7 @@ interface GeneralInfoFormProps {
   types: { label: string; value: string }[];
   platforms: { label: string; value: string }[];
   regions: { label: string; value: string }[];
+  categories: { label: string; value: string }[];
   metaLoading: boolean;
   onChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -29,6 +30,7 @@ export default function GeneralInfoForm({
   types,
   platforms,
   regions,
+  categories,
   metaLoading,
   onChange,
   onSelect,
@@ -60,7 +62,7 @@ export default function GeneralInfoForm({
         <Dropdown
           label="Kategori"
           value={form.category_id}
-          options={regions}
+          options={categories}
           onChange={(val) => onSelect("category_id", val)}
           loading={metaLoading}
           error={errors.category_id}

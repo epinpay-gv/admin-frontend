@@ -17,6 +17,7 @@ interface ProductFormProps {
   types: ReturnType<typeof useProductForm>["types"];
   platforms: ReturnType<typeof useProductForm>["platforms"];
   regions: ReturnType<typeof useProductForm>["regions"];
+  categories: ReturnType<typeof useProductForm>["categories"];
   metaLoading: boolean;
   handleFileChange: (file: File | null) => void;
   handleChange: ReturnType<typeof useProductForm>["handleChange"];
@@ -33,6 +34,7 @@ export default function ProductForm({
   types,
   platforms,
   regions,
+  categories,
   metaLoading,
   handleFileChange,
   handleChange,
@@ -54,6 +56,7 @@ export default function ProductForm({
               types={types}
               platforms={platforms}
               regions={regions}
+              categories={categories}
               metaLoading={metaLoading}
               onChange={handleChange}
               onSelect={handleSelect}

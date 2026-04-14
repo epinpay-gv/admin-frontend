@@ -102,7 +102,7 @@ export function useProductForm(
   const [pendingFile, setPendingFile] = useState<File | null>(null);
 
   // ── Product meta (types, platforms, regions) ──────────────────────────────
-  const [meta, setMeta] = useState<ProductMeta>({ types: [], platforms: [], regions: [] });
+  const [meta, setMeta] = useState<ProductMeta>({ types: [], platforms: [], regions: [], categories: [] });
   const [metaLoading, setMetaLoading] = useState(true);
   const [metaError, setMetaError] = useState<string | null>(null);
 
@@ -416,7 +416,8 @@ export function useProductForm(
 
   const handleSave = async () => {
     await save((saved) => {
-      router.push(`/epinpay/products/${saved.id}`);
+      console.log(saved);
+      router.push(`/epinpay/products`);
     });
   };
 
@@ -438,6 +439,7 @@ export function useProductForm(
     types: meta.types,
     platforms: meta.platforms,
     regions: meta.regions,
+    categories: meta.categories,
     metaLoading,
     metaError,
     // Handlers

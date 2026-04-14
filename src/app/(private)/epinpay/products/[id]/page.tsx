@@ -8,7 +8,6 @@ import { resolveMode, resolveId } from "@/lib/utils";
 import { FormPageHeader } from "@/components/common/page-header/FormPageHeader";
 import FormSectionContainer from "@/components/common/container/FormSectionContainer";
 import LocaleSelector from "@/components/common/locale-selector/LocaleSelector";
-import { CategoryFaq, CategoryCountry } from "@/features/categories";
 
 export default function ProductDetailPage({
   params,
@@ -34,6 +33,7 @@ export default function ProductDetailPage({
     types,
     platforms,
     regions,
+    categories,
     metaLoading,
     handleChange,
     handleSelect,
@@ -100,6 +100,7 @@ export default function ProductDetailPage({
           types={types}
           platforms={platforms}
           regions={regions}
+          categories={categories}
           metaLoading={metaLoading}
           handleChange={handleChange}
           handleSelect={handleSelect}
