@@ -4,21 +4,9 @@ import { useCategory, useCategoryForm } from "@/features/categories";
 import LocaleSelector from "@/components/common/locale-selector/LocaleSelector";
 import { PageState } from "@/components/common/page-state/PageState";
 import FormSectionContainer from "@/components/common/container/FormSectionContainer";
-import { FormPageTitle, CategoryForm } from "@/features/categories/components/category-form";
-
-type PageMode = "create" | "edit" | "duplicate";
-
-function resolveMode(id: string): PageMode {
-  if (id === "new") return "create";
-  if (id.startsWith("copy-")) return "duplicate";
-  return "edit";
-}
-
-function resolveId(id: string): number | null {
-  if (id === "new") return null;
-  if (id.startsWith("copy-")) return Number(id.replace("copy-", ""));
-  return Number(id);
-}
+import { CategoryForm } from "@/features/categories/components/category-form";
+import { resolveMode, resolveId } from "@/lib/utils";
+import { FormPageHeader } from "@/components/common/page-header/FormPageHeader";
 
 export default function CategoryDetailPage({
   params,
@@ -27,16 +15,27 @@ export default function CategoryDetailPage({
 }) {
   const { id } = use(params);
 
-  const mode      = resolveMode(id);
+  const mode = resolveMode(id);
   const numericId = resolveId(id);
 
   const { category, loading, error } = useCategory(numericId);
   const {
-    form, errors, saving, isDirty, imgUrl,
-    activeLocale, enabledLocales, forbiddenCountries,
-    setForbiddenCountries, handleChange, handleFileChange,
-    handleFaqsChange, handleLocaleChange, handleLocaleAdd,
-    handleLocaleRemove, handleSave,
+    form,
+    errors,
+    saving,
+    isDirty,
+    imgUrl,
+    activeLocale,
+    enabledLocales,
+    forbiddenCountries,
+    setForbiddenCountries,
+    handleChange,
+    handleFileChange,
+    handleFaqsChange,
+    handleLocaleChange,
+    handleLocaleAdd,
+    handleLocaleRemove,
+    handleSave,
   } = useCategoryForm(category, mode);
 
   // ── Scroll-to-top visibility ───────────────────────────────────────────────
@@ -48,8 +47,7 @@ export default function CategoryDetailPage({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const scrollToTop = () =>
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   // ── Page title ────────────────────────────────────────────────────────────
   const pageTitle =
@@ -63,10 +61,11 @@ export default function CategoryDetailPage({
     <PageState loading={loading} error={error}>
       <div className="flex flex-col h-full">
         {/* Üst bar */}
-        <FormPageTitle
+        <FormPageHeader
+          title={pageTitle}
           isDirty={isDirty}
-          pageTitle={pageTitle}
-          category={category}
+          data={category}
+          type={"category"}
           mode={mode}
           saving={saving}
           handleSave={handleSave}

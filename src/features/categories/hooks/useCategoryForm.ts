@@ -52,27 +52,13 @@ export function useCategoryForm(
   // Shared fields
   const [slug, setSlug] = useState("");
   const [status, setStatus] = useState<CATEGORY_STATUS>(CATEGORY_STATUS.ACTIVE);
-
-  // Forbidden countries — CategoryCountry[] matching what CategoryFormCountries expects
-  const [forbiddenCountries, setForbiddenCountries] = useState<
-    CategoryCountry[]
-  >([]);
-
-  // Per-locale translation data
-  const [translations, setTranslations] = useState<
-    Record<string, LocaleFormData>
-  >({
-    tr: { ...EMPTY_LOCALE_DATA },
-  });
-
+  const [forbiddenCountries, setForbiddenCountries] = useState<CategoryCountry[]>([]);
+  const [translations, setTranslations] = useState<Record<string, LocaleFormData>>({tr: { ...EMPTY_LOCALE_DATA }});
   // Locale state
   const [activeLocale, setActiveLocale] = useState("tr");
   const [enabledLocales, setEnabledLocales] = useState<string[]>(["tr"]);
-
   // Other state
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof CategoryFormData, string>>
-  >({});
+  const [errors, setErrors] = useState<Partial<Record<keyof CategoryFormData, string>>>({});
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
@@ -304,7 +290,6 @@ export function useCategoryForm(
     return Object.keys(newErrors).length === 0;
   };
 
-
   const save = async (onSuccess?: (category: Category) => void) => {
     if (!validate()) {
       toast.error("Hata", "Lütfen zorunlu alanları doldurun.");
@@ -330,14 +315,14 @@ export function useCategoryForm(
       enabledLocales.forEach((code) => {
         const t = translations[code] ?? EMPTY_LOCALE_DATA;
         translationsPayload[code] = {
-          name:            t.name,
+          name: t.name,
           slug,
-          description:     t.description,
-          metaTitle:       t.metaTitle,
+          description: t.description,
+          metaTitle: t.metaTitle,
           metaDescription: t.metaDescription,
-          imgAlt:          t.imgAlt,
-          imgUrl:          finalImgUrl || t.imgUrl,
-          faq:             t.faq,
+          imgAlt: t.imgAlt,
+          imgUrl: finalImgUrl || t.imgUrl,
+          faq: t.faq,
         };
       });
 
@@ -352,28 +337,31 @@ export function useCategoryForm(
         const response = await categoryService.update(category.id, payload);
         result = response.category;
 
-        const originalCodes = category.forbiddenCountries ?? [];        
-        const currentCodes  = forbiddenCountries.map((c) => c.code);   
+        const originalCodes = category.forbiddenCountries ?? [];
+        const currentCodes = forbiddenCountries.map((c) => c.code);
 
-        const toBan   = currentCodes.filter((c) => !originalCodes.includes(c));
+        const toBan = currentCodes.filter((c) => !originalCodes.includes(c));
         const toUnban = originalCodes.filter((c) => !currentCodes.includes(c));
 
         await Promise.all([
           toBan.length > 0
             ? categoryService.banCountries({
                 categoryIds: [category.id],
-                countries:   toBan,
+                countries: toBan,
               })
             : Promise.resolve(),
           toUnban.length > 0
             ? categoryService.unbanCountries({
                 categoryIds: [category.id],
-                countries:   toUnban,
+                countries: toUnban,
               })
             : Promise.resolve(),
         ]);
 
-        toast.success("Güncellendi", `${translations[activeLocale]?.name} başarıyla güncellendi.`);
+        toast.success(
+          "Güncellendi",
+          `${translations[activeLocale]?.name} başarıyla güncellendi.`,
+        );
       } else {
         // create / duplicate — no existing category to diff against, just create
         const payload: CategoryCreatePayload = {
@@ -387,7 +375,7 @@ export function useCategoryForm(
         if (forbiddenCountries.length > 0) {
           await categoryService.banCountries({
             categoryIds: [result.id],
-            countries:   forbiddenCountries.map((c) => c.code),
+            countries: forbiddenCountries.map((c) => c.code),
           });
         }
 
@@ -409,7 +397,10 @@ export function useCategoryForm(
       } else {
         toast.error(
           "Hata",
-          message || (mode === "edit" ? "Kategori güncellenemedi." : "Kategori oluşturulamadı."),
+          message ||
+            (mode === "edit"
+              ? "Kategori güncellenemedi."
+              : "Kategori oluşturulamadı."),
         );
       }
     } finally {

@@ -20,7 +20,7 @@ export const productService = {
     >(`${BASE_URL}/products`, filters),
 
   getById: (id: number, locale: string = "en"): Promise<Product> =>
-    api.get<Product>(`${BASE_URL}/${id}`, { locale }),
+    api.get<Product>(`${BASE_URL}/products/${id}`, { locale }),
 
   create: (data: Partial<Product>): Promise<Product> =>
     api.post<Product, Partial<Product>>(BASE_URL, data),

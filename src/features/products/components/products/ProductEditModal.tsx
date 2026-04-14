@@ -6,7 +6,7 @@ import Input from "@/components/common/input/Input";
 import { Button } from "@/components/ui/button";
 import { Product, PRODUCT_STATUS } from "@/features/products/types";
 import { toast } from "@/components/common/toast/toast";
-import { productService } from "../services/product.service";
+import { productService } from "../../services/product.service";
 
 interface ProductEditForm {
   basePrice: string;

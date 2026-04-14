@@ -15,10 +15,10 @@ import { PageState } from "@/components/common/page-state/PageState";
 import { EntityActions } from "@/components/common/entity-actions/EntityActions";
 import { FilterPanel } from "@/components/common/filter-panel/FilterPanel";
 import { FilterValue } from "@/components/common/filter-panel/types";
-import ForbiddenCountriesModal from "@/features/products/components/ForbiddenCountriesModal";
+import ForbiddenCountriesModal from "@/features/products/components/products/ForbiddenCountriesModal";
 import { PRODUCT_FILTER_CONFIG } from "@/features/products/hooks/ProductFilterConfig";
-import { PRODUCT_COLUMNS } from "@/features/products/components/ProductTableConfig";
-import ProductsHeaderAction from "@/features/products/components/ProductsHeaderAction";
+import { PRODUCT_COLUMNS } from "@/features/products/components/products/ProductTableConfig";
+import ProductsHeaderAction from "@/features/products/components/products/ProductsHeaderAction";
 
 const STATUS_OPTIONS = [
   { label: "Tümü", value: "all" },

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Product } from "@/features/products/types";
 import { productService } from "@/features/products/services/product.service";
 
-export function useProduct(id: number | null, locale: string = "en") {
+export function useProduct(id: number | null) {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +18,7 @@ export function useProduct(id: number | null, locale: string = "en") {
       setLoading(true);
       setError(null);
       try {
-        const data = await productService.getById(id, locale);
+        const data = await productService.getById(id);
         if (!cancelled) setProduct(data);
       } catch (err) {
         if (!cancelled) setError((err as Error).message);
@@ -32,7 +32,7 @@ export function useProduct(id: number | null, locale: string = "en") {
     return () => {
       cancelled = true;
     };
-  }, [id, locale]);
+  }, [id]);
 
   return { product, loading, error };
 }

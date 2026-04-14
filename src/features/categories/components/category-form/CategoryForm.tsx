@@ -7,12 +7,10 @@ import {
 import { CategoryFormData } from "@/features/categories/hooks/useCategoryForm";
 import { Suspense } from "react";
 import FormSectionContainer from "@/components/common/container/FormSectionContainer";
-import {
-  TranslationForm,
-  GeneralInfoForm,
-  CountryRestrictionForm,
-  MediaForm,
-} from "./index";
+import CountryRestrictionForm from "./CountryRestrictionForm";
+import GeneralInfoForm from "./GeneralInfoForm";
+import MediaForm from "./MediaForm";
+import TranslationForm from "./TranslationForm";
 
 interface CategoryFormProps {
   product: Category | null;

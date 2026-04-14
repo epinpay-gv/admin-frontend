@@ -1,4 +1,3 @@
-import CategoryForm from "./Form/CategoryForm";
-import FormPageTitle from "./Title/FormPageTitle";
+import CategoryForm from "./CategoryForm";
 
-export { CategoryForm, FormPageTitle };
+export { CategoryForm };

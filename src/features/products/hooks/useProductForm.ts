@@ -5,6 +5,21 @@ import { Product, PRODUCT_STATUS } from "@/features/products/types";
 import { productService } from "@/features/products/services/product.service";
 import { uploadService } from "@/features/products/services/upload.service";
 import { toast } from "@/components/common/toast/toast";
+import { CategoryCountry, CategoryFaq } from "@/features/categories";
+import { generateSlug } from "@/features/categories/utils";
+import { useCountries } from "./useCountries";
+import { useRouter } from "next/navigation";
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+export interface LocaleFormData {
+  name: string;
+  imgAlt: string;
+  imgUrl: string;
+  metaTitle: string;
+  description: string;
+  metaDescription: string;
+  faq: CategoryFaq[];
+}
 
 export interface ProductFormData {
   name: string;
@@ -25,6 +40,7 @@ export interface ProductFormData {
   metaTitle: string;
   metaDescription: string;
   imgAlt: string;
+  faq: CategoryFaq[];
 }
 
 const INITIAL_FORM: ProductFormData = {
@@ -46,29 +62,27 @@ const INITIAL_FORM: ProductFormData = {
   metaTitle: "",
   metaDescription: "",
   imgAlt: "",
+  faq: [],
 };
-
-function generateSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/ğ/g, "g")
-    .replace(/ü/g, "u")
-    .replace(/ş/g, "s")
-    .replace(/ı/g, "i")
-    .replace(/ö/g, "o")
-    .replace(/ç/g, "c")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
 
 export function useProductForm(
   product: Product | null,
-  mode: "create" | "edit" | "duplicate"
+  mode: "create" | "edit" | "duplicate",
 ) {
+  const router = useRouter();
+  const { countries } = useCountries();
+
   const [form, setForm] = useState<ProductFormData>(INITIAL_FORM);
-  const [errors, setErrors] = useState<Partial<Record<keyof ProductFormData, string>>>({});
+  const [slug, setSlug] = useState("");
+  const [status, setStatus] = useState<PRODUCT_STATUS>(PRODUCT_STATUS.ACTIVE);
+  const [forbiddenCountries, setForbiddenCountries] = useState<
+    CategoryCountry[]
+  >([]);
+  const [activeLocale, setActiveLocale] = useState("tr");
+  const [enabledLocales, setEnabledLocales] = useState<string[]>(["tr"]);
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof ProductFormData, string>>
+  >({});
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
@@ -76,6 +90,7 @@ export function useProductForm(
   const [imgUrl, setImgUrl] = useState<string | null>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
 
+  // ── Populate from product ─────────────────────────────────────────────────
   useEffect(() => {
     if (product) {
       setForm({
@@ -103,6 +118,7 @@ export function useProductForm(
         metaTitle: product.translation.metaTitle,
         metaDescription: product.translation.metaDescription,
         imgAlt: product.translation.imgAlt ?? "",
+        faq: product.translation.faq ?? [],
       });
       setImgUrl(product.translation.imgUrl ?? null);
       setIsDirty(false);
@@ -132,7 +148,7 @@ export function useProductForm(
       setErrors((prev) => ({ ...prev, [name]: undefined }));
       setIsDirty(true);
     },
-    [slugManuallyEdited]
+    [slugManuallyEdited],
   );
 
   const handleSelect = useCallback(
@@ -141,7 +157,7 @@ export function useProductForm(
       setErrors((prev) => ({ ...prev, [name]: undefined }));
       setIsDirty(true);
     },
-    []
+    [],
   );
 
   const handleFileChange = useCallback((file: File | null) => {
@@ -165,7 +181,7 @@ export function useProductForm(
 
   const save = async (
     onSuccess?: (product: Product) => void,
-    locale: string = "en"
+    locale: string = "en",
   ) => {
     if (!validate()) {
       toast.error("Hata", "Lütfen zorunlu alanları doldurun.");
@@ -217,7 +233,10 @@ export function useProductForm(
         result = await productService.update(product.id, payload, locale);
         toast.success("Güncellendi", `${form.name} başarıyla güncellendi.`);
       } else {
-        result = await productService.create({ ...payload, locale } as Partial<Product>);
+        result = await productService.create({
+          ...payload,
+          locale,
+        } as Partial<Product>);
         toast.success("Oluşturuldu", `${form.name} başarıyla oluşturuldu.`);
       }
 
@@ -227,11 +246,40 @@ export function useProductForm(
     } catch {
       toast.error(
         "Hata",
-        mode === "edit" ? "Ürün güncellenemedi." : "Ürün oluşturulamadı."
+        mode === "edit" ? "Ürün güncellenemedi." : "Ürün oluşturulamadı.",
       );
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleLocaleChange = useCallback((code: string) => {
+    setActiveLocale(code);
+    setErrors({});
+  }, []);
+
+  const handleLocaleAdd = useCallback((locale: { code: string }) => {
+    setEnabledLocales((prev) =>
+      prev.includes(locale.code) ? prev : [...prev, locale.code],
+    );
+    setActiveLocale(locale.code);
+  }, []);
+
+  const handleLocaleRemove = useCallback(
+    (code: string) => {
+      if (enabledLocales.length <= 1) return;
+      setEnabledLocales((prev) => prev.filter((l) => l !== code));
+      if (activeLocale === code) {
+        setActiveLocale(enabledLocales.find((l) => l !== code) ?? "tr");
+      }
+    },
+    [enabledLocales, activeLocale],
+  );
+
+  const handleSave = async () => {
+    await save((saved) => {
+      router.push(`/epinpay/products/${saved.id}`);
+    });
   };
 
   return {
@@ -241,9 +289,19 @@ export function useProductForm(
     uploading,
     isDirty,
     imgUrl,
+    activeLocale,
+    enabledLocales,
+    forbiddenCountries,
+    setForbiddenCountries,
+    setEnabledLocales,
+    setActiveLocale,
     handleChange,
     handleSelect,
     handleFileChange,
+    handleLocaleChange,
+    handleLocaleAdd,
+    handleLocaleRemove,
+    handleSave,
     save,
   };
 }

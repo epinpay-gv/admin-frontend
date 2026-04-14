@@ -17,10 +17,10 @@ import { EntityActions } from "@/components/common/entity-actions/EntityActions"
 import { PageState } from "@/components/common/page-state/PageState";
 import { FilterPanel } from "@/components/common/filter-panel/FilterPanel";
 import { FilterValue } from "@/components/common/filter-panel/types";
-import { CATEGORY_COLUMNS } from "@/features/categories/components/CategoryTableConfig";
+import { CATEGORY_COLUMNS } from "@/features/categories/components/categories/CategoryTableConfig";
 import { CATEGORY_FILTER_CONFIG } from "@/features/categories/hooks/CategoryFilterConfig";
 import { ColumnDef } from "@/components/common/data-table/components/DataTableHeader";
-import CategoriesHeaderAction from "@/features/categories/components/CategoriesHeaderAction";
+import CategoriesHeaderAction from "@/features/categories/components/categories/CategoriesHeaderAction";
 
 const STATUS_OPTIONS = [
   { label: "Tümü", value: "all" },

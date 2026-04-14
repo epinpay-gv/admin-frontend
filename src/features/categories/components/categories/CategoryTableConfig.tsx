@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { ShieldOff, Package } from "lucide-react";
 import { ColumnDef } from "@/components/common/data-table/components/DataTableHeader";
-import { Category, CATEGORY_STATUS } from "../types";
+import { Category, CATEGORY_STATUS } from "../../types";
 
 const STATUS_LABELS: Record<CATEGORY_STATUS, string> = {
   [CATEGORY_STATUS.ACTIVE]: "Aktif",
