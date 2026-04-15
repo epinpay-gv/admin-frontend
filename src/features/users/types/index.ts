@@ -52,11 +52,11 @@ export enum EP_ENTRY_TYPE {
   REFUND = "refund",
   MANUAL = "manual",
 }
-
-// Liste görünümü için kullanıcı  
 export interface UserListItem {
   id: number;
   username: string;
+  firstname: string | null;
+  lastname: string | null;
   email: string;
   country: string;
   status: USER_STATUS;
@@ -64,10 +64,18 @@ export interface UserListItem {
   isPhoneVerified: boolean;
   isKycVerified: boolean;
   isPremium: boolean;
-  referralCount: number;
+  referralCount: number; // Yeni eklenen alan
+  referrals: ReferralDetail[]; // Yeni eklenen detaylı liste
   lastLoginAt: string | null;
   lastActionAt: string | null;
   createdAt: string;
+}
+
+export interface ReferralDetail {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
 }
 
 // Doğrulama kaydı
@@ -149,7 +157,6 @@ export interface EPEntry {
   createdAt: string;
 }
 
-// Ledger filtre (her iki ledger için ortak) 
 export interface LedgerFilter {
   dateFrom?: string;
   dateTo?: string;
@@ -157,7 +164,6 @@ export interface LedgerFilter {
   sourceType?: string;
 }
 
-// Admin notu
 export interface AdminNote {
   id: number;
   content: string;
@@ -170,14 +176,12 @@ export interface AdminNotePayload {
   content: string;
 }
 
-// Askıya alma payload 
 export interface SuspendPayload {
   reason: SUSPENSION_REASON;
   note?: string;
   expiresAt?: string;
 }
 
-// Kullanıcı listesi filtre 
 export interface UserFilters {
   search?: string;
   status?: USER_STATUS;
@@ -190,4 +194,18 @@ export interface UserFilters {
   lastLoginTo?: string;
   page?: number;
   limit?: number;
+}
+
+export interface PaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface PaginatedResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  pagination: PaginationInfo;
 }

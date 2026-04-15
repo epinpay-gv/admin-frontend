@@ -14,14 +14,13 @@ export async function POST(request: NextRequest) {
     }
 
     const bffUrl = process.env.ADMIN_BFF_URL || "http://localhost:3011";
-    
-    // Admin BFF call
-    const bffResponse = await fetch(`${bffUrl}/api/auth/login`, {
+        
+    const bffResponse = await fetch(`${bffUrl}/api/features/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ firebaseToken, email }),
     });
-// 
+
     const data = await bffResponse.json();
 
     if (!bffResponse.ok) {
@@ -40,7 +39,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-    response.cookies.set("session", data.token, {
+    response.cookies.set("token", data.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

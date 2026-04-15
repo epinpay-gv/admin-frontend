@@ -10,7 +10,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith(route)
   );
 
-  const token = request.cookies.get("session")?.value;
+  const token = request.cookies.get("token")?.value;
 
   if (!isPublicRoute && !token) {
     return NextResponse.redirect(new URL("/login", request.url));
