@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Order, OrderFilters } from "@/features/orders/types";
-import { orderService } from "@/features/orders/services/order.service";
+import { orderService, OrderListResponse } from "@/features/orders/services/order.service";
 
 export function useOrders(initialFilters?: OrderFilters) {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [pagination, setPagination] = useState<OrderListResponse["pagination"]>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<OrderFilters>(initialFilters ?? {});
@@ -14,9 +15,10 @@ export function useOrders(initialFilters?: OrderFilters) {
     setLoading(true);
     setError(null);
     try {
-      // Filtreler buildParams üzerinden servise, oradan query string'e gider
-      const data = await orderService.getAll(filters);
-      setOrders(data);
+      // getFullResponse gibi bir yardımcı metot ekleyebilirdik ama şimdilik servis içinden hallediyoruz
+      const response = await orderService.getAllFull(filters);
+      setOrders(response.data);
+      setPagination(response.pagination);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -36,5 +38,14 @@ export function useOrders(initialFilters?: OrderFilters) {
     setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
   };
 
-  return { orders, loading, error, filters, applyFilters, updateOrder, refetch: fetchOrders };
+  return { 
+    orders, 
+    pagination,
+    loading, 
+    error, 
+    filters, 
+    applyFilters, 
+    updateOrder, 
+    refetch: fetchOrders 
+  };
 }

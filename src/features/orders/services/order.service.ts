@@ -1,8 +1,9 @@
 import { api } from "@/lib/api/baseFetcher";
-import { FetcherError } from "@/lib/api/types";
 import { Order, OrderFilters, OrderExportParams } from "@/features/orders/types";
+import { ApiResponse } from "@/lib/api/types";
 
-const BASE_URL = "/api/orders";
+const BASE_URL = "/api/features/order";
+const API_BASE = "http://localhost:3011";
 
 /**
  * Filtreleri hem getAll hem de exportExcel için ortak bir formatta hazırlar.
@@ -10,7 +11,6 @@ const BASE_URL = "/api/orders";
 function buildParams(filters?: OrderFilters): Record<string, string | number | boolean | undefined | null> {
   if (!filters) return {};
   return {
-    // Mevcut filtrelerin tamamını ekledik
     id: filters.id,
     userEmail: filters.userEmail,
     search: filters.search,
@@ -21,37 +21,48 @@ function buildParams(filters?: OrderFilters): Record<string, string | number | b
     endDate: filters.endDate,
     dateFrom: filters.dateFrom,
     dateTo: filters.dateTo,
+    page: filters.page,
+    limit: filters.limit,
   };
 }
 
-function createBlobError(message: string, statusCode: number, code?: string): FetcherError {
-  const error = new Error(message) as FetcherError;
-  error.statusCode = statusCode;
-  error.code = code;
-  return error;
+export interface OrderListResponse extends ApiResponse<Order[]> {
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export const orderService = {
-  // Liste çekme - buildParams kullanıyor
-  getAll: (filters?: OrderFilters): Promise<Order[]> =>
-    api.get<Order[]>(BASE_URL, buildParams(filters)),
+  // Liste çekme - BFF yapısına uygun şekilde veri dönüyoruz
+  getAll: async (filters?: OrderFilters): Promise<Order[]> => {
+    const response = await api.get<OrderListResponse>(BASE_URL, buildParams(filters), { baseUrl: API_BASE });
+    return response.data;
+  },
 
-  getById: (id: number): Promise<Order> =>
-    api.get<Order>(`${BASE_URL}/${id}`),
+  getAllFull: (filters?: OrderFilters): Promise<OrderListResponse> =>
+    api.get<OrderListResponse>(BASE_URL, buildParams(filters), { baseUrl: API_BASE }),
 
-  cancel: (id: number, reason?: string): Promise<Order> =>
-    api.put<Order, { action: string; cancelReason?: string }>(
-      `${BASE_URL}/${id}`,
-      { action: "cancel", cancelReason: reason }
+  getById: async (id: string | number): Promise<Order> => {
+    const response = await api.get<ApiResponse<Order>>(`${BASE_URL}/${id}`, undefined, { baseUrl: API_BASE });
+    return response.data;
+  },
+
+  cancel: (id: string | number, reason?: string): Promise<ApiResponse<void>> =>
+    api.post<ApiResponse<void>, { reason?: string }>(
+      `${BASE_URL}/${id}/cancel`,
+      { reason },
+      { baseUrl: API_BASE }
     ),
-    
-  // Excel Export - Kendi mantığını koruyarak filtrelerle güncellendi
+
+  // Excel Export şimdilik mevcut haliyle kalıyor, BFF'de henüz karşılığı yok
   exportExcel: async (params?: OrderExportParams): Promise<Blob> => {
     const searchParams = new URLSearchParams();
 
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        // "all" olanları veya boşları query string'e eklemiyoruz
         if (value !== undefined && value !== null && value !== "" && value !== "all") {
           searchParams.set(key, String(value));
         }
@@ -59,29 +70,17 @@ export const orderService = {
     }
 
     const qs = searchParams.toString();
-    let response: Response;
-
-    try {
-      // POST isteği atarken hem URL'e query string ekliyoruz hem de body'e paramları basıyoruz
-      response = await fetch(
-        `${BASE_URL}/export${qs ? `?${qs}` : ""}`,
-        { 
-          method: "POST", 
-          headers: { "Content-Type": "application/json" }, 
-          body: JSON.stringify(params ?? {}) 
-        }
-      );
-    } catch {
-      throw createBlobError("Sunucuya bağlanılamadı.", 0, "NETWORK_ERROR");
-    }
-
-    if (response.status === 422) {
-      const err = await response.json().catch(() => ({}));
-      throw createBlobError(err.message ?? "Export limiti aşıldı.", 422, "LIMIT_EXCEEDED");
-    }
+    const response = await fetch(
+      `${BASE_URL}/export${qs ? `?${qs}` : ""}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(params ?? {})
+      }
+    );
 
     if (!response.ok) {
-      throw createBlobError("Excel dosyası oluşturulamadı. Lütfen tekrar deneyin.", response.status);
+      throw new Error("Excel dosyası oluşturulamadı.");
     }
 
     return response.blob();
