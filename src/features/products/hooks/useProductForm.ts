@@ -399,6 +399,7 @@ export function useProductForm(
         typeId: Number(shared.type_id),
         platformId: Number(shared.platform_id),
         regionId: Number(shared.region_id),
+        slug: shared.slug,
         status: shared.status,
         basePrice: Number(shared.basePrice),
         fakePrice: shared.fakePrice ? Number(shared.fakePrice) : null,
