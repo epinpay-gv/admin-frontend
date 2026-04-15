@@ -16,7 +16,6 @@ import { Locale } from "@/components/common/locale-selector/hooks/useLocale";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-// Locale-specific fields (change per language)
 export interface LocaleFormData {
   name: string;
   description: string;
@@ -27,7 +26,6 @@ export interface LocaleFormData {
   faq: CategoryFaq[];
 }
 
-// Shared fields (language-independent)
 export interface SharedFormData {
   slug: string;
   category_id: string;
@@ -44,7 +42,6 @@ export interface SharedFormData {
   spreadRate: string;
 }
 
-// Merged view exposed to form components (always reflects activeLocale)
 export type ProductFormData = SharedFormData & LocaleFormData;
 
 const EMPTY_LOCALE_DATA: LocaleFormData = {
@@ -98,11 +95,19 @@ export function useProductForm(
   const [uploading, setUploading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+
+  // imgUrl: CDN URL or blob preview — used only for <img> display, never sent to backend
   const [imgUrl, setImgUrl] = useState<string | null>(null);
+  // pendingFile: actual File waiting to be uploaded on save
   const [pendingFile, setPendingFile] = useState<File | null>(null);
 
-  // ── Product meta (types, platforms, regions) ──────────────────────────────
-  const [meta, setMeta] = useState<ProductMeta>({ types: [], platforms: [], regions: [], categories: [] });
+  // ── Product meta (types, platforms, regions, categories) ──────────────────
+  const [meta, setMeta] = useState<ProductMeta>({
+    types: [],
+    platforms: [],
+    regions: [],
+    categories: [],
+  });
   const [metaLoading, setMetaLoading] = useState(true);
   const [metaError, setMetaError] = useState<string | null>(null);
 
@@ -123,9 +128,10 @@ export function useProductForm(
   // ── Populate from product ─────────────────────────────────────────────────
   useEffect(() => {
     if (product) {
-      // Shared fields
       setShared({
-        slug: mode === "duplicate" ? `${product.translation.slug}-kopya` : product.translation.slug,
+        slug: mode === "duplicate"
+          ? `${product.translation.slug}-kopya`
+          : product.translation.slug,
         category_id: String(product.categoryId ?? ""),
         type: product.type ?? "",
         type_id: String(product.typeId ?? ""),
@@ -140,18 +146,19 @@ export function useProductForm(
         spreadRate: String(product.spreadRate ?? ""),
       });
 
+      // imgUrl state holds the full CDN URL for display (comes from the mapper)
       setImgUrl(product.translation.imgUrl ?? null);
       setIsDirty(false);
       setSlugManuallyEdited(false);
       setPendingFile(null);
 
-      // Locale setup
-      const locales = product.availableLocales?.length ? product.availableLocales : ["tr"];
+      const locales = product.availableLocales?.length
+        ? product.availableLocales
+        : ["tr"];
       setEnabledLocales(locales);
       const preferred = locales.includes("tr") ? "tr" : locales[0];
       setActiveLocale(preferred);
 
-      // Per-locale translations
       const initialTranslations: Record<string, LocaleFormData> = {};
 
       if (product.translations && Object.keys(product.translations).length > 0) {
@@ -159,11 +166,15 @@ export function useProductForm(
           const lt = product.translations![code];
           if (lt) {
             initialTranslations[code] = {
-              name: mode === "duplicate" && code === preferred ? `${lt.name} (Kopya)` : lt.name,
+              name: mode === "duplicate" && code === preferred
+                ? `${lt.name} (Kopya)`
+                : lt.name,
               description: lt.description ?? "",
               metaTitle: lt.metaTitle ?? "",
               metaDescription: lt.metaDescription ?? "",
               imgAlt: lt.imgAlt ?? "",
+              // Store the raw imageKey (R2 path) — NOT the CDN URL.
+              // imgUrl state above is used for display; this is used for the save payload.
               imgUrl: lt.imgUrl ?? "",
               faq: lt.faq ?? [],
             };
@@ -172,13 +183,14 @@ export function useProductForm(
           }
         });
       } else {
-        // Fall back to seeding from the primary translation
         locales.forEach((code) => {
           initialTranslations[code] = { ...EMPTY_LOCALE_DATA };
         });
         const seedLocale = product.translation.locale || preferred;
         initialTranslations[seedLocale] = {
-          name: mode === "duplicate" ? `${product.translation.name} (Kopya)` : product.translation.name,
+          name: mode === "duplicate"
+            ? `${product.translation.name} (Kopya)`
+            : product.translation.name,
           description: product.translation.description ?? "",
           metaTitle: product.translation.metaTitle ?? "",
           metaDescription: product.translation.metaDescription ?? "",
@@ -213,7 +225,6 @@ export function useProductForm(
       const { name, value } = e.target;
 
       if (name in INITIAL_SHARED) {
-        // Shared field
         setShared((prev) => {
           const next = { ...prev, [name]: value };
           if (name === "slug") {
@@ -223,7 +234,6 @@ export function useProductForm(
           return next;
         });
       } else {
-        // Locale-specific field
         setTranslations((prev) => {
           const current = prev[activeLocale] ?? { ...EMPTY_LOCALE_DATA };
           if (name === "name" && !slugManuallyEdited) {
@@ -246,7 +256,10 @@ export function useProductForm(
       } else {
         setTranslations((prev) => ({
           ...prev,
-          [activeLocale]: { ...(prev[activeLocale] ?? EMPTY_LOCALE_DATA), [name]: value },
+          [activeLocale]: {
+            ...(prev[activeLocale] ?? EMPTY_LOCALE_DATA),
+            [name]: value,
+          },
         }));
       }
       setErrors((prev) => ({ ...prev, [name]: undefined }));
@@ -256,27 +269,29 @@ export function useProductForm(
   );
 
   const handleFileChange = useCallback((file: File | null) => {
-    setPendingFile(file);
-    if (file) {
-      const objectUrl = URL.createObjectURL(file);
-      setImgUrl(objectUrl);
-      // Image is shared — update imgUrl in all locales
-      setTranslations((prev) => {
-        const next = { ...prev };
-        Object.keys(next).forEach((code) => {
-          next[code] = { ...next[code], imgUrl: objectUrl };
-        });
-        return next;
-      });
+    if (!file) {
+      // User cleared the image
+      setPendingFile(null);
+      setImgUrl(null);
       setIsDirty(true);
+      return;
     }
+    // Store file for upload on save, set blob URL only for preview display
+    setPendingFile(file);
+    setImgUrl(URL.createObjectURL(file));
+    setIsDirty(true);
+    // Do NOT touch translations here — imgUrl in translations is only updated
+    // after the real R2 upload succeeds (inside save())
   }, []);
 
   const handleFaqsChange = useCallback(
     (updatedFaqs: CategoryFaq[]) => {
       setTranslations((prev) => ({
         ...prev,
-        [activeLocale]: { ...(prev[activeLocale] ?? EMPTY_LOCALE_DATA), faq: updatedFaqs },
+        [activeLocale]: {
+          ...(prev[activeLocale] ?? EMPTY_LOCALE_DATA),
+          faq: updatedFaqs,
+        },
       }));
       setIsDirty(true);
     },
@@ -340,20 +355,26 @@ export function useProductForm(
     }
 
     setSaving(true);
+
     try {
-      let finalImgUrl = imgUrl ?? product?.translation.imgUrl ?? "";
+      // ── Step 1: Upload pending file if any ──────────────────────────────
+      // finalImgKey is the R2 imageKey (e.g. "/products/my-product-uuid.webp")
+      // It is null if no new file was picked — existing translations keep their own imgUrl.
+      let finalImgKey: string | null = null;
 
       if (pendingFile) {
         setUploading(true);
         try {
-          const uploaded = await uploadService.uploadImage(pendingFile);
-          finalImgUrl = uploaded.url;
+          const uploaded = await uploadService.uploadImage(pendingFile, "products");
+          finalImgKey = uploaded.imageKey;
+          // Update preview to the real CDN URL now that upload succeeded
+          setImgUrl(uploaded.imageUrl);
         } finally {
           setUploading(false);
         }
       }
 
-      // Build translations payload for all enabled locales
+      // ── Step 2: Build translations payload ──────────────────────────────
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const translationsPayload: Record<string, any> = {};
       enabledLocales.forEach((code) => {
@@ -365,11 +386,14 @@ export function useProductForm(
           metaTitle: t.metaTitle,
           metaDescription: t.metaDescription,
           imgAlt: t.imgAlt,
-          imgUrl: finalImgUrl || t.imgUrl,
+          // Use the freshly uploaded key if available; otherwise keep the
+          // existing imageKey that was loaded from the server (never a blob URL).
+          imgUrl: finalImgKey ?? t.imgUrl ?? "",
           faq: t.faq,
         };
       });
 
+      // ── Step 3: Persist ─────────────────────────────────────────────────
       const payload = {
         categoryId: Number(shared.category_id),
         typeId: Number(shared.type_id),
@@ -384,9 +408,13 @@ export function useProductForm(
       } as Partial<Product>;
 
       let result: Product;
+
       if (mode === "edit" && product) {
         result = await productService.update(product.id, payload);
-        toast.success("Güncellendi", `${translations[activeLocale]?.name} başarıyla güncellendi.`);
+        toast.success(
+          "Güncellendi",
+          `${translations[activeLocale]?.name} başarıyla güncellendi.`,
+        );
       } else {
         result = await productService.create(payload);
         toast.success(
@@ -416,33 +444,27 @@ export function useProductForm(
 
   const handleSave = async () => {
     await save((saved) => {
-      console.log(saved);
-      router.push(`/epinpay/products`);
+      router.push(`/epinpay/products/${saved.id}`);
     });
   };
 
   return {
-    // Form
     form,
     errors,
     saving,
     uploading,
     isDirty,
     imgUrl,
-    // Locale
     activeLocale,
     enabledLocales,
-    // Countries
     forbiddenCountries,
     setForbiddenCountries,
-    // Meta
     types: meta.types,
     platforms: meta.platforms,
     regions: meta.regions,
     categories: meta.categories,
     metaLoading,
     metaError,
-    // Handlers
     handleChange,
     handleSelect,
     handleFileChange,

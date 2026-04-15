@@ -16,10 +16,60 @@ interface FileUploadProps {
   className?: string;
 }
 
+// Converts any image File to a .webp File using the Canvas API.
+// Returns a new File with mimetype "image/webp" and .webp extension.
+export async function convertToWebp(file: File, quality = 0.92): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        reject(new Error("Canvas 2D context alınamadı."));
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0);
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error("Görsel dönüştürülemedi."));
+            return;
+          }
+          // Preserve original name but swap extension to .webp
+          const baseName = file.name.replace(/\.[^.]+$/, "");
+          const webpFile = new File([blob], `${baseName}.webp`, {
+            type: "image/webp",
+            lastModified: Date.now(),
+          });
+          resolve(webpFile);
+        },
+        "image/webp",
+        quality,
+      );
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Görsel yüklenemedi."));
+    };
+
+    img.src = objectUrl;
+  });
+}
+
 export default function FileUpload({
   value,
   onChange,
-  accept = "image/png,image/jpeg,image/webp",
+  accept = "image/*",
   maxSizeMB = 2,
   label,
   hint,
@@ -30,14 +80,15 @@ export default function FileUpload({
   const [localPreview, setLocalPreview] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [converting, setConverting] = useState(false);
 
-  // Kullanıcı yeni dosya seçtiyse onu göster, yoksa dışarıdan gelen value'yu göster
   const preview = localPreview ?? value ?? null;
 
   const handleFile = useCallback(
-    (file: File) => {
+    async (file: File) => {
       setFileError(null);
 
+      // Accept any image — non-webp will be auto-converted below
       if (!file.type.startsWith("image/")) {
         setFileError("Sadece resim dosyaları yüklenebilir.");
         return;
@@ -48,11 +99,25 @@ export default function FileUpload({
         return;
       }
 
-      const url = URL.createObjectURL(file);
+      let finalFile = file;
+
+      if (file.type !== "image/webp") {
+        setConverting(true);
+        try {
+          finalFile = await convertToWebp(file);
+        } catch (err) {
+          setFileError((err as Error).message);
+          return;
+        } finally {
+          setConverting(false);
+        }
+      }
+
+      const url = URL.createObjectURL(finalFile);
       setLocalPreview(url);
-      onChange?.(file);
+      onChange?.(finalFile);
     },
-    [maxSizeMB, onChange]
+    [maxSizeMB, onChange],
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,25 +160,38 @@ export default function FileUpload({
       )}
 
       <div
-        onClick={() => !preview && inputRef.current?.click()}
+        onClick={() => !preview && !converting && inputRef.current?.click()}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         className={cn(
           "relative rounded-xl border-2 border-dashed transition-all duration-200 overflow-hidden",
-          !preview && "cursor-pointer hover:border-[#00C6A2]/40 hover:bg-white/[0.02]",
-          dragging && "border-[#00C6A2]/60 bg-[#00C6A2]/5 scale-[1.01]"
+          !preview && !converting &&
+            "cursor-pointer hover:border-[#00C6A2]/40 hover:bg-white/2",
+          dragging && "border-[#00C6A2]/60 bg-[#00C6A2]/5 scale-[1.01]",
         )}
         style={{
           borderColor: dragging
             ? "rgba(0,198,162,0.6)"
             : resolvedError
-            ? "rgba(239,68,68,0.5)"
-            : "var(--border)",
+              ? "rgba(239,68,68,0.5)"
+              : "var(--border)",
           background: "var(--background-card)",
           minHeight: preview ? "auto" : "140px",
         }}
       >
+        {/* Conversion in-progress overlay */}
+        {converting && (
+          <div className="absolute inset-0 rounded-xl flex items-center justify-center bg-black/50 z-10">
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <span className="text-white text-xs font-mono">
+                .webp&apos;ye dönüştürülüyor…
+              </span>
+            </div>
+          </div>
+        )}
+
         {preview ? (
           <div className="relative group">
             <div className="relative w-full aspect-square">
@@ -169,7 +247,7 @@ export default function FileUpload({
                 className="text-xs font-mono mt-1"
                 style={{ color: "var(--text-muted)" }}
               >
-                PNG, JPG, WEBP · Maks {maxSizeMB}MB
+                PNG, JPG, WEBP · Otomatik .webp dönüşümü · Maks {maxSizeMB}MB
               </p>
             </div>
           </div>

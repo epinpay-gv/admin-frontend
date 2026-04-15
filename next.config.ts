@@ -1,11 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-   images: {
+  images: {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "cdn.epinpay.com",
+        hostname: "media.epinpay.com",
       },
     ],
   },

@@ -34,8 +34,8 @@ export const PRODUCT_COLUMNS = (
         <div className="flex min-w-50 items-center gap-3">
           <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-border bg-(--background-secondary)">
             <Image
-              src={translation.imgUrl}
-              alt={translation.imgAlt}
+              src={translation.imgUrl ?? ""}
+              alt={translation.imgAlt ?? ""}
               width={64}
               height={64}
               className="object-cover w-full h-full"
@@ -57,7 +57,6 @@ export const PRODUCT_COLUMNS = (
     key: "category",
     label: "Kategori",
     render: (_, row) => {
-      console.log("ROW : ", row);
       const category = row.category as Product["category"];
       if (!category) return <span className="text-(--text-muted)">-</span>;
       return (

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import {
   Bold,
   Italic,
@@ -18,7 +18,9 @@ import {
   Redo,
   type LucideIcon,
 } from "lucide-react";
-import { useRef, useCallback, useState, useEffect } from 'react';
+import { useRef, useCallback, useState, useEffect } from "react";
+import { uploadService } from "@/features/products/services/upload.service";
+import { convertToWebp } from "../file-upload/FileUpload";
 
 interface RichTextEditorProps {
   value?: string;
@@ -27,7 +29,7 @@ interface RichTextEditorProps {
 }
 
 type CommandTool = {
-  type: 'command';
+  type: "command";
   label: LucideIcon;
   cmd: string;
   val?: string;
@@ -37,65 +39,130 @@ type CommandTool = {
 };
 
 type ActionTool = {
-  type: 'action';
+  type: "action";
   label: LucideIcon;
   title: string;
-  actionKey: 'link' | 'image';
+  actionKey: "link" | "image";
   className?: string;
 };
 
-type DividerTool = { type: 'divider' };
+type DividerTool = { type: "divider" };
 type ToolItem = CommandTool | ActionTool | DividerTool;
 
-const BTN_BASE = 'px-2 py-1 text-sm rounded transition-colors duration-100 select-none';
-const BTN_IDLE = 'hover:bg-gray-700 text-gray-200';
-const BTN_ACTIVE = 'bg-gray-600 text-white shadow-inner';
+const BTN_BASE =
+  "px-2 py-1 text-sm rounded transition-colors duration-100 select-none";
+const BTN_IDLE = "hover:bg-gray-700 text-gray-200";
+const BTN_ACTIVE = "bg-gray-600 text-white shadow-inner";
 
 const TOOL_GROUPS: ToolItem[][] = [
   [
-    { type: 'command', label: Bold,         cmd: 'bold',          title: 'Kalın' },
-    { type: 'command', label: Italic,       cmd: 'italic',        title: 'İtalik' },
-    { type: 'command', label: Underline,    cmd: 'underline',     title: 'Altı Çizili' },
-    { type: 'command', label: Strikethrough,cmd: 'strikeThrough', title: 'Üstü Çizili' },
+    { type: "command", label: Bold, cmd: "bold", title: "Kalın" },
+    { type: "command", label: Italic, cmd: "italic", title: "İtalik" },
+    {
+      type: "command",
+      label: Underline,
+      cmd: "underline",
+      title: "Altı Çizili",
+    },
+    {
+      type: "command",
+      label: Strikethrough,
+      cmd: "strikeThrough",
+      title: "Üstü Çizili",
+    },
   ],
   [
-    { type: 'command', label: Heading1, cmd: 'formatBlock', val: 'H1', title: 'Başlık 1', stateKey: 'formatBlock:H1' },
-    { type: 'command', label: Heading2, cmd: 'formatBlock', val: 'H2', title: 'Başlık 2', stateKey: 'formatBlock:H2' },
-    { type: 'command', label: Pilcrow,  cmd: 'formatBlock', val: 'P',  title: 'Paragraf', stateKey: 'formatBlock:P' },
+    {
+      type: "command",
+      label: Heading1,
+      cmd: "formatBlock",
+      val: "H1",
+      title: "Başlık 1",
+      stateKey: "formatBlock:H1",
+    },
+    {
+      type: "command",
+      label: Heading2,
+      cmd: "formatBlock",
+      val: "H2",
+      title: "Başlık 2",
+      stateKey: "formatBlock:H2",
+    },
+    {
+      type: "command",
+      label: Pilcrow,
+      cmd: "formatBlock",
+      val: "P",
+      title: "Paragraf",
+      stateKey: "formatBlock:P",
+    },
   ],
   [
-    { type: 'command', label: List,         cmd: 'insertUnorderedList', title: 'Madde listesi' },
-    { type: 'command', label: ListOrdered,   cmd: 'insertOrderedList',   title: 'Numaralı liste' },
+    {
+      type: "command",
+      label: List,
+      cmd: "insertUnorderedList",
+      title: "Madde listesi",
+    },
+    {
+      type: "command",
+      label: ListOrdered,
+      cmd: "insertOrderedList",
+      title: "Numaralı liste",
+    },
   ],
   [
-    { type: 'command', label: AlignLeft,   cmd: 'justifyLeft',   title: 'Sola hizala' },
-    { type: 'command', label: AlignCenter, cmd: 'justifyCenter', title: 'Ortala' },
-    { type: 'command', label: AlignRight,  cmd: 'justifyRight',  title: 'Sağa hizala' },
+    {
+      type: "command",
+      label: AlignLeft,
+      cmd: "justifyLeft",
+      title: "Sola hizala",
+    },
+    {
+      type: "command",
+      label: AlignCenter,
+      cmd: "justifyCenter",
+      title: "Ortala",
+    },
+    {
+      type: "command",
+      label: AlignRight,
+      cmd: "justifyRight",
+      title: "Sağa hizala",
+    },
   ],
   [
-    { type: 'action', label: Link,  title: 'Link ekle', actionKey: 'link' },
-    { type: 'action', label: Image, title: 'Resim yükle', actionKey: 'image' },
+    { type: "action", label: Link, title: "Link ekle", actionKey: "link" },
+    { type: "action", label: Image, title: "Resim yükle", actionKey: "image" },
   ],
   [
-    { type: 'command', label: Undo, cmd: 'undo', title: 'Geri al' },
-    { type: 'command', label: Redo, cmd: 'redo', title: 'İleri al' },
+    { type: "command", label: Undo, cmd: "undo", title: "Geri al" },
+    { type: "command", label: Redo, cmd: "redo", title: "İleri al" },
   ],
 ];
 
 const isCommandActive = (cmd: string): boolean => {
-  try { return document.queryCommandState(cmd); } catch { return false; }
+  try {
+    return document.queryCommandState(cmd);
+  } catch {
+    return false;
+  }
 };
 
 const currentBlockFormat = (): string => {
-  try { return document.queryCommandValue('formatBlock').toUpperCase(); } catch { return ''; }
+  try {
+    return document.queryCommandValue("formatBlock").toUpperCase();
+  } catch {
+    return "";
+  }
 };
 
 export default function RichTextEditor({
   value,
   onChange,
-  placeholder = 'İçerik girin...',
+  placeholder = "İçerik girin...",
 }: RichTextEditorProps) {
-  const editorRef    = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Track the last value we wrote into the DOM ourselves,
@@ -114,7 +181,7 @@ export default function RichTextEditor({
     if (!el) return;
 
     // Normalize: treat undefined/null as empty string for comparison
-    const incoming = value ?? '';
+    const incoming = value ?? "";
 
     // Skip if we already have this value in the DOM (avoid cursor-jump on every keystroke)
     if (incoming === lastSyncedValue.current) return;
@@ -132,9 +199,15 @@ export default function RichTextEditor({
   // ── Active-state detection ────────────────────────────────────────────────
   const refreshActiveCommands = useCallback(() => {
     const toggled = [
-      'bold', 'italic', 'underline', 'strikeThrough',
-      'insertUnorderedList', 'insertOrderedList',
-      'justifyLeft', 'justifyCenter', 'justifyRight',
+      "bold",
+      "italic",
+      "underline",
+      "strikeThrough",
+      "insertUnorderedList",
+      "insertOrderedList",
+      "justifyLeft",
+      "justifyCenter",
+      "justifyRight",
     ];
     const next = new Set<string>(toggled.filter(isCommandActive));
     const block = currentBlockFormat();
@@ -143,21 +216,25 @@ export default function RichTextEditor({
   }, []);
 
   useEffect(() => {
-    document.addEventListener('selectionchange', refreshActiveCommands);
-    return () => document.removeEventListener('selectionchange', refreshActiveCommands);
+    document.addEventListener("selectionchange", refreshActiveCommands);
+    return () =>
+      document.removeEventListener("selectionchange", refreshActiveCommands);
   }, [refreshActiveCommands]);
 
   // ── Core exec ────────────────────────────────────────────────────────────
-  const exec = useCallback((command: string, val?: string) => {
-    document.execCommand(command, false, val);
-    editorRef.current?.focus();
-    refreshActiveCommands();
-    if (onChange && editorRef.current) {
-      const html = editorRef.current.innerHTML;
-      lastSyncedValue.current = html; // keep ref in sync so effect won't overwrite
-      onChange(html);
-    }
-  }, [onChange, refreshActiveCommands]);
+  const exec = useCallback(
+    (command: string, val?: string) => {
+      document.execCommand(command, false, val);
+      editorRef.current?.focus();
+      refreshActiveCommands();
+      if (onChange && editorRef.current) {
+        const html = editorRef.current.innerHTML;
+        lastSyncedValue.current = html; // keep ref in sync so effect won't overwrite
+        onChange(html);
+      }
+    },
+    [onChange, refreshActiveCommands],
+  );
 
   // ── Input handler ─────────────────────────────────────────────────────────
   const handleInput = useCallback(() => {
@@ -170,52 +247,84 @@ export default function RichTextEditor({
   }, [onChange, refreshActiveCommands]);
 
   // ── Action dispatcher ─────────────────────────────────────────────────────
-  const handleAction = useCallback((actionKey: 'link' | 'image') => {
-    if (actionKey === 'link') {
-      const val = prompt('URL girin:');
-      if (val) exec('createLink', val);
-    } else {
-      fileInputRef.current?.click();
-    }
-  }, [exec]);
+  const handleAction = useCallback(
+    (actionKey: "link" | "image") => {
+      if (actionKey === "link") {
+        const val = prompt("URL girin:");
+        if (val) exec("createLink", val);
+      } else {
+        fileInputRef.current?.click();
+      }
+    },
+    [exec],
+  );
 
   // ── Image upload ──────────────────────────────────────────────────────────
-  const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) { alert('Lütfen geçerli bir resim dosyası seçin.'); return; }
-    const reader = new FileReader();
-    reader.onload = () => {
-      editorRef.current?.focus();
-      document.execCommand('insertImage', false, reader.result as string);
-      if (onChange && editorRef.current) {
-        const html = editorRef.current.innerHTML;
-        lastSyncedValue.current = html;
-        onChange(html);
+  const handleImageUpload = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      e.target.value = "";
+
+      if (!file.type.startsWith("image/")) {
+        alert("Lütfen geçerli bir resim dosyası seçin.");
+        return;
       }
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
-  }, [onChange]);
+
+      // Convert to webp first (reuse the same converter from FileUpload)
+      let finalFile = file;
+      if (file.type !== "image/webp") {
+        try {
+          finalFile = await convertToWebp(file);
+        } catch {
+          alert("Görsel dönüştürülemedi.");
+          return;
+        }
+      }
+
+      try {
+        const uploaded = await uploadService.uploadImage(
+          finalFile,
+          "categories",
+        );
+        editorRef.current?.focus();
+        document.execCommand("insertImage", false, uploaded.imageUrl);
+        if (onChange && editorRef.current) {
+          const html = editorRef.current.innerHTML;
+          lastSyncedValue.current = html;
+          onChange(html);
+        }
+      } catch {
+        alert("Görsel yüklenemedi.");
+      }
+    },
+    [onChange],
+  );
 
   // ── Render helpers ────────────────────────────────────────────────────────
-  const isActive = (tool: CommandTool) => activeCommands.has(tool.stateKey ?? tool.cmd);
+  const isActive = (tool: CommandTool) =>
+    activeCommands.has(tool.stateKey ?? tool.cmd);
 
   const renderTool = (tool: ToolItem, index: number) => {
-    if (tool.type === 'divider') {
-      return <span key={index} className="w-px self-stretch bg-gray-600 mx-1" />;
+    if (tool.type === "divider") {
+      return (
+        <span key={index} className="w-px self-stretch bg-gray-600 mx-1" />
+      );
     }
-    if (tool.type === 'action') {
+    if (tool.type === "action") {
       const Icon = tool.label;
       return (
         <button
           key={index}
           type="button"
           title={tool.title}
-          onMouseDown={(e) => { e.preventDefault(); handleAction(tool.actionKey); }}
-          className={`${BTN_BASE} ${BTN_IDLE} ${tool.className ?? ''}`}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            handleAction(tool.actionKey);
+          }}
+          className={`${BTN_BASE} ${BTN_IDLE} ${tool.className ?? ""}`}
         >
-           <Icon size={16} />
+          <Icon size={16} />
         </button>
       );
     }
@@ -227,10 +336,13 @@ export default function RichTextEditor({
         type="button"
         title={tool.title}
         aria-pressed={active}
-        onMouseDown={(e) => { e.preventDefault(); exec(tool.cmd, tool.val); }}
-        className={`${BTN_BASE} ${active ? BTN_ACTIVE : BTN_IDLE} ${tool.className ?? ''}`}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          exec(tool.cmd, tool.val);
+        }}
+        className={`${BTN_BASE} ${active ? BTN_ACTIVE : BTN_IDLE} ${tool.className ?? ""}`}
       >
-         <Icon size={16} />
+        <Icon size={16} />
       </button>
     );
   };

@@ -29,6 +29,7 @@ export default function ProductDetailPage({
     activeLocale,
     enabledLocales,
     forbiddenCountries,
+    uploading,
     setForbiddenCountries,
     types,
     platforms,
@@ -96,6 +97,7 @@ export default function ProductDetailPage({
           form={form}
           errors={errors}
           imgUrl={imgUrl}
+          uploading={uploading}
           forbiddenCountries={forbiddenCountries}
           types={types}
           platforms={platforms}

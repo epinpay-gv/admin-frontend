@@ -1,21 +1,23 @@
 "use client";
 import { ChevronDown } from "lucide-react";
 
-export default function Dropdown({
-  label,
-  value,
-  options,
-  onChange,
-  loading,
-  error,
-}: {
+interface DropdownProps {
   label: string;
   value: string;
   options: { value: string; label: string }[];
   onChange: (value: string) => void;
   loading?: boolean;
   error?: string;
-}) {
+}
+
+export default function Dropdown({
+  label,
+  value,
+  options = [],
+  onChange,
+  loading,
+  error,
+}: DropdownProps) {
   const valueInOptions = options.some((o) => o.value === value);
   const needsPlaceholder = value && !valueInOptions;
 
@@ -39,11 +41,17 @@ export default function Dropdown({
             color: value ? "var(--text-primary)" : "var(--text-muted)",
           }}
         >
-          <option value="" style={{ background: "var(--background-secondary)" }}>
+          <option
+            value=""
+            style={{ background: "var(--background-secondary)" }}
+          >
             Seçiniz...
           </option>
           {needsPlaceholder && (
-            <option value={value} style={{ background: "var(--background-secondary)" }}>
+            <option
+              value={value}
+              style={{ background: "var(--background-secondary)" }}
+            >
               {loading ? "Yükleniyor..." : value}
             </option>
           )}

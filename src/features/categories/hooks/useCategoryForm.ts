@@ -52,13 +52,19 @@ export function useCategoryForm(
   // Shared fields
   const [slug, setSlug] = useState("");
   const [status, setStatus] = useState<CATEGORY_STATUS>(CATEGORY_STATUS.ACTIVE);
-  const [forbiddenCountries, setForbiddenCountries] = useState<CategoryCountry[]>([]);
-  const [translations, setTranslations] = useState<Record<string, LocaleFormData>>({tr: { ...EMPTY_LOCALE_DATA }});
+  const [forbiddenCountries, setForbiddenCountries] = useState<
+    CategoryCountry[]
+  >([]);
+  const [translations, setTranslations] = useState<
+    Record<string, LocaleFormData>
+  >({ tr: { ...EMPTY_LOCALE_DATA } });
   // Locale state
   const [activeLocale, setActiveLocale] = useState("tr");
   const [enabledLocales, setEnabledLocales] = useState<string[]>(["tr"]);
   // Other state
-  const [errors, setErrors] = useState<Partial<Record<keyof CategoryFormData, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof CategoryFormData, string>>
+  >({});
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
@@ -211,20 +217,16 @@ export function useCategoryForm(
   );
 
   const handleFileChange = useCallback((file: File | null) => {
-    setPendingFile(file);
-    if (file) {
-      const objectUrl = URL.createObjectURL(file);
-      setImgUrl(objectUrl);
-      // Image is shared — update imgUrl in all locales
-      setTranslations((prev) => {
-        const next = { ...prev };
-        Object.keys(next).forEach((code) => {
-          next[code] = { ...next[code], imgUrl: objectUrl };
-        });
-        return next;
-      });
+    if (!file) {
+      setPendingFile(null);
+      setImgUrl(null);
       setIsDirty(true);
+      return;
     }
+
+    setPendingFile(file);
+    setImgUrl(URL.createObjectURL(file));
+    setIsDirty(true);
   }, []);
 
   const handleFaqsChange = useCallback(
@@ -299,12 +301,16 @@ export function useCategoryForm(
     setSaving(true);
 
     try {
-      let finalImgUrl = imgUrl ?? "";
+      let finalImgUrl: string | null = null;
+
       if (pendingFile) {
         setUploading(true);
         try {
-          const uploaded = await uploadService.uploadImage(pendingFile);
-          finalImgUrl = uploaded.url;
+          const uploaded = await uploadService.uploadImage(
+            pendingFile,
+            "categories",
+          );
+          finalImgUrl = uploaded.imageKey; // store the R2 key, not the full URL
         } finally {
           setUploading(false);
         }
@@ -321,8 +327,13 @@ export function useCategoryForm(
           metaTitle: t.metaTitle,
           metaDescription: t.metaDescription,
           imgAlt: t.imgAlt,
-          imgUrl: finalImgUrl || t.imgUrl,
+          // If we just uploaded, use the new key. Otherwise keep whatever was in translations
+          // (which came from the server on load — already a proper imageKey, not a blob).
+          imgUrl: finalImgUrl ?? t.imgUrl ?? "",
           faq: t.faq,
+          bannerImageUrl: "a",
+          bannerImageAlt: "a",
+          bannerImageStatus: "inactive",
         };
       });
 

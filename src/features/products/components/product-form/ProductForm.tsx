@@ -14,6 +14,7 @@ interface ProductFormProps {
   errors: ReturnType<typeof useProductForm>["errors"];
   forbiddenCountries: CategoryCountry[];
   imgUrl: string | null;
+  uploading?: boolean;
   types: ReturnType<typeof useProductForm>["types"];
   platforms: ReturnType<typeof useProductForm>["platforms"];
   regions: ReturnType<typeof useProductForm>["regions"];
@@ -31,6 +32,7 @@ export default function ProductForm({
   errors,
   forbiddenCountries,
   imgUrl,
+  uploading,
   types,
   platforms,
   regions,
@@ -103,6 +105,7 @@ export default function ProductForm({
             content={
               <MediaForm
                 imgUrl={imgUrl}
+                uploading={uploading}
                 form={form}
                 errors={errors}
                 onChange={handleChange}

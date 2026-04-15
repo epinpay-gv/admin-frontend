@@ -58,7 +58,7 @@ export const categoryService = {
       payload,
     ),
 
-  /* ── Products ───────────────────────────────────────────── */
+  /* ── Category Products ───────────────────────────────────────────── */
 
   getProducts: (
     categoryId: number,
