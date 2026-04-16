@@ -48,10 +48,7 @@ export const BLOG_COLUMNS: ColumnDef<BlogRow>[] = [
             >
               {(row.translations as BlogTranslation[])[0]?.title ?? "-"}
             </p>
-            <p
-              className="font-mono"
-              style={{ color: "var(--text-muted)" }}
-            >
+            <p className="font-mono" style={{ color: "var(--text-muted)" }}>
               {row.slug as string}
             </p>
           </div>
@@ -61,15 +58,38 @@ export const BLOG_COLUMNS: ColumnDef<BlogRow>[] = [
   },
   {
     key: "publishedAt",
-    label: "Yayın Tarihi",
-    render: (value) => (
-      <span
-        className="font-mono"
-        style={{ color: "var(--text-muted)" }}
-      >
-        {value ? new Date(value as string).toLocaleDateString("tr-TR") : "-"}
-      </span>
-    ),
+    label: "Tarihler",
+    render: (_, row) => {
+      const c = row as unknown as BlogRow;
+      return (
+        <div className="flex flex-col gap-2 w-full font-mono text-xs">
+          <div>
+            Son Güncellenme:
+            <span style={{ color: "var(--text-muted)", marginLeft: "2px" }}>
+              {c.updatedAt
+                ? new Date(c.updatedAt as string).toLocaleDateString("tr-TR")
+                : "-"}
+            </span>
+          </div>
+          <div>
+            Yayınlanma:
+            <span style={{ color: "var(--text-muted)", marginLeft: "2px"  }}>
+              {c.publishedAt
+                ? new Date(c.updatedAt as string).toLocaleDateString("tr-TR")
+                : "-"}
+            </span>
+          </div>
+          <div>
+            Oluşturma:
+            <span style={{ color: "var(--text-muted)", marginLeft: "2px"  }}>
+              {c.createdAt
+                ? new Date(c.updatedAt as string).toLocaleDateString("tr-TR")
+                : "-"}
+            </span>
+          </div>
+        </div>
+      );
+    },
   },
   {
     key: "translations",
