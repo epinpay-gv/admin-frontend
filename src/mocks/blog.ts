@@ -1,4 +1,4 @@
-import { Blog, BLOG_TRANSLATION_STATUS } from "@/features/blog/types";
+import { Blog, BLOG_TRANSLATION_STATUS } from "@/features/blog/types/blog.types";
 import { LANGUAGE } from "@/types";
 
 export const MOCK_BLOGS: Blog[] = [

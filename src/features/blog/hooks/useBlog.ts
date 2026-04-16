@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Blog } from "../types";
+import { Blog } from "../types/blog.types";
 import { blogService } from "../service/blog.service";
 
 

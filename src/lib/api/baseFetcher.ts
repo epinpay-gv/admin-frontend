@@ -14,7 +14,7 @@ function buildUrl(
   params?: Record<string, string | number | boolean | undefined | null>,
   customBaseUrl?: string 
 ): string {
-  const base = customBaseUrl ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3011";
+  const base = customBaseUrl ?? process.env.ADMIN_BFF_URL ?? "http://localhost:3011";
 
   let url: URL;
   try {

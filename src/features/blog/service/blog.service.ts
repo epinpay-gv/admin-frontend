@@ -1,10 +1,10 @@
 import { api } from "@/lib/api/baseFetcher";
-import { Blog, BlogTranslation, BlogFilters } from "../types";
+import { BlogFilters, BlogListResponse, Blog, BlogTranslation, BLOG_STATUS } from "../types/blog.types";
 
-const BASE_URL = "/api/blog";
+const BASE_URL = "/api/features/content/blogs";
 
 export const blogService = {
-  getAll: (filters: BlogFilters = {}): Promise<Blog[]> => {
+  getAll: (filters: BlogFilters = {}): Promise<BlogListResponse> => {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== "" && value !== "all") {
@@ -13,28 +13,21 @@ export const blogService = {
     });
     const queryString = params.toString();
     const url = queryString ? `${BASE_URL}?${queryString}` : BASE_URL;
-    return api.get<Blog[]>(url);
+    return api.get<BlogListResponse>(url);
   },
 
-  getById: (id: number): Promise<Blog> =>
+  getById: (id: string): Promise<Blog> =>
     api.get<Blog>(`${BASE_URL}/${id}`),
 
   create: (data: Partial<Blog>): Promise<Blog> =>
     api.post<Blog, Partial<Blog>>(BASE_URL, data),
 
-  update: (id: number, data: Partial<Blog>): Promise<Blog> =>
-    api.patch<Blog, Partial<Blog>>(`${BASE_URL}/${id}`, data),
-
-  delete: (id: number): Promise<void> =>
+  delete: (id: string): Promise<void> =>
     api.delete<void>(`${BASE_URL}/${id}`),
 
-  updateTranslation: (
-    blogId: number,
-    translationId: number,
-    data: Partial<BlogTranslation>
-  ): Promise<Blog> =>
-    api.patch<Blog, Partial<BlogTranslation>>(
-      `${BASE_URL}/${blogId}/translations/${translationId}`,
-      data
-    ),
+  updateTranslation: (id: string, locale: string, data: Partial<BlogTranslation>): Promise<void> =>
+    api.patch<void, Partial<BlogTranslation>>(`${BASE_URL}/${id}/translations/${locale}`, data),
+
+  changeStatus: (id: string, status: BLOG_STATUS): Promise<void> =>
+    api.patch<void, { status: BLOG_STATUS }>(`${BASE_URL}/${id}/status`, { status }),
 };

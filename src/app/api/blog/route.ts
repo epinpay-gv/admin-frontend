@@ -1,4 +1,4 @@
-import { Blog, BLOG_TRANSLATION_STATUS } from "@/features/blog/types";
+import { Blog, BLOG_TRANSLATION_STATUS } from "@/features/blog/types/blog.types";
 import { MOCK_BLOGS } from "@/mocks/blog";
 import { NextRequest, NextResponse } from "next/server";
 

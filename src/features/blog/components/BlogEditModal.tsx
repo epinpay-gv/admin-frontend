@@ -1,13 +1,11 @@
-
 "use client";
-
 import { useState, useEffect } from "react";
 import Modal from "@/components/common/modal/Modal";
 import Input from "@/components/common/input/Input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/common/toast/toast";
-import { Blog, BLOG_TRANSLATION_STATUS } from "../types";
 import { blogService } from "../service/blog.service";
+import { Blog, BLOG_STATUS } from "../types/blog.types";
 
 interface BlogEditModalProps {
   open: boolean;
@@ -17,52 +15,55 @@ interface BlogEditModalProps {
 
 interface BlogEditForm {
   title: string;
-  status: BLOG_TRANSLATION_STATUS;
+  status: BLOG_STATUS;
 }
 
-const STATUS_OPTIONS: { label: string; value: BLOG_TRANSLATION_STATUS }[] = [
-  { label: "Yayında", value: BLOG_TRANSLATION_STATUS.PUBLISHED },
-  { label: "Taslak", value: BLOG_TRANSLATION_STATUS.DRAFT },
-  { label: "Pasif", value: BLOG_TRANSLATION_STATUS.INACTIVE },
+const STATUS_OPTIONS: { label: string; value: BLOG_STATUS }[] = [
+  { label: "Yayında", value: BLOG_STATUS.PUBLISHED },
+  { label: "Taslak", value: BLOG_STATUS.DRAFT },
+  { label: "Arşiv", value: BLOG_STATUS.ARCHIVED },
 ];
 
-const STATUS_COLORS: Record<BLOG_TRANSLATION_STATUS, { bg: string; color: string }> = {
-  [BLOG_TRANSLATION_STATUS.PUBLISHED]: { bg: "rgba(0,198,162,0.15)", color: "#00C6A2" },
-  [BLOG_TRANSLATION_STATUS.DRAFT]: { bg: "rgba(255,180,0,0.15)", color: "#FFB400" },
-  [BLOG_TRANSLATION_STATUS.INACTIVE]: { bg: "rgba(255,80,80,0.15)", color: "#FF5050" },
+const STATUS_COLORS: Record<BLOG_STATUS, { bg: string; color: string }> = {
+  [BLOG_STATUS.PUBLISHED]: { bg: "rgba(0,198,162,0.15)", color: "#00C6A2" },
+  [BLOG_STATUS.DRAFT]: { bg: "rgba(255,180,0,0.15)", color: "#FFB400" },
+  [BLOG_STATUS.ARCHIVED]: { bg: "rgba(255,80,80,0.15)", color: "#FF5050" },
 };
 
 export default function BlogEditModal({ open, onClose, blog }: BlogEditModalProps) {
   const [form, setForm] = useState<BlogEditForm>({
     title: "",
-    status: BLOG_TRANSLATION_STATUS.DRAFT,
+    status: BLOG_STATUS.DRAFT,
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (blog) {
-      // Kaynak dile ait translation'ı bul
-      const sourceTranslation = blog.translations.find(
-        (t) => t.language === blog.sourceLanguage
-      );
+      const firstTranslation = blog.translations[0];
       setForm({
-        title: sourceTranslation?.title ?? "",
-        status: sourceTranslation?.status ?? BLOG_TRANSLATION_STATUS.DRAFT,
+        title: firstTranslation?.title ?? "",
+        status: blog.status,
       });
     }
   }, [blog]);
 
   const handleSubmit = async () => {
     if (!blog) return;
+    const firstTranslation = blog.translations[0];
+    if (!firstTranslation) return;
+
     setLoading(true);
     try {
-      await blogService.update(blog.id, {
-        translations: blog.translations.map((t) =>
-          t.language === blog.sourceLanguage
-            ? { ...t, title: form.title, status: form.status }
-            : t
-        ),
+      // Update the title via translation update
+      await blogService.updateTranslation(blog.id, firstTranslation.locale, {
+        title: form.title,
       });
+
+      // If status changed, update it separately
+      if (form.status !== blog.status) {
+        await blogService.changeStatus(blog.id, form.status);
+      }
+
       toast.success("Blog güncellendi", `${form.title} başarıyla güncellendi.`);
       onClose();
     } catch {
@@ -77,9 +78,7 @@ export default function BlogEditModal({ open, onClose, blog }: BlogEditModalProp
       open={open}
       onClose={onClose}
       title="Blog Güncelle"
-      description={
-        blog?.translations.find((t) => t.language === blog.sourceLanguage)?.slug
-      }
+      description={blog?.slug}
       size="md"
       footer={
         <div className="flex items-center justify-end gap-2 w-full">
@@ -118,12 +117,8 @@ export default function BlogEditModal({ open, onClose, blog }: BlogEditModalProp
           placeholder="Blog başlığı"
         />
 
-        {/* Durum seçici — 3 seçenekli */}
         <div>
-          <p
-            className="text-xs font-semibold mb-2"
-            style={{ color: "var(--text-muted)" }}
-          >
+          <p className="text-xs font-semibold mb-2" style={{ color: "var(--text-muted)" }}>
             Durum
           </p>
           <div className="flex items-center gap-2">

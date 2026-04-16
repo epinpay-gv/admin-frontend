@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import Input from "@/components/common/input/Input";
 import FileUpload from "@/components/common/file-upload/FileUpload";
 import { toast } from "@/components/common/toast/toast";
-import { BLOG_TRANSLATION_STATUS } from "@/features/blog/types";
+import { BLOG_TRANSLATION_STATUS } from "@/features/blog/types/blog.types";
 import { blogService } from "@/features/blog/service/blog.service";
 import RichTextEditor from "@/components/common/rich-text/RichTextEditor";
 import LocaleSelector from "@/components/common/locale-selector/LocaleSelector";
