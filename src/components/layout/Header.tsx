@@ -3,9 +3,9 @@
 import { SearchBar, NotificationBell, UserMenu, useCurrentUser } from "@/features/header";
 import { BurgerButton, MobileMenu, useMobileMenu } from "@/features/navigation";
 import ThemeToggle from "@/components/common/theme-toggle/ThemeToggle";
+import UserProfileCard from "./UserProfileCard";
 
 export default function Header() {
-  const { user } = useCurrentUser();
   const { isOpen, toggle, close } = useMobileMenu();
 
   return (
@@ -17,11 +17,11 @@ export default function Header() {
         <BurgerButton isOpen={isOpen} onClick={toggle} />
         <SearchBar />
 
-        <div className="flex items-center gap-3 ml-auto">
+        <div className="flex items-center gap-4 ml-auto">
           <ThemeToggle />
-          {/* <NotificationBell />
-          <div className="w-px h-6 bg-white/10" />
-          {user && <UserMenu user={user} />} */}
+          <div className="hidden sm:block">
+             <UserProfileCard />
+          </div>
         </div>
       </header>
 

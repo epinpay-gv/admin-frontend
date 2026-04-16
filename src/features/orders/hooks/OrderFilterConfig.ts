@@ -31,15 +31,18 @@ export const ORDER_FILTER_CONFIG: FilterField[] = [
     label: "Üye Tipi",
     type: "select",
     options: [
-      { label: "Hepsi", value: "" },
-      { label: "Bireysel", value: MEMBER_TYPE.GUEST },
-      { label: "Kurumsal", value: MEMBER_TYPE.NORMAL },
-      { label: "Kurumsal", value: MEMBER_TYPE.PREMIUM },
+      { label: "Misafir", value: MEMBER_TYPE.GUEST },
+      { label: "Kullanıcı", value: MEMBER_TYPE.NORMAL },
     ],
   },
   {
-    key: "dateRange",
-    label: "Tarih Aralığı",
+    key: "startDate",
+    label: "Başlangıç Tarihi",
+    type: "date",
+  },
+  {
+    key: "endDate",
+    label: "Bitiş Tarihi",
     type: "date",
   },
 ];

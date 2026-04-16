@@ -35,7 +35,7 @@ export const mockOrders: Order[] = [
     productCount: 1,
     delivery: {
       id: 1,
-      deliveryType: DELIVERY_TYPE.EPIN,
+      deliveryType: DELIVERY_TYPE.EPIN,  
       status: ORDER_STATUS.COMPLETED,
       deliveredAt: "2024-11-20T10:35:00Z",
       payload: "ABCD-1234-EFGH-5678",

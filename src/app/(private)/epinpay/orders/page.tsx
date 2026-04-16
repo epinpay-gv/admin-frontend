@@ -34,9 +34,9 @@ export default function OrdersPage() {
 
   const columns = useMemo(() => 
     ORDER_COLUMNS(
-      (id: number) => router.push(`/epinpay/orders/${id}`),
+      (id: string | number) => router.push(`/epinpay/orders/${id}`),
       (order: Order) => setProductsModal(order),
-      (userId: number) => router.push(`/users/${userId}`)
+      (userId: string | number) => router.push(`/users/${userId}`)
     ), [router]);
 
   const handleStatusChange = (status: string) => {
@@ -109,7 +109,7 @@ export default function OrdersPage() {
             currentStatus={String(filters?.status || "all")}
             onStatusChange={handleStatusChange}
             onFilteredDataChange={(rows) => { filteredOrdersRef.current = (rows as unknown) as Order[]; }}
-           actions={(row) => (<EntityActions row={row} onView={() => router.push(`/epinpay/orders/${row.id}`)}/>)}
+           actions={(row) => (<EntityActions row={row} onView={() => router.push(`/epinpay/orders/${String(row.id)}`)}/>)}
           />
         </div>
       </PageState>

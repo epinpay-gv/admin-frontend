@@ -11,11 +11,25 @@ const DEFAULT_HEADERS: Record<string, string> = {
 
 function buildUrl(
   endpoint: string,
-  params?: Record<string, string | number | boolean | undefined | null>
+  params?: Record<string, string | number | boolean | undefined | null>,
+  customBaseUrl?: string 
 ): string {
-  const base =  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3011";
+  const base = customBaseUrl ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3011";
 
-  const url = new URL(`${base}${endpoint}`);
+  let url: URL;
+  try {
+    if (base.startsWith("http")) {
+      // Çift slash (//) hatasını önlemek için endpoint başındaki / kontrolü
+      const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+      url = new URL(`${base}${cleanEndpoint}`);
+    } else {
+      const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+      url = new URL(`${origin}${base}${endpoint}`);
+    }
+  } catch (e) {
+    console.error("URL build error:", e);
+    return `${base}${endpoint}`;
+  }
 
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -43,20 +57,23 @@ function createFetcherError(
 
 export async function baseFetcher<TResponse, TBody = unknown>(
   endpoint: string,
-  config: FetcherConfig<TBody> = {}
+  config: FetcherConfig<TBody> & { baseUrl?: string } = {}
 ): Promise<TResponse> {
   const {
     method = "GET",
     body,
     params,
     headers = {},
+    baseUrl, 
     cache,
     revalidate,
     tags,
   } = config;
+
   const url = buildUrl(
     endpoint,
-    params as Record<string, string | number | boolean | undefined | null>
+    params as Record<string, string | number | boolean | undefined | null>,
+    baseUrl
   );
 
   const nextConfig: RequestInit["next"] = {};
@@ -69,6 +86,7 @@ export async function baseFetcher<TResponse, TBody = unknown>(
       ...DEFAULT_HEADERS,
       ...headers,
     },
+    credentials: "include",
     ...(body !== undefined && { body: JSON.stringify(body) }),
     ...(cache && { cache }),
     ...(Object.keys(nextConfig).length > 0 && { next: nextConfig }),
@@ -119,7 +137,7 @@ export const api = {
   get: <TResponse, TParams extends Record<string, unknown> = Record<string, unknown>>(
     endpoint: string,
     params?: TParams,
-    config?: Omit<FetcherConfig, "method" | "body" | "params">
+    config?: Omit<FetcherConfig, "method" | "body" | "params"> & { baseUrl?: string }
   ): Promise<TResponse> =>
     baseFetcher<TResponse>(endpoint, {
       method: "GET",
@@ -130,7 +148,7 @@ export const api = {
   post: <TResponse, TBody = unknown>(
     endpoint: string,
     body?: TBody,
-    config?: Omit<FetcherConfig<TBody>, "method" | "body">
+    config?: Omit<FetcherConfig<TBody>, "method" | "body"> & { baseUrl?: string }
   ): Promise<TResponse> =>
     baseFetcher<TResponse, TBody>(endpoint, {
       method: "POST",
@@ -141,7 +159,7 @@ export const api = {
   put: <TResponse, TBody = unknown>(
     endpoint: string,
     body?: TBody,
-    config?: Omit<FetcherConfig<TBody>, "method" | "body">
+    config?: Omit<FetcherConfig<TBody>, "method" | "body"> & { baseUrl?: string }
   ): Promise<TResponse> =>
     baseFetcher<TResponse, TBody>(endpoint, {
       method: "PUT",
@@ -152,7 +170,7 @@ export const api = {
   patch: <TResponse, TBody = unknown>(
     endpoint: string,
     body?: TBody,
-    config?: Omit<FetcherConfig<TBody>, "method" | "body">
+    config?: Omit<FetcherConfig<TBody>, "method" | "body"> & { baseUrl?: string }
   ): Promise<TResponse> =>
     baseFetcher<TResponse, TBody>(endpoint, {
       method: "PATCH",
@@ -162,7 +180,7 @@ export const api = {
 
   delete: <TResponse>(
     endpoint: string,
-    config?: Omit<FetcherConfig, "method" | "body">
+    config?: Omit<FetcherConfig, "method" | "body"> & { baseUrl?: string }
   ): Promise<TResponse> =>
     baseFetcher<TResponse>(endpoint, {
       method: "DELETE",

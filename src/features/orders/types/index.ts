@@ -40,14 +40,14 @@ export enum SLA_STATUS {
 }
 
 export interface OrderUser {
-  id: number;
+  id: string | number;
   email: string;
   fullName: string;
   memberType: MEMBER_TYPE;
 }
 
 export interface OrderProduct {
-  id: number;
+  id: string | number;
   name: string;
   slug: string;
   deliveryType: DELIVERY_TYPE;
@@ -58,7 +58,7 @@ export interface OrderProduct {
 }
 
 export interface OrderDelivery {
-  id: number;
+  id: string | number;
   deliveryType: DELIVERY_TYPE;
   status: ORDER_STATUS;
   deliveredAt?: string;
@@ -68,7 +68,7 @@ export interface OrderDelivery {
 }
 
 export interface OrderPayment {
-  id: number;
+  id: string | number;
   method: PAYMENT_METHOD;
   status: PAYMENT_STATUS;
   amount: number;
@@ -79,7 +79,7 @@ export interface OrderPayment {
 }
 
 export interface OrderEventLog {
-  id: number;
+  id: string | number;
   event: string;
   description: string;
   createdAt: string;
@@ -87,8 +87,8 @@ export interface OrderEventLog {
 }
 
 export interface Order {
-  id: number;
-  userId: number | null;
+  id: string | number;
+  userId: string | number | null;
   user: OrderUser | null;
   guestEmail?: string;
   memberType: MEMBER_TYPE;
@@ -118,6 +118,8 @@ export interface OrderFilters {
   endDate?: string;
   dateFrom?: string;
   dateTo?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface OrderExportParams extends OrderFilters {

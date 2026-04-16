@@ -7,7 +7,7 @@ export async function POST() {
     { status: 200 }
   );
 
-  response.cookies.delete("session");
+  response.cookies.delete("token");
 
   return response;
 }

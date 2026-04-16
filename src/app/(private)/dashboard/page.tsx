@@ -1,9 +1,18 @@
+"use client";
+import { useAuthStore } from "@/store/useAuthStore";
+import { parseJwt } from "@/lib/utils/auth";
+
 export default function DashboardPage() {
+  const { user, token } = useAuthStore();
+  
+  const tokenData = parseJwt(token);
+  const displayName = tokenData?.name || user?.displayName || "Admin";
+
   return (
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-white tracking-tight">
-          Hoşgeldin, BURAYA İSİM GELECEK !
+          Hoşgeldin, {displayName} !
         </h1>
         <p className="text-sm text-white/40 mt-1">
           Genel duruma göz at.

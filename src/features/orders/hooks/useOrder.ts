@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Order } from "@/features/orders/types";
 import { orderService } from "@/features/orders/services/order.service";
 
-export function useOrder(id: number | null) {
+export function useOrder(id: string | number | null) {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

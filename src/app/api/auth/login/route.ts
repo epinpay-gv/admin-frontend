@@ -1,48 +1,58 @@
 import { NextRequest, NextResponse } from "next/server";
-import { MOCK_USERS } from "@/mocks/user";
-import { LoginRequest, LoginResponse } from "@/features/auth/types";
-
-const ADMIN_ROLES = ["super_admin", "admin"];
+import { LoginResponse } from "@/features/auth/types";
 
 export async function POST(request: NextRequest) {
-  const body: LoginRequest = await request.json();
-  const { email, password } = body;
+  try {
+    const body = await request.json();
+    const { firebaseToken, email } = body;
 
-  if (!email || !password) {
+    if (!firebaseToken) {
+      return NextResponse.json<LoginResponse>(
+        { success: false, message: "Token zorunludur." },
+        { status: 400 }
+      );
+    }
+
+    const bffUrl = process.env.ADMIN_BFF_URL || "http://localhost:3011";
+        
+    const bffResponse = await fetch(`${bffUrl}/api/features/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ firebaseToken, email }),
+    });
+
+    const data = await bffResponse.json();
+
+    if (!bffResponse.ok) {
+      return NextResponse.json<LoginResponse>(
+        { success: false, message: data.message || "Giriş başarısız." },
+        { status: bffResponse.status }
+      );
+    }
+
+    const response = NextResponse.json<LoginResponse>(
+      { 
+        success: true, 
+        message: "Giriş başarılı.",
+        user: data.user,
+        token: data.token
+      },
+      { status: 200 }
+    );
+    response.cookies.set("token", data.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24, // 1 day
+      path: "/",
+    });
+
+    return response;
+  } catch (error) {
+    console.error("BFF Connection Error:", error);
     return NextResponse.json<LoginResponse>(
-      { success: false, message: "Email ve şifre zorunludur." },
-      { status: 400 }
+      { success: false, message: "Sunucu bağlantı hatası." },
+      { status: 500 }
     );
   }
-
-  const user = MOCK_USERS.find((u) => u.email === email);
-
-  if (!user) {
-    return NextResponse.json<LoginResponse>(
-      { success: false, message: "Kullanıcı bulunamadı." },
-      { status: 401 }
-    );
-  }
-
-  if (!ADMIN_ROLES.includes(user.role)) {
-    return NextResponse.json<LoginResponse>(
-      { success: false, message: "Bu panele erişim yetkiniz yok." },
-      { status: 403 }
-    );
-  }
-
-  const response = NextResponse.json<LoginResponse>(
-    { success: true, message: "Giriş başarılı." },
-    { status: 200 }
-  );
-
-  response.cookies.set("session", `mock-session-${user.uid}`, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24, // 1 gün
-    path: "/",
-  });
-
-  return response;
 }

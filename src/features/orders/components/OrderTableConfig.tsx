@@ -6,9 +6,9 @@ import { PALETTE } from "@/lib/status-color";
 export type OrderRow = Record<string, unknown>;
 
 export const ORDER_COLUMNS = (
-  onViewDetail: (id: number) => void,
+  onViewDetail: (id: string | number) => void,
   onShowProducts: (order: Order) => void,
-  onUserClick: (userId: number) => void
+  onUserClick: (userId: string | number) => void
 ): ColumnDef<OrderRow>[] => [
   {
     key: "id",
@@ -17,11 +17,11 @@ export const ORDER_COLUMNS = (
     width: "100px",
     render: (value) => (
       <button
-        onClick={() => onViewDetail(Number(value))}
+        onClick={() => onViewDetail(String(value))}
         className="text-sm font-mono font-bold transition-colors hover:underline"
         style={{ color: PALETTE.blue.color }}
       >
-        #{String(value)}
+        #{String(value).slice(0, 8)}...
       </button>
     ),
   },
