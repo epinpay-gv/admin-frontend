@@ -15,6 +15,8 @@ import {
   Gamepad,
   CreditCard,
   ArrowLeftRight,
+  Building2,
+  Link2,
 } from "lucide-react";
 import { NavGroup } from "@/features/navigation/types";
 
@@ -50,9 +52,19 @@ export const NAV_GROUPS: NavGroup[] = [
         icon: Globe,
         children: [
           {
-            href: "/payment",
-            label: "Ödeme Yöntemi Görünürlüğü",
+            href: "/payment/providers",
+            label: "Ödeme Sağlayıcıları",
+            icon: Building2,
+          },
+          {
+            href: "/payment/methods",
+            label: "Ödeme Yöntemleri",
             icon: CreditCard,
+          },
+          {
+            href: "/payment/provider-methods",
+            label: "Sağlayıcı-Yöntem İlişkileri",
+            icon: Link2,
           },
         ],
       },
