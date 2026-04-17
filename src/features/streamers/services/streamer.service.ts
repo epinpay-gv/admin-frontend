@@ -106,53 +106,44 @@ function buildRequestParams(
 
 export const streamerService = {
   getAll: (filters: StreamerListParams = {}): Promise<Streamer[]> =>
-    api.get<Streamer[]>(STREAMERS_URL, buildStreamerParams(filters)),
+    api.get<Streamer[]>(STREAMERS_URL, buildStreamerParams(filters), { baseUrl: API_BASE }),
 
   getById: (id: number): Promise<Streamer> =>
-    api.get<Streamer>(`${STREAMERS_URL}/${id}`),
+    api.get<Streamer>(`${STREAMERS_URL}/${id}`, undefined, { baseUrl: API_BASE }),
 
   update: (id: number, data: Partial<Streamer>): Promise<Streamer> =>
-    api.put<Streamer, Partial<Streamer>>(`${STREAMERS_URL}/${id}`, data),
+    api.put<Streamer, Partial<Streamer>>(`${STREAMERS_URL}/${id}`, data, { baseUrl: API_BASE }),
 };
-
 
 export const packageTemplateService = {
   getAll: (filters: PackageTemplateListParams = {}): Promise<PackageTemplate[]> =>
-    api.get<PackageTemplate[]>(TEMPLATES_URL, buildTemplateParams(filters)),
+    api.get<PackageTemplate[]>(TEMPLATES_URL, buildTemplateParams(filters), { baseUrl: API_BASE }),
 
   getById: (id: number): Promise<PackageTemplate> =>
-    api.get<PackageTemplate>(`${TEMPLATES_URL}/${id}`),
+    api.get<PackageTemplate>(`${TEMPLATES_URL}/${id}`, undefined, { baseUrl: API_BASE }),
 
   create: (data: Partial<PackageTemplate>): Promise<PackageTemplate> =>
-    api.post<PackageTemplate, Partial<PackageTemplate>>(TEMPLATES_URL, data),
+    api.post<PackageTemplate, Partial<PackageTemplate>>(TEMPLATES_URL, data, { baseUrl: API_BASE }),
 
   update: (id: number, data: Partial<PackageTemplate>): Promise<PackageTemplate> =>
-    api.put<PackageTemplate, Partial<PackageTemplate>>(
-      `${TEMPLATES_URL}/${id}`,
-      data
-    ),
+    api.put<PackageTemplate, Partial<PackageTemplate>>(`${TEMPLATES_URL}/${id}`, data, { baseUrl: API_BASE }),
 };
 
 
 export const countryPackageVariantService = {
   getAll: (filters: CountryPackageVariantListParams = {}): Promise<CountryPackageVariant[]> =>
-    api.get<CountryPackageVariant[]>(VARIANTS_URL, buildVariantParams(filters)),
+    api.get<CountryPackageVariant[]>(VARIANTS_URL, buildVariantParams(filters), { baseUrl: API_BASE }),
 
   getById: (id: number): Promise<CountryPackageVariant> =>
-    api.get<CountryPackageVariant>(`${VARIANTS_URL}/${id}`),
+    api.get<CountryPackageVariant>(`${VARIANTS_URL}/${id}`, undefined, { baseUrl: API_BASE }),
 
   create: (data: Partial<CountryPackageVariant>): Promise<CountryPackageVariant> =>
-    api.post<CountryPackageVariant, Partial<CountryPackageVariant>>(
-      VARIANTS_URL,
-      data
-    ),
+    api.post<CountryPackageVariant, Partial<CountryPackageVariant>>(VARIANTS_URL, data, { baseUrl: API_BASE }),
 
   update: (id: number, data: Partial<CountryPackageVariant>): Promise<CountryPackageVariant> =>
-    api.put<CountryPackageVariant, Partial<CountryPackageVariant>>(
-      `${VARIANTS_URL}/${id}`,
-      data
-    ),
+    api.put<CountryPackageVariant, Partial<CountryPackageVariant>>(`${VARIANTS_URL}/${id}`, data, { baseUrl: API_BASE }),
 };
+
 
 export const packageRequestService = {
   getAll: (filters: PackageRequestListParams = {}): Promise<PackageRequest[]> =>
