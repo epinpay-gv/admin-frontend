@@ -13,11 +13,13 @@ import {
   PACKAGE_REQUEST_TYPE,
 } from "@/features/streamers/types";
 
-const STREAMERS_URL = "/api/streamers";
-const TEMPLATES_URL = "/api/streamers/package-templates";
-const VARIANTS_URL = "/api/streamers/country-variants";
-const REQUESTS_URL = "/api/streamers/package-requests";
 
+const STREAMERS_URL = "/features/streamers";
+const TEMPLATES_URL = "/features/streamers/package-templates";
+const VARIANTS_URL = "/features/streamers/country-variants";
+const REQUESTS_URL = "/features/streamers/package-requests";
+
+const API_BASE = "http://localhost:3011/api";
 
 type StreamerListParams = {
   search?: string;
@@ -154,20 +156,20 @@ export const countryPackageVariantService = {
 
 export const packageRequestService = {
   getAll: (filters: PackageRequestListParams = {}): Promise<PackageRequest[]> =>
-    api.get<PackageRequest[]>(REQUESTS_URL, buildRequestParams(filters)),
+    api.get<PackageRequest[]>(REQUESTS_URL, buildRequestParams(filters), { baseUrl: API_BASE }),
 
   getById: (id: number): Promise<PackageRequest> =>
-    api.get<PackageRequest>(`${REQUESTS_URL}/${id}`),
+    api.get<PackageRequest>(`${REQUESTS_URL}/${id}`, undefined, { baseUrl: API_BASE }),
 
   approve: (id: number, adminNote?: string): Promise<PackageRequest> =>
     api.patch<PackageRequest, { action: "approve"; adminNote?: string }>(
       `${REQUESTS_URL}/${id}/status`,
-      { action: "approve", adminNote }
+      { action: "approve", adminNote }, { baseUrl: API_BASE }
     ),
 
   reject: (id: number, adminNote: string): Promise<PackageRequest> =>
     api.patch<PackageRequest, { action: "reject"; adminNote: string }>(
       `${REQUESTS_URL}/${id}/status`,
-      { action: "reject", adminNote }
+      { action: "reject", adminNote }, { baseUrl: API_BASE }
     ),
 };
