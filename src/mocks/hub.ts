@@ -48,11 +48,25 @@ export const HUB_PAGES: Record<string, HubPage> = {
     description: "Ülke bazlı görünürlük ve policy yönetimi.",
     cards: [
       {
-        title: "Ödeme Yöntemi Görünürlüğü",
+        title: "Ödeme Sağlayıcıları",
         description: "Ülke bazlı ödeme yöntemi ayarları.",
-        href: "/payment",
+        href: "/payment/providers",
         icon: CreditCard,
         color: "#0085FF",
+      },
+      {
+        title: "Ödeme Yöntemleri",
+        description: "Ödeme yöntemlerini yönet.",
+        href: "/payment/methods",
+        icon: CreditCard,
+        color: "#FFB400",
+      },
+      {
+        title: "Sağlayıcı-Yöntem İlişkileri",
+        description: "Ödeme sağlayıcıları ve ödeme yöntemleri arasındaki ilişkileri yönet.",
+        href: "/payment/provider-methods",
+        icon: CreditCard,
+        color: "#00C6A2",
       },
     ],
   },

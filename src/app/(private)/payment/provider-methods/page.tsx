@@ -1,0 +1,127 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { RefreshCw, Filter, Plus } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+import { DataTable } from "@/components/common/data-table";
+import { Button } from "@/components/ui/button";
+import PageHeader from "@/components/common/page-header/PageHeader";
+import { PageState } from "@/components/common/page-state/PageState";
+import { FilterPanel } from "@/components/common/filter-panel/FilterPanel";
+import { EntityActions } from "@/components/common/entity-actions/EntityActions";
+
+import { useProviderMethods } from "@/features/payment/hooks/useProviderMethods";
+import { PROVIDER_METHOD_COLUMNS } from "@/features/payment/components/ProviderMethodTableConfig";
+import { PROVIDER_METHOD_FILTER_CONFIG } from "@/features/payment/components/PaymentFilterConfig";
+import { ProviderMethodFilters } from "@/features/payment/types";
+import { FilterData } from "@/components/common/filter-panel/types";
+import { ProviderMethodCreateModal } from "@/features/payment/components/ProviderMethodCreateModal";
+import { ProviderMethodEditModal } from "@/features/payment/components/ProviderMethodEditModal";
+import { ProviderMethod } from "@/features/payment/types";
+
+export default function ProviderMethodsPage() {
+  const router = useRouter();
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState<ProviderMethodFilters>({});
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editProviderMethod, setEditProviderMethod] = useState<ProviderMethod | null>(null);
+
+  const {
+    providerMethods,
+    loading,
+    error,
+    refresh,
+  } = useProviderMethods(filters);
+
+  const hasActiveFilters = Object.values(filters).some(
+    (v) => v !== undefined && v !== ""
+  );
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-100px)] space-y-4 px-1">
+      <PageHeader
+        title="Sağlayıcı-Yöntem İlişkileri"
+        count={providerMethods.length}
+        countLabel="bağlantı"
+        actions={
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              title="Yenile"
+              onClick={refresh}
+              disabled={loading}
+              className="text-(--text-muted)"
+            >
+              <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+              className="relative px-4"
+              style={{
+                backgroundColor: showFilters || hasActiveFilters ? "rgba(0, 198, 162, 0.1)" : "",
+                color: showFilters || hasActiveFilters ? "#00C6A2" : "var(--text-muted)",
+                borderColor: showFilters || hasActiveFilters ? "rgba(0, 198, 162, 0.1)" : "",
+              }}
+            >
+              <Filter size={14} className="mr-2" /> Filtre
+              {hasActiveFilters && (
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-background bg-[#00C6A2]" />
+              )}
+            </Button>
+            <Button
+              className="text-white"
+              style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
+              onClick={() => setIsCreateModalOpen(true)}
+            >
+              <Plus size={14} className="mr-2" /> Yeni İlişki
+            </Button>
+          </div>
+        }
+      />
+
+      <AnimatePresence mode="popLayout">
+        {showFilters && (
+          <FilterPanel
+            configs={PROVIDER_METHOD_FILTER_CONFIG}
+            initialFilters={filters as unknown as FilterData}
+            onApply={(data) => setFilters(data as unknown as ProviderMethodFilters)}
+            onReset={() => setFilters({})}
+          />
+        )}
+      </AnimatePresence>
+
+      <PageState loading={loading} error={error}>
+        <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
+          <DataTable
+            data={providerMethods as unknown as Record<string, unknown>[]}
+            columns={PROVIDER_METHOD_COLUMNS}
+            actions={(row) => (
+              <EntityActions
+                row={row}
+                onView={() => router.push(`/payment/provider-methods/${row.id}`)}
+                onEdit={() => setEditProviderMethod(row as unknown as ProviderMethod)}
+              />
+            )}
+          />
+        </div>
+      </PageState>
+
+      <ProviderMethodCreateModal
+        open={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={() => refresh()}
+      />
+
+      <ProviderMethodEditModal
+        open={!!editProviderMethod}
+        onClose={() => setEditProviderMethod(null)}
+        providerMethod={editProviderMethod}
+        onSuccess={() => refresh()}
+      />
+    </div>
+  );
+}
