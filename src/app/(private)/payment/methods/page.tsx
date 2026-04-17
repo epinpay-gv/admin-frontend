@@ -13,11 +13,13 @@ import { FilterPanel } from "@/components/common/filter-panel/FilterPanel";
 import { EntityActions } from "@/components/common/entity-actions/EntityActions";
 
 import { usePaymentMethods } from "@/features/payment/hooks/usePaymentMethods";
-import { METHOD_COLUMNS } from "@/features/payment/components/MethodTableConfig";
+import { getMethodColumns } from "@/features/payment/components/MethodTableConfig";
 import { METHOD_FILTER_CONFIG } from "@/features/payment/components/PaymentFilterConfig";
 import { PaymentMethodFilters } from "@/features/payment/types";
 import { FilterData } from "@/components/common/filter-panel/types";
 import { MethodEditModal } from "@/features/payment/components/MethodEditModal";
+import { MethodCreateModal } from "@/features/payment/components/MethodCreateModal";
+import { MethodProvidersModal } from "@/features/payment/components/MethodProvidersModal";
 import { PaymentMethod } from "@/features/payment/types";
 
 export default function MethodsPage() {
@@ -25,6 +27,8 @@ export default function MethodsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<PaymentMethodFilters>({});
   const [editMethod, setEditMethod] = useState<PaymentMethod | null>(null);
+  const [methodForProvidersModal, setMethodForProvidersModal] = useState<PaymentMethod | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const {
     methods,
@@ -74,6 +78,7 @@ export default function MethodsPage() {
             <Button
               className="text-white"
               style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
+              onClick={() => setIsCreateModalOpen(true)}
             >
               <Plus size={14} className="mr-2" /> Yeni Yöntem
             </Button>
@@ -96,7 +101,7 @@ export default function MethodsPage() {
         <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
           <DataTable
             data={methods as unknown as Record<string, unknown>[]}
-            columns={METHOD_COLUMNS}
+            columns={getMethodColumns((method) => setMethodForProvidersModal(method))}
             actions={(row) => (
               <EntityActions
                 row={row}
@@ -116,6 +121,20 @@ export default function MethodsPage() {
           updateMethod(updated);
           setEditMethod(null);
         }}
+      />
+
+      <MethodCreateModal
+        open={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={() => {
+          refresh();
+        }}
+      />
+
+      <MethodProvidersModal
+        open={!!methodForProvidersModal}
+        onClose={() => setMethodForProvidersModal(null)}
+        method={methodForProvidersModal}
       />
     </div>
   );

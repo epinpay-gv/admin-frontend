@@ -2,7 +2,7 @@
 
 import { use, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, CreditCard, Building2, Link2, Edit3, Save, X } from "lucide-react";
+import { ArrowLeft, CreditCard, Building2, Link2, Edit3, Save, X, Power } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { PageState } from "@/components/common/page-state/PageState";
@@ -22,6 +22,19 @@ export default function MethodDetailPage({ params }: { params: Promise<{ id: str
   
   const [activeTab, setActiveTab] = useState<"genel" | "saglayicilar">("genel");
   const [isEditing, setIsEditing] = useState(false);
+  const [toggling, setToggling] = useState(false);
+
+  const handleToggleStatus = async () => {
+    if (!method) return;
+    setToggling(true);
+    try {
+      await updateMethod(methodId, { isActive: !method.isActive }, (updated) => {
+        setMethod(updated);
+      });
+    } finally {
+      setToggling(false);
+    }
+  };
 
   // URL'den edit=true gelirse direkt düzenleme modunu aç
   useEffect(() => {
@@ -54,6 +67,30 @@ export default function MethodDetailPage({ params }: { params: Promise<{ id: str
               </div>
             </div>
             <div className="flex items-center gap-2">
+              {!isEditing && (
+                <>
+                  <span
+                    className={`text-[10px] font-bold font-mono px-3 py-1 rounded-full border ${
+                      method.isActive
+                        ? "bg-[rgba(0,198,162,0.1)] text-[#00C6A2] border-[rgba(0,198,162,0.2)]"
+                        : "bg-[rgba(255,80,80,0.1)] text-[#FF5050] border-[rgba(255,80,80,0.2)]"
+                    }`}
+                  >
+                    {method.isActive ? "AKTİF" : "PASİF"}
+                  </span>
+                  <Button
+                    variant="outline"
+                    onClick={handleToggleStatus}
+                    disabled={toggling || updating}
+                    className={method.isActive
+                      ? "border-[#FF5050]/30 text-[#FF5050] hover:bg-[rgba(255,80,80,0.05)]"
+                      : "border-[#00C6A2]/30 text-[#00C6A2] hover:bg-[rgba(0,198,162,0.05)]"}
+                  >
+                    <Power size={14} className="mr-2" />
+                    {toggling ? "Kontrol ediliyor..." : method.isActive ? "Pasifleştir" : "Aktifleştir"}
+                  </Button>
+                </>
+              )}
               {isEditing ? (
                 <Button
                   variant="ghost"
@@ -65,9 +102,9 @@ export default function MethodDetailPage({ params }: { params: Promise<{ id: str
                 </Button>
               ) : (
                 <Button
-                  variant="outline"
+                  className="text-white"
+                  style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
                   onClick={() => setIsEditing(true)}
-                  className="border-[#0085FF] text-[#0085FF] hover:bg-[rgba(0,133,255,0.05)]"
                 >
                   <Edit3 size={16} className="mr-2" /> Düzenle
                 </Button>
@@ -172,15 +209,26 @@ export default function MethodDetailPage({ params }: { params: Promise<{ id: str
                                   <p className="text-[10px] text-muted-foreground font-mono">İlişki ID: {pm.id}</p>
                                 </div>
                               </div>
-                              <div className="text-right">
-                                <p className="text-xs font-mono font-bold">
-                                  {pm.feeValue != null ? (
-                                    pm.feeType === FEE_TYPE.PERCENTAGE ? `%${pm.feeValue}` : `${pm.feeValue}₺`
-                                  ) : (
-                                    <span className="text-muted-foreground font-normal italic text-[10px]">Miras Alınan</span>
-                                  )}
-                                </p>
-                                <p className="text-[9px] text-muted-foreground uppercase tracking-widest">Komisyon</p>
+                              <div className="flex items-center gap-3">
+                                <span
+                                  className={`text-[9px] font-bold font-mono px-2 py-0.5 rounded-full border ${
+                                    pm.isActive
+                                      ? "bg-[rgba(0,198,162,0.1)] text-[#00C6A2] border-[rgba(0,198,162,0.2)]"
+                                      : "bg-[rgba(255,80,80,0.1)] text-[#FF5050] border-[rgba(255,80,80,0.2)]"
+                                  }`}
+                                >
+                                  {pm.isActive ? "AKTİF" : "PASİF"}
+                                </span>
+                                <div className="text-right">
+                                  <p className="text-xs font-mono font-bold">
+                                    {pm.feeValue != null ? (
+                                      pm.feeType === FEE_TYPE.PERCENTAGE ? `%${pm.feeValue}` : `${pm.feeValue}₺`
+                                    ) : (
+                                      <span className="text-muted-foreground font-normal italic text-[10px]">Miras Alınan</span>
+                                    )}
+                                  </p>
+                                  <p className="text-[9px] text-muted-foreground uppercase tracking-widest">Komisyon</p>
+                                </div>
                               </div>
                             </div>
                           ))}
@@ -208,6 +256,12 @@ export default function MethodDetailPage({ params }: { params: Promise<{ id: str
                     <p className="text-lg font-bold">{method.providers?.length || 0}</p>
                     <p className="text-[10px] uppercase font-semibold">Aktif Sağlayıcı</p>
                   </div>
+                </div>
+                <div className="flex items-center justify-between py-2 px-1 border-t border-[var(--border-subtle)]">
+                   <span className="text-xs text-muted-foreground">Genel Durum</span>
+                   <span className={`text-[10px] font-bold ${method.isActive ? "text-[#00C6A2]" : "text-[#FF5050]"}`}>
+                      {method.isActive ? "AKTİF" : "PASİF"}
+                   </span>
                 </div>
               </div>
             </div>

@@ -98,4 +98,22 @@ export const PROVIDER_METHOD_COLUMNS: ColumnDef<Record<string, unknown>>[] = [
       );
     },
   },
+  {
+    key: "isActive",
+    label: "Durum",
+    render: (_, row) => {
+      const pm = row as unknown as ProviderMethod;
+      return (
+        <span
+          className={`text-[10px] font-bold font-mono px-2.5 py-1 rounded-full border ${
+            pm.isActive
+              ? "bg-[rgba(0,198,162,0.1)] text-[#00C6A2] border-[rgba(0,198,162,0.2)]"
+              : "bg-[rgba(255,80,80,0.1)] text-[#FF5050] border-[rgba(255,80,80,0.2)]"
+          }`}
+        >
+          {pm.isActive ? "AKTİF" : "PASİF"}
+        </span>
+      );
+    },
+  },
 ];

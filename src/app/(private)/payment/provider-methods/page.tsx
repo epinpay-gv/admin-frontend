@@ -17,11 +17,16 @@ import { PROVIDER_METHOD_COLUMNS } from "@/features/payment/components/ProviderM
 import { PROVIDER_METHOD_FILTER_CONFIG } from "@/features/payment/components/PaymentFilterConfig";
 import { ProviderMethodFilters } from "@/features/payment/types";
 import { FilterData } from "@/components/common/filter-panel/types";
+import { ProviderMethodCreateModal } from "@/features/payment/components/ProviderMethodCreateModal";
+import { ProviderMethodEditModal } from "@/features/payment/components/ProviderMethodEditModal";
+import { ProviderMethod } from "@/features/payment/types";
 
 export default function ProviderMethodsPage() {
   const router = useRouter();
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<ProviderMethodFilters>({});
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editProviderMethod, setEditProviderMethod] = useState<ProviderMethod | null>(null);
 
   const {
     providerMethods,
@@ -70,6 +75,7 @@ export default function ProviderMethodsPage() {
             <Button
               className="text-white"
               style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
+              onClick={() => setIsCreateModalOpen(true)}
             >
               <Plus size={14} className="mr-2" /> Yeni İlişki
             </Button>
@@ -97,12 +103,25 @@ export default function ProviderMethodsPage() {
               <EntityActions
                 row={row}
                 onView={() => router.push(`/payment/provider-methods/${row.id}`)}
-                onEdit={() => router.push(`/payment/provider-methods/${row.id}?edit=true`)}
+                onEdit={() => setEditProviderMethod(row as unknown as ProviderMethod)}
               />
             )}
           />
         </div>
       </PageState>
+
+      <ProviderMethodCreateModal
+        open={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={() => refresh()}
+      />
+
+      <ProviderMethodEditModal
+        open={!!editProviderMethod}
+        onClose={() => setEditProviderMethod(null)}
+        providerMethod={editProviderMethod}
+        onSuccess={() => refresh()}
+      />
     </div>
   );
 }

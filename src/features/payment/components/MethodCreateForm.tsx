@@ -7,23 +7,21 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-interface MethodEditFormProps {
-  initialData: PaymentMethod;
+interface MethodCreateFormProps {
   onSubmit: (data: Partial<PaymentMethod>) => Promise<void>;
   loading?: boolean;
   onCancel?: () => void;
 }
 
-export function MethodEditForm({
-  initialData,
+export function MethodCreateForm({
   onSubmit,
   loading,
   onCancel,
-}: MethodEditFormProps) {
+}: MethodCreateFormProps) {
   const [formData, setFormData] = useState({
-    name: initialData.name,
-    slug: initialData.slug,
-    isActive: initialData.isActive,
+    name: "",
+    slug: "",
+    isActive: true,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,7 +51,7 @@ export function MethodEditForm({
         <div className="flex items-center justify-between p-4 rounded-xl border bg-[var(--background-subtle)]" style={{ borderColor: 'var(--border-subtle)' }}>
           <div className="space-y-0.5">
             <Label className="text-sm font-bold">Yöntem Durumu</Label>
-            <p className="text-xs text-muted-foreground">Yöntemin aktiflik durumunu belirleyin.</p>
+            <p className="text-xs text-muted-foreground">Yeni yöntemin başlangıç durumunu belirleyin.</p>
           </div>
           <div className="flex bg-[var(--background-card)] p-1 rounded-lg border border-[var(--border-subtle)]">
             <button
@@ -99,10 +97,10 @@ export function MethodEditForm({
           {loading ? (
             <span className="flex items-center gap-2">
               <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Kaydediliyor...
+              Oluşturuluyor...
             </span>
           ) : (
-            "Değişiklikleri Kaydet"
+            "Yöntemi Oluştur"
           )}
         </Button>
       </div>

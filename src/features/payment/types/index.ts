@@ -19,6 +19,7 @@ export interface PaymentMethod {
   id: number;
   name: string;
   slug: string;
+  isActive: boolean;
   providers?: ProviderMethod[];
 }
 
@@ -29,6 +30,7 @@ export interface ProviderMethod {
   methodId: number;
   feeType?: FEE_TYPE | null;
   feeValue?: number | null;
+  isActive: boolean;
   provider?: PaymentProvider;
   method?: PaymentMethod;
 }

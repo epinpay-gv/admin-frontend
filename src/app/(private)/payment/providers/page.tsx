@@ -19,6 +19,7 @@ import { PaymentProviderFilters } from "@/features/payment/types";
 import { FilterData } from "@/components/common/filter-panel/types";
 import { ProviderEditModal } from "@/features/payment/components/ProviderEditModal";
 import { ProviderCountryRestrictionModal } from "@/features/payment/components/ProviderCountryRestrictionModal";
+import { ProviderCreateModal } from "@/features/payment/components/ProviderCreateModal";
 import { PaymentProvider } from "@/features/payment/types";
 
 export default function ProvidersPage() {
@@ -27,6 +28,7 @@ export default function ProvidersPage() {
   const [filters, setFilters] = useState<PaymentProviderFilters>({});
   const [editProvider, setEditProvider] = useState<PaymentProvider | null>(null);
   const [editCountriesProvider, setEditCountriesProvider] = useState<PaymentProvider | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const {
     providers,
@@ -76,6 +78,7 @@ export default function ProvidersPage() {
             <Button
               className="text-white"
               style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
+              onClick={() => setIsCreateModalOpen(true)}
             >
               <Plus size={14} className="mr-2" /> Yeni Sağlayıcı
             </Button>
@@ -128,6 +131,12 @@ export default function ProvidersPage() {
           updateProvider(updated);
           setEditCountriesProvider(null);
         }}
+      />
+
+      <ProviderCreateModal
+        open={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={() => refresh()}
       />
     </div>
   );

@@ -1,20 +1,44 @@
 "use client";
 
-import { use } from "react";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, Link2, Building2, CreditCard, ChevronRight } from "lucide-react";
+import { use, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft, Link2, Building2, CreditCard, ChevronRight, Power, Edit3 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { PageState } from "@/components/common/page-state/PageState";
 import { useProviderMethod } from "@/features/payment/hooks/useProviderMethod";
-import { FEE_TYPE } from "@/features/payment/types";
+import { useUpdateProviderMethod } from "@/features/payment/hooks/useUpdateProviderMethod";
+import { FEE_TYPE, ProviderMethod } from "@/features/payment/types";
+import { ProviderMethodEditModal } from "@/features/payment/components/ProviderMethodEditModal";
 
 export default function ProviderMethodDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const pmId = Number(id);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const { providerMethod: pm, loading, error } = useProviderMethod(pmId);
+  const { providerMethod: pm, loading, error, refresh, setProviderMethod } = useProviderMethod(pmId);
+  const { updateProviderMethod, loading: updating } = useUpdateProviderMethod();
+  const [toggling, setToggling] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("edit") === "true") {
+      setIsEditModalOpen(true);
+    }
+  }, [searchParams]);
+
+  const handleToggleStatus = async () => {
+    if (!pm) return;
+    setToggling(true);
+    try {
+      await updateProviderMethod(pmId, { isActive: !pm.isActive }, (updated: ProviderMethod) => {
+        setProviderMethod(updated);
+      });
+    } finally {
+      setToggling(false);
+    }
+  };
 
   return (
     <PageState loading={loading} error={error} onRetry={() => router.refresh()}>
@@ -39,12 +63,24 @@ export default function ProviderMethodDetailPage({ params }: { params: Promise<{
                 </div>
               </div>
             </div>
-            <Button
-              className="text-white"
-              style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
-            >
-              İlişkiyi Düzenle
-            </Button>
+            <div className="flex items-center gap-2">
+              <span
+                className={`text-[10px] font-bold font-mono px-3 py-1 rounded-full border ${
+                  pm.isActive
+                    ? "bg-[rgba(0,198,162,0.1)] text-[#00C6A2] border-[rgba(0,198,162,0.2)]"
+                    : "bg-[rgba(255,80,80,0.1)] text-[#FF5050] border-[rgba(255,80,80,0.2)]"
+                }`}
+              >
+                {pm.isActive ? "AKTİF" : "PASİF"}
+              </span>              
+              <Button
+                className="text-white"
+                style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
+                onClick={() => setIsEditModalOpen(true)}
+              >
+                <Edit3 size={14} className="mr-2" /> Düzenle
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -147,6 +183,15 @@ export default function ProviderMethodDetailPage({ params }: { params: Promise<{
           </div>
         </div>
       )}
+      <ProviderMethodEditModal
+        open={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        providerMethod={pm}
+        onSuccess={(updated: ProviderMethod) => {
+          setProviderMethod(updated);
+          refresh();
+        }}
+      />
     </PageState>
   );
 }

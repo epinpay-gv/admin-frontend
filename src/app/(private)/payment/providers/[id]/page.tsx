@@ -92,9 +92,9 @@ export default function ProviderDetailPage({ params }: { params: Promise<{ id: s
                 </Button>
               ) : (
                 <Button
-                  variant="outline"
+                  className="text-white"
+                  style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
                   onClick={() => setIsEditing(true)}
-                  className="border-[#00C6A2] text-[#00C6A2] hover:bg-[rgba(0,198,162,0.05)]"
                 >
                   <Edit3 size={16} className="mr-2" /> Düzenle
                 </Button>
@@ -214,11 +214,22 @@ export default function ProviderDetailPage({ params }: { params: Promise<{ id: s
                                   <CreditCard size={18} />
                                 </div>
                                 <div>
-                                   <span className="text-sm font-bold">{pm.method?.name}</span>
+                                   <span className="text-sm font-bold">{pm.method?.name || `Yöntem #${pm.methodId}`}</span>
                                    <p className="text-[10px] text-muted-foreground font-mono">İlişki ID: #{pm.id}</p>
                                 </div>
                               </div>
-                              <span className="text-[10px] uppercase font-bold text-muted-foreground group-hover:text-[#0085FF]">Detayı Gör</span>
+                              <div className="flex items-center gap-3">
+                                <span
+                                  className={`text-[9px] font-bold font-mono px-2 py-0.5 rounded-full border ${
+                                    pm.isActive
+                                      ? "bg-[rgba(0,198,162,0.1)] text-[#00C6A2] border-[rgba(0,198,162,0.2)]"
+                                      : "bg-[rgba(255,80,80,0.1)] text-[#FF5050] border-[rgba(255,80,80,0.2)]"
+                                  }`}
+                                >
+                                  {pm.isActive ? "AKTİF" : "PASİF"}
+                                </span>
+                                <span className="text-[10px] uppercase font-bold text-muted-foreground group-hover:text-[#0085FF]">Detayı Gör</span>
+                              </div>
                             </div>
                           ))}
                         </div>
