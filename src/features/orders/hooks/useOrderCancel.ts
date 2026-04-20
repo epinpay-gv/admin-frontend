@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Order } from "@/features/orders/types";
+import { Order, ORDER_STATUS } from "@/features/orders/types";
 import { orderService } from "@/features/orders/services/order.service";
 import { toast } from "@/components/common/toast/toast";
 
@@ -15,7 +15,8 @@ export function useOrderCancel() {
   ) => {
     setCancelling(true);
     try {
-      const updated = await orderService.cancel(order.id, reason);
+      await orderService.cancel(order.id, reason);
+      const updated: Order = { ...order, status: ORDER_STATUS.CANCELLED };
       toast.success("İptal Edildi", `#${order.id} siparişi iptal edildi. İade işlemi başlatıldı.`);
       onSuccess?.(updated);
     } catch (err) {
