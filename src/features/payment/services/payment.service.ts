@@ -7,7 +7,7 @@ import {
 } from "@/features/payment/types";
 
 const BASE_URL = "/api/features/payment";
-const API_BASE = "https://admin-gateway-ahj0yeia.ew.gateway.dev";
+const API_BASE = "http://localhost:3011";
 
 /* ═══════════════════════════════════════════════════════════════════════════
    PAYMENT PROVIDERS

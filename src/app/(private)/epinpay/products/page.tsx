@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { Copy } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
@@ -27,6 +27,14 @@ const STATUS_OPTIONS = [
 ];
 
 export default function ProductsPage() {
+  return (
+    <Suspense>
+      <ProductsContent />
+    </Suspense>
+  );
+}
+
+function ProductsContent() {
   const router = useRouter();
   const {
     products,
@@ -87,14 +95,10 @@ export default function ProductsPage() {
           <DataTable
             data={products as unknown as Record<string, unknown>[]}
             columns={columns}
-            // Status filter
             showStatusFilter={false}
             statusOptions={STATUS_OPTIONS}
             currentStatus={String(filters.status || "all")}
             onStatusChange={handleStatusChange}
-            // Server-side pagination
-            serverPagination={pagination}
-            onPageChange={goToPage}
             actions={(row) => (
               <EntityActions
                 row={row}
@@ -125,7 +129,7 @@ export default function ProductsPage() {
         product={forbiddenModal}
         onUpdate={() => {
           setForbiddenModal(null);
-          refresh(); // Güncelleme sonrası veriyi yenile
+          refresh();
         }}
       />
     </div>

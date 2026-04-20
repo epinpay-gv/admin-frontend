@@ -445,7 +445,7 @@ export function useProductForm(
 
   const handleSave = async () => {
     await save((saved) => {
-      router.push(`/epinpay/products/${saved.id}`);
+      router.push(`/epinpay/products`);
     });
   };
 

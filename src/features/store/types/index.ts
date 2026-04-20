@@ -14,6 +14,13 @@ export interface Pagination {
   totalPages: number;
 }
 
+export interface IdUploadField {
+    key: string;
+    label: string;
+    isRequired: boolean;
+    isEditable: boolean;
+}
+
 /* ─── Offer ────────────────────────────────────────────────────────────── */
 
 export enum OFFER_STATUS {

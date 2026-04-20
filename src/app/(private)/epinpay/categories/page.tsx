@@ -29,6 +29,14 @@ const STATUS_OPTIONS = [
 ];
 
 export default function CategoriesPage() {
+  return (
+    <Suspense>
+      <CategoriesContent />
+    </Suspense>
+  );
+}
+
+function CategoriesContent() {
   const router = useRouter();
   const {
     categories,
@@ -68,89 +76,83 @@ export default function CategoriesPage() {
   );
 
   return (
-    <Suspense>
-      <div className="flex flex-col h-[calc(100vh-100px)] space-y-4 px-1">
-        <PageHeader
-          title="Kategoriler"
-          count={pagination.total}
-          countLabel="kategori"
-          actions={
-            <CategoriesHeaderAction
-              refresh={refresh}
-              loading={loading}
-              setShowFilters={setShowFilters}
-              showFilters={showFilters}
-              hasActiveFilters={hasActiveFilters}
-            />
-          }
-        />
+    <div className="flex flex-col h-[calc(100vh-100px)] space-y-4 px-1">
+      <PageHeader
+        title="Kategoriler"
+        count={pagination.total}
+        countLabel="kategori"
+        actions={
+          <CategoriesHeaderAction
+            refresh={refresh}
+            loading={loading}
+            setShowFilters={setShowFilters}
+            showFilters={showFilters}
+            hasActiveFilters={hasActiveFilters}
+          />
+        }
+      />
 
-        <AnimatePresence mode="popLayout">
-          {showFilters && (
-            <FilterPanel
-              configs={CATEGORY_FILTER_CONFIG}
-              initialFilters={filters as unknown as Record<string, FilterValue>}
-              onApply={(data) => setFilters(data as unknown as typeof filters)}
-              onReset={resetFilters}
-            />
-          )}
-        </AnimatePresence>
+      <AnimatePresence mode="popLayout">
+        {showFilters && (
+          <FilterPanel
+            configs={CATEGORY_FILTER_CONFIG}
+            initialFilters={filters as unknown as Record<string, FilterValue>}
+            onApply={(data) => setFilters(data as unknown as typeof filters)}
+            onReset={resetFilters}
+          />
+        )}
+      </AnimatePresence>
 
-        <PageState loading={loading} error={error}>
-          <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
-            <DataTable
-              data={categories as unknown as Record<string, unknown>[]}
-              columns={columns}
-              // Status filter
-              showStatusFilter={true}
-              statusOptions={STATUS_OPTIONS}
-              currentStatus={String(filters.status || "all")}
-              onStatusChange={handleStatusChange}
-              // Server-side pagination
-              serverPagination={pagination}
-              onPageChange={goToPage}
-              actions={(row) => (
-                <EntityActions
-                  row={row}
-                  onView={() => router.push(`/epinpay/categories/${row.id}`)}
-                  extraActions={[
-                    {
-                      icon: <Copy size={13} />,
-                      title: "Kopyala",
-                      onClick: () =>
-                        router.push(`/epinpay/categories/copy-${row.id}`),
-                    },
-                  ]}
-                />
-              )}
-            />
-          </div>
-        </PageState>
+      <PageState loading={loading} error={error}>
+        <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
+          <DataTable
+            data={categories as unknown as Record<string, unknown>[]}
+            columns={columns}
+            showStatusFilter={true}
+            statusOptions={STATUS_OPTIONS}
+            currentStatus={String(filters.status || "all")}
+            onStatusChange={handleStatusChange}
+            actions={(row) => (
+              <EntityActions
+                row={row}
+                onView={() => router.push(`/epinpay/categories/${row.id}`)}
+                extraActions={[
+                  {
+                    icon: <Copy size={13} />,
+                    title: "Kopyala",
+                    onClick: () =>
+                      router.push(`/epinpay/categories/copy-${row.id}`),
+                  },
+                ]}
+              />
+            )}
+          />
+        </div>
+      </PageState>
 
-        <CategoryCountryStatusModal
-          open={!!countryModal}
-          onClose={() => setCountryModal(null)}
-          category={countryModal}
-          onUpdate={(u) => {
-            updateCategory(u);
-            setCountryModal(null);
-          }}
-        />
-        <CategoryProductsModal
-          open={!!productsModal}
-          onClose={() => setProductsModal(null)}
-          category={productsModal}
-        />
-        <CategoryEditModal
-          open={!!editModal}
-          onClose={() => setEditModal(null)}
-          category={editModal}
-          onUpdate={(u) => {
-            updateCategory(u);
-            setEditModal(null);
-          }}
-        />
-      </div>
-    </Suspense>
+      <CategoryCountryStatusModal
+        open={!!countryModal}
+        onClose={() => setCountryModal(null)}
+        category={countryModal}
+        onUpdate={(u) => {
+          updateCategory(u);
+          setCountryModal(null);
+        }}
+      />
+      <CategoryProductsModal
+        open={!!productsModal}
+        onClose={() => setProductsModal(null)}
+        category={productsModal}
+      />
+      <CategoryEditModal
+        open={!!editModal}
+        onClose={() => setEditModal(null)}
+        category={editModal}
+        onUpdate={(u) => {
+          updateCategory(u);
+          setEditModal(null);
+        }}
+      />
+    </div>
   );
 }

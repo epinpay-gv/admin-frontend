@@ -13,7 +13,9 @@ import { Edit2, X } from "lucide-react";
 import { useState } from "react";
 import { StockManager } from "@/features/store/components/StockManager";
 
-const STATUS_COLORS: Record<string, typeof PALETTE.green> = {
+type PaletteColor = typeof PALETTE[keyof typeof PALETTE];
+
+const STATUS_COLORS: Record<string, PaletteColor> = {
   [OFFER_STATUS.ACTIVE]: PALETTE.green,
   [OFFER_STATUS.INACTIVE]: PALETTE.red,
   [OFFER_STATUS.SOLD_OUT]: PALETTE.yellow,

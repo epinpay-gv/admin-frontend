@@ -66,7 +66,7 @@ export function CurrencySearch({ value, onChange, onNameChange, error }: Currenc
         onOpenChange={setOpen}
         open={open}
         onValueChange={(val) => {
-          onChange(val);
+          onChange(val ?? "");
           if (onNameChange) {
             const selected = currencies.find(c => String(c.id) === String(val));
             if (selected) onNameChange(selected.currency_name);

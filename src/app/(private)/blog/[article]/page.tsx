@@ -13,7 +13,7 @@ import { BLOG_TRANSLATION_STATUS } from "@/features/blog/types";
 import { blogService } from "@/features/blog/service/blog.service";
 import RichTextEditor from "@/components/common/rich-text/RichTextEditor";
 import LocaleSelector from "@/components/common/locale-selector/LocaleSelector";
-import { Locale } from "@/components/common/locale-selector/locale.service";
+import { Locale } from "@/components/common/locale-selector/hooks/useLocale";
 import { PALETTE } from "@/lib/status-color";
 import {PageState} from "@/components/common/page-state/PageState";
 

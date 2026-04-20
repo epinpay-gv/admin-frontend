@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Locale } from "@/components/common/locale-selector/locale.service";
+import { Locale } from "@/components/common/locale-selector/hooks/useLocale";
 import { ProductTranslation } from "@/features/products/types";
 
 export interface LocaleTranslation extends Partial<ProductTranslation> {

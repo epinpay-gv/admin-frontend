@@ -28,7 +28,7 @@ export function useRaffles() {
     try {
       const data = await raffleService.getAll({
         ...filters,
-        sortKey,
+        sortKey: sortKey as string,
         sortDir,
       });
       setRaffles(data);

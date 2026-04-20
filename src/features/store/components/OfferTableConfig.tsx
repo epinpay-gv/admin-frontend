@@ -8,8 +8,8 @@ export const STATUS_LABELS: Record<string, string> = {
   [OFFER_STATUS.SOLD_OUT]: "Tükendi",
   [OFFER_STATUS.DELETED]: "Silindi",
 };
-
-export const STATUS_COLORS: Record<string, typeof PALETTE.green> = {
+type PaletteColor = typeof PALETTE[keyof typeof PALETTE];
+export const STATUS_COLORS: Record<string, PaletteColor> = {
   [OFFER_STATUS.ACTIVE]: PALETTE.green,
   [OFFER_STATUS.INACTIVE]: PALETTE.red,
   [OFFER_STATUS.SOLD_OUT]: PALETTE.yellow,
@@ -22,7 +22,7 @@ export const TYPE_LABELS: Record<string, string> = {
   [OFFER_TYPE.TOP_UP]: "Top-Up",
 };
 
-export const TYPE_COLORS: Record<string, typeof PALETTE.blue> = {
+export const TYPE_COLORS: Record<string, PaletteColor> = {
   [OFFER_TYPE.NORMAL]: PALETTE.blue,
   [OFFER_TYPE.DROPSHIPPING]: PALETTE.yellow,
   [OFFER_TYPE.TOP_UP]: PALETTE.purple,

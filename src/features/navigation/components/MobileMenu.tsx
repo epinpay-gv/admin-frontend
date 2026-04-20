@@ -25,7 +25,10 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             transition={{ duration: 0.2 }}
             onClick={onClose}
             className="fixed inset-0 z-40 lg:hidden"
-            style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+            style={{
+              background: "rgba(0,0,0,0.6)",
+              backdropFilter: "blur(4px)",
+            }}
           />
 
           {/* Drawer */}
@@ -40,7 +43,12 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               borderColor: "rgba(255,255,255,0.06)",
             }}
           >
-            <SidebarLogo collapsed={false} />
+            <SidebarLogo
+              collapsed={false}
+              onToggle={function (): void {
+                throw new Error("Function not implemented.");
+              }}
+            />
 
             <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-5">
               {navGroups.map((group, index) => (
@@ -54,6 +62,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     navigate(href);
                     onClose();
                   }}
+                  openHref={null}
                 />
               ))}
             </nav>

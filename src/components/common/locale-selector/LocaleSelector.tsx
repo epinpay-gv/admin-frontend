@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useLocales } from "./hooks/useLocale";
-import { Locale } from "./locale.service";
+import { Locale } from "@/components/common/locale-selector/hooks/useLocale";
 import { Check, Plus, X } from "lucide-react";
 import {
   Command,
