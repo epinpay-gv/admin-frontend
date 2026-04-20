@@ -7,7 +7,7 @@ import {
 } from "@/features/store/types";
 
 const BFF_BASE = "/api/features/stock-offer";
-const API_BASE = "http://localhost:3011";
+const API_BASE = "https://admin-gateway-ahj0yeia.ew.gateway.dev";
 
 export const offerService = {
   getAll: (filters?: OfferFilters): Promise<StockOfferApiResponse<OfferListItem[]>> =>

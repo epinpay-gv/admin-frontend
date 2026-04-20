@@ -8,7 +8,7 @@ import {
 import { CatalogPagination } from "@/features/categories";
 
 const BASE_URL = "/api/features/catalog";
-const API_BASE = "http://localhost:3011";
+const API_BASE = "https://admin-gateway-ahj0yeia.ew.gateway.dev";
 
 export const productService = {
   /* ── Products ─────────────────────────────────────────── */

@@ -19,7 +19,7 @@ const TEMPLATES_URL = "/features/streamers/package-templates";
 const VARIANTS_URL = "/features/streamers/country-variants";
 const REQUESTS_URL = "/features/streamers/package-requests";
 
-const API_BASE = "http://localhost:3011/api";
+const API_BASE = "https://admin-gateway-ahj0yeia.ew.gateway.dev/api";
 
 type StreamerListParams = {
   search?: string;

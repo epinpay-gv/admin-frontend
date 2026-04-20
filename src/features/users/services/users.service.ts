@@ -14,7 +14,7 @@ import {
 
 const BASE_URL = "/api/features/users";
 
-const API_BASE = "http://localhost:3011";
+const API_BASE = "https://admin-gateway-ahj0yeia.ew.gateway.dev";
 
 function buildLedgerParams(filters?: LedgerFilter): Record<string, string | number | boolean | undefined | null> {
   if (!filters) return {};

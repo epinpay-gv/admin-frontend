@@ -7,6 +7,7 @@ import {
 const DEFAULT_HEADERS: Record<string, string> = {
   "Content-Type": "application/json",
   Accept: "application/json",
+  "x-api-key": "AIzaSyBFUsWEISiImLREu2usXWXIjOpKowiGwjE",
 };
 
 function buildUrl(

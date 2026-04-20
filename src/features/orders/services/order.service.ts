@@ -3,7 +3,7 @@ import { Order, OrderFilters, OrderExportParams } from "@/features/orders/types"
 import { ApiResponse } from "@/lib/api/types";
 
 const BASE_URL = "/api/features/order";
-const API_BASE = "http://localhost:3011";
+const API_BASE = "https://admin-gateway-ahj0yeia.ew.gateway.dev";
 
 /**
  * Filtreleri hem getAll hem de exportExcel için ortak bir formatta hazırlar.
