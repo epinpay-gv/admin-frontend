@@ -4,20 +4,25 @@ import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {PageState} from "@/components/common/page-state/PageState";
-import {PALETTE} from "@/lib/status-color";
+import { PageState } from "@/components/common/page-state/PageState";
+import { PALETTE } from "@/lib/status-color";
 import { usePackageTemplate } from "@/features/streamers/hooks/usePackageTemplate";
 import TemplateContentList from "@/features/streamers/components/TemplateContentList";
+
+// YENİLEME: packageTemplateService import'unu ekliyoruz (Create işlemi için lazım)
+
 
 import {
   TemplateContent,
   TEMPLATE_STATUS,
   TEMPLATE_STATUS_LABELS,
   PACKAGE_LEVEL_LABELS,
+  PACKAGE_LEVEL
 } from "@/features/streamers/types";
+import { packageTemplateService } from "@/features/streamers/services/streamer.service";
 
 const TEMPLATE_STATUS_COLOR = {
-  [TEMPLATE_STATUS.ACTIVE]:   PALETTE.green,
+  [TEMPLATE_STATUS.ACTIVE]: PALETTE.green,
   [TEMPLATE_STATUS.INACTIVE]: PALETTE.gray,
 };
 
@@ -26,25 +31,33 @@ export default function TemplateDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id }  = use(params);
-  const router  = useRouter();
-  const { template, loading, error, updateTemplate, refresh } = usePackageTemplate(Number(id));
+  const { id } = use(params);
+  const router = useRouter();
+  
 
-  const [form, setForm]     = useState({ name: "", description: "", status: TEMPLATE_STATUS.ACTIVE });
+  const isNew = id === "new";
+
+  const { template, loading, error, updateTemplate, refresh } = usePackageTemplate(isNew ? null : Number(id));
+
+
+  const [form, setForm] = useState({ name: "", description: "", status: TEMPLATE_STATUS.ACTIVE });
   const [saving, setSaving] = useState(false);
-  const [dirty, setDirty]   = useState(false);
+  const [dirty, setDirty] = useState(false);
 
-  // Veri geldiğinde form state'ini ilklendir
+
+  const displayData = isNew 
+    ? { id: "new", name: form.name || "Yeni Şablon", level: PACKAGE_LEVEL.BRONZE, status: form.status, contents: [] } 
+    : template;
+
   useEffect(() => {
-    if (template && !dirty) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!isNew && template && !dirty) {
       setForm({
-        name:        template.name,
+        name: template.name,
         description: template.description ?? "",
-        status:      template.status,
+        status: template.status,
       });
     }
-  }, [template, dirty]);
+  }, [template, dirty, isNew]);
 
   const handleChange = (key: string, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -53,13 +66,29 @@ export default function TemplateDetailPage({
 
   const handleSave = async () => {
     setSaving(true);
-    await updateTemplate(form);
+    
+    if (isNew) {
+      // YENİ OLUŞTURMA İŞLEMİ
+      try {
+        const created = await packageTemplateService.create(form);
+        setDirty(false);
+        router.replace(`/streamers/package-templates/${created.id}`);
+      } catch (err) {
+         console.error("Şablon oluşturulamadı", err);
+      }
+    } else {
+      // GÜNCELLEME İŞLEMİ
+      if (updateTemplate) {
+         await updateTemplate(form);
+      }
+      setDirty(false);
+    }
+    
     setSaving(false);
-    setDirty(false);
   };
 
   const handleUpdateContent = async (contentId: number, data: Partial<TemplateContent>) => {
-    if (!template) return;
+    if (isNew || !template) return;
     const updated = template.contents.map((c) =>
       c.id === contentId ? { ...c, ...data } : c
     );
@@ -68,35 +97,34 @@ export default function TemplateDetailPage({
   };
 
   const handleAddContent = async (data: Partial<TemplateContent>) => {
-    if (!template) return;
+    if (isNew || !template) return;
     const newContent = {
-      id:           Date.now(),
-      templateId:   template.id,
-      key:          data.key ?? "",
-      label:        data.label ?? "",
-      fieldType:    data.fieldType!,
+      id: Date.now(),
+      templateId: template.id,
+      key: data.key ?? "",
+      label: data.label ?? "",
+      fieldType: data.fieldType!,
       defaultValue: data.defaultValue ?? null,
-      description:  data.description,
-      isActive:     data.isActive ?? true,
-      createdAt:    new Date().toISOString(),
-      updatedAt:    new Date().toISOString(),
+      description: data.description,
+      isActive: data.isActive ?? true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
     await updateTemplate({ contents: [...template.contents, newContent] });
     await refresh();
   };
 
-  // Hata mesajını özelleştir
-  const pageError = error || (!template && !loading ? "Şablon bulunamadı." : null);
-
-  const sc = template ? TEMPLATE_STATUS_COLOR[template.status] : null;
+  const pageError = isNew ? null : (error || (!template && !loading ? "Şablon bulunamadı." : null));
+  const isLoading = isNew ? false : loading;
+  const sc = displayData ? TEMPLATE_STATUS_COLOR[displayData.status as TEMPLATE_STATUS] : null;
 
   return (
     <PageState 
-      loading={loading} 
+      loading={isLoading} 
       error={pageError} 
       onRetry={() => router.back()}
     >
-      {template && (
+      {displayData && (
         <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
           {/* Üst Bar */}
           <div
@@ -114,34 +142,26 @@ export default function TemplateDetailPage({
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h1 className="text-lg font-semibold tracking-tight" style={{ color: "var(--text-primary)" }}>
-                    {template.name}
+                    {isNew ? (form.name || "Yeni Şablon Oluşturuluyor") : displayData.name}
                   </h1>
                   {sc && (
                     <span
                       className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
                       style={{ background: sc.bg, color: sc.color }}
                     >
-                      {TEMPLATE_STATUS_LABELS[template.status]}
-                    </span>
-                  )}
-                  {dirty && (
-                    <span
-                      className="text-[11px] font-mono px-2 py-0.5 rounded-full"
-                   style={{ background: PALETTE.yellow.bg, color: PALETTE.yellow.color }}
-                    >
-                      Kaydedilmemiş değişiklikler
+                      {TEMPLATE_STATUS_LABELS[displayData.status as TEMPLATE_STATUS]}
                     </span>
                   )}
                 </div>
                 <p className="text-xs font-mono mt-0.5" style={{ color: "var(--text-muted)" }}>
-                  #{template.id} · {PACKAGE_LEVEL_LABELS[template.level]}
+                  {isNew ? "Yeni Kayıt" : `#${displayData.id} · ${PACKAGE_LEVEL_LABELS[displayData.level as PACKAGE_LEVEL]}`}
                 </p>
               </div>
             </div>
 
             <Button
               onClick={handleSave}
-              disabled={saving || !dirty}
+              disabled={saving || (!dirty && !isNew)} // Yeni öğede formu az da doldursa kaydet açık kalsın if isNew true
               className="text-white flex items-center gap-2 shrink-0"
               style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
             >
@@ -166,10 +186,7 @@ export default function TemplateDetailPage({
               className="rounded-xl border p-6"
               style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
             >
-              <p
-                className="text-[11px] font-semibold uppercase tracking-widest font-mono mb-4"
-                style={{ color: "var(--text-muted)" }}
-              >
+              <p className="text-[11px] font-semibold uppercase tracking-widest font-mono mb-4" style={{ color: "var(--text-muted)" }}>
                 Şablon Bilgileri
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -180,6 +197,7 @@ export default function TemplateDetailPage({
                   <input
                     value={form.name}
                     onChange={(e) => handleChange("name", e.target.value)}
+                    placeholder="Şablon adı girin"
                     className="h-9 rounded-lg border px-3 text-sm outline-none"
                     style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
                   />
@@ -206,6 +224,7 @@ export default function TemplateDetailPage({
                   <input
                     value={form.description}
                     onChange={(e) => handleChange("description", e.target.value)}
+                    placeholder="Şablon için opsiyonel açıklama"
                     className="h-9 rounded-lg border px-3 text-sm outline-none"
                     style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
                   />
@@ -213,12 +232,17 @@ export default function TemplateDetailPage({
               </div>
             </div>
 
-            {/* İçerik Listesi */}
-            <TemplateContentList
-              template={template}
-              onUpdateContent={handleUpdateContent}
-              onAddContent={handleAddContent}
-            />
+            {!isNew ? (
+              <TemplateContentList
+                template={template!}
+                onUpdateContent={handleUpdateContent}
+                onAddContent={handleAddContent}
+              />
+            ) : (
+                <div className="p-6 text-center rounded-xl border text-sm" style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-muted)" }}>
+                  Bu şablona madde/içerik (content) ekleyebilmek için, öncelikle şablonu bir kere kaydetmelisiniz.
+                </div>
+            )}
           </div>
         </div>
       )}

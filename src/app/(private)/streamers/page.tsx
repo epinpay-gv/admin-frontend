@@ -73,36 +73,39 @@ export default function StreamersPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
-      <PageHeader
-        title="Yayıncılar"
-        count={displayData.length}
-        countLabel="kayıt"
-        actions={
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={active.refresh} title="Yenile" className="text-(--text-muted)">
-              <RefreshCw size={14} className={active.loading ? "animate-spin" : ""} />
-            </Button>
-            
-            {TAB_FILTERS[activeTab]?.length > 0 && TAB_FILTERS[activeTab] && (
-              <Button 
-                variant="outline" 
-                onClick={() => setShowFilters(!showFilters)}
-                className="relative px-4"
-                style={{ 
-                  backgroundColor: showFilters || hasActiveFilters  ? "rgba(0, 198, 162, 0.1)" : "",
-                  color: showFilters || hasActiveFilters ? "#00C6A2" : "var(--text-muted)",
-                  borderColor: showFilters || hasActiveFilters ? "rgba(0, 198, 162, 0.1)" : "" 
-                }}
-              >
-                <Filter size={14} className="mr-2" /> Filtre
-                {hasActiveFilters && (
-                  <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-background bg-[#00C6A2]" />
-                )}
-              </Button>
-            )}
-          </div>
-        }
-      />
+  <PageHeader
+  title="Yayıncılar"
+  count={displayData.length}
+  countLabel="kayıt"
+  actions={
+    <div className="flex items-center gap-2">
+      <Button variant="outline" size="icon" onClick={active.refresh} title="Yenile">
+        <RefreshCw size={14} className={active.loading ? "animate-spin" : ""} />
+      </Button>
+      
+      {TAB_FILTERS[activeTab]?.length > 0 && TAB_FILTERS[activeTab] && (
+        <Button 
+          variant="outline" 
+          onClick={() => setShowFilters(!showFilters)}
+          // ... stiller
+        >
+          <Filter size={14} className="mr-2" /> Filtre
+        </Button>
+      )}
+
+      {/* YENİ EKLENEN KISIM: Sadece aktif tab templates veya variants ise göster */}
+      {activeTab === "templates" && (
+        <Button 
+           onClick={() => router.push("/streamers/package-templates/new")}
+           style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)", color: "white" }}
+        >
+           + Yeni Şablon
+        </Button>
+      )}
+    </div>
+  }
+/>
+
 
       <div className="flex items-center gap-1 p-1 rounded-xl mb-4 shrink-0" style={{ background: "var(--background-card)", border: "1px solid var(--border)" }}>
         {(Object.keys(hooks) as TabKey[]).map((key) => {
