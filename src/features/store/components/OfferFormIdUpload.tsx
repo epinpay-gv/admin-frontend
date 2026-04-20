@@ -5,8 +5,8 @@ import { IdUploadField } from "@/features/store/types";
 import Input from "@/components/common/input/Input";
 
 interface Props {
-  fields:   IdUploadField[];
-  onAdd:    () => void;
+  fields: IdUploadField[];
+  onAdd: () => void;
   onUpdate: (key: string, patch: Partial<IdUploadField>) => void;
   onRemove: (key: string) => void;
 }
@@ -48,7 +48,7 @@ export default function OfferFormIdUpload({ fields, onAdd, onUpdate, onRemove }:
               className="w-8 h-5 rounded-full transition-colors"
               style={{
                 background: field.isRequired ? "#00C6A2" : "var(--border)",
-                opacity:    !field.isEditable ? 0.5 : 1,
+                opacity: !field.isEditable ? 0.5 : 1,
               }}
             />
           </div>

@@ -1,96 +1,69 @@
 "use client";
 
-import { Save } from "lucide-react";
-import { OfferFormValues, DELIVERY_TYPE } from "@/features/store/types";
-import { Button } from "@/components/ui/button";
+import { OfferFormValues, OFFER_TYPE, OFFER_STATUS } from "@/features/store/types";
 
 interface Props {
-  values:   OfferFormValues;
-  saving:   boolean;
-  onSubmit: () => void;
+  values: OfferFormValues;
 }
 
-const DELIVERY_LABELS: Record<DELIVERY_TYPE, string> = {
-  [DELIVERY_TYPE.AUTOMATIC]:    "Otomatik Teslimat",
-  [DELIVERY_TYPE.ID_UPLOAD]:    "ID Yükleme",
-  [DELIVERY_TYPE.DROPSHIPPING]: "Stoksuz",
-};
+export default function OfferFormSummary({ values }: Props) {
+  const getLabel = (type: string, options: { label: string; value: any }[]) => 
+    options.find(o => o.value === type)?.label || type;
 
-export default function OfferFormSummary({ values, saving, onSubmit }: Props) {
+  const typeLabel = getLabel(values.type, [
+    { label: "Stoklu (NORMAL)", value: OFFER_TYPE.NORMAL },
+    { label: "Stoksuz (DROPSHIPPING)", value: OFFER_TYPE.DROPSHIPPING },
+    { label: "Top-Up", value: OFFER_TYPE.TOP_UP },
+  ]);
+
+  const statusLabel = getLabel(values.status, [
+    { label: "Aktif", value: OFFER_STATUS.ACTIVE },
+    { label: "Pasif", value: OFFER_STATUS.INACTIVE },
+  ]);
+
   return (
-    <div className="space-y-4">
-
-      {/* Özet satırları */}
-      {[
-        { label: "Teslimat",  value: DELIVERY_LABELS[values.deliveryType] },
-        { label: "Fiyat",     value: `${values.currency} ${values.price.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}` },
-        { label: "Durum",     value: values.status === "active" ? "Aktif" : "Pasif" },
-      ].map(({ label, value }) => (
-        <div key={label} className="flex justify-between items-center">
-          <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>
-            {label}
-          </span>
-          <span className="text-sm font-mono font-medium" style={{ color: "var(--text-primary)" }}>
-            {value}
-          </span>
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-y-4 text-sm font-mono">
+        <div className="space-y-1">
+          <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>Mağaza ID</p>
+          <p className="truncate pr-4">{values.store_id}</p>
         </div>
-      ))}
-
-      {/* Teslimat süresi  */}
-      {values.deliveryType === DELIVERY_TYPE.ID_UPLOAD && (
-        <div className="flex justify-between items-center">
-          <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>
-            Teslimat Süresi
-          </span>
-          <span className="text-sm font-mono" style={{ color: "#FFB400" }}>
-            24 saat
-          </span>
+        <div className="space-y-1">
+          <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>Ürün ID</p>
+          <p>{values.product_id}</p>
         </div>
-      )}
-
-      <div className="h-px" style={{ background: "var(--border)" }} />
-
-      {/* Not alanı */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>
-          Not 
-        </label>
-        <textarea
-          rows={3}
-          value={values.note ?? ""}
-          onChange={(e) =>
-            (values.note !== e.target.value)
-          }
-          placeholder="Dahili not..."
-          className="w-full rounded-lg border px-3 py-2 text-sm font-mono resize-none"
-          style={{
-            background:  "var(--background-secondary)",
-            borderColor: "var(--border)",
-            color:       "var(--text-primary)",
-          }}
-        />
+        <div className="space-y-1">
+          <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>Teklif Tipi</p>
+          <p>{typeLabel}</p>
+        </div>
+        <div className="space-y-1">
+          <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>Durum</p>
+          <p>{statusLabel}</p>
+        </div>
+        <div className="space-y-1">
+          <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>Fiyat</p>
+          <p className="text-[#00C6A2] font-bold">{values.amount} (Para Birimi: {values.currency_name || values.currency_id})</p>
+        </div>
+        {values.type === OFFER_TYPE.NORMAL && (
+          <div className="space-y-1">
+            <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>Girilmiş Stok</p>
+            <p>{values.epins.length} E-pin</p>
+          </div>
+        )}
       </div>
 
-      {/* Kaydet */}
-      <Button
-        onClick={onSubmit}
-        disabled={saving}
-        className="w-full text-white flex items-center justify-center gap-2"
-        style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
-      >
-        {saving ? (
-          <span className="flex items-center gap-2">
-            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            Kaydediliyor...
-          </span>
-        ) : (
-          <>
-            <Save size={14} />
-            Kaydet
-          </>
-        )}
-      </Button>
-
+      {values.epins.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>Yüklenecek Kodlar</p>
+          <div className="flex flex-wrap gap-1.5 p-3 rounded-xl border max-h-40 overflow-y-auto" style={{ background: "var(--background-secondary)", borderColor: "var(--border)" }}>
+            {values.epins.map(key => (
+              <span key={key} className="text-[10px] font-mono px-2 py-0.5 rounded" style={{ background: "rgba(0,133,255,0.10)", color: "#0085FF" }}>
+                {key}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

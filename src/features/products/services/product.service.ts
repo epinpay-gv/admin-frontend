@@ -8,6 +8,7 @@ import {
 import { CatalogPagination } from "@/features/categories";
 
 const BASE_URL = "/api/features/catalog";
+const API_BASE = "http://localhost:3011";
 
 export const productService = {
   /* ── Products ─────────────────────────────────────────── */
@@ -17,25 +18,26 @@ export const productService = {
     api.get<{ products: Product[]; pagination: CatalogPagination }, ProductFilters>(
       `${BASE_URL}/products`,
       filters,
+      { baseUrl: API_BASE }
     ),
 
   getById: (id: number): Promise<Product> =>
-    api.get<Product>(`${BASE_URL}/products/${id}`),
+    api.get<Product>(`${BASE_URL}/products/${id}`,undefined, { baseUrl: API_BASE }),
 
   create: (data: Partial<Product>): Promise<Product> =>
-    api.post<Product, Partial<Product>>(`${BASE_URL}/products`, data),
+    api.post<Product, Partial<Product>>(`${BASE_URL}/products`, data , { baseUrl: API_BASE }),
 
   update: (id: number, data: Partial<Product>): Promise<Product> =>
-    api.put<Product, Partial<Product>>(`${BASE_URL}/products/${id}`, data),
+    api.put<Product, Partial<Product>>(`${BASE_URL}/products/${id}`, data, { baseUrl: API_BASE }),
 
   quickUpdate: (
     id: number,
     payload: ProductQuickUpdatePayload,
   ): Promise<{ success: boolean; product?: Product }> =>
-    api.patch(`${BASE_URL}/products/${id}/quick-update`, payload),
+    api.patch(`${BASE_URL}/products/${id}/quick-update`, payload, { baseUrl: API_BASE }),
 
   delete: (id: number): Promise<void> =>
-    api.delete<void>(`${BASE_URL}/products/${id}`),
+    api.delete<void>(`${BASE_URL}/products/${id}`, { baseUrl: API_BASE }),
 
   /* ── Country ban/unban ──────────────────────────────────── */
 
@@ -52,6 +54,7 @@ export const productService = {
     api.post<void, { productIds: number[]; countries: string[] }>(
       `${BASE_URL}/products/ban-countries`,
       payload,
+      { baseUrl: API_BASE }
     ),
 
   unbanCountries: (payload: {
@@ -61,5 +64,6 @@ export const productService = {
     api.post<void, { productIds: number[]; countries: string[] }>(
       `${BASE_URL}/products/unban-countries`,
       payload,
+      { baseUrl: API_BASE }
     ),
 };

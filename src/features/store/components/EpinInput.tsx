@@ -8,7 +8,8 @@ interface Props {
 }
 
 function parse(raw: string): string[] {
-  return raw.split(",").map((s) => s.trim()).filter(Boolean);
+  // Hem virgül hem de yeni satır (newline) ile ayırmayı destekle
+  return raw.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
 }
 
 export default function EpinInput({ value, onChange }: Props) {

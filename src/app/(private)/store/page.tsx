@@ -2,13 +2,12 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Filter, RefreshCw, ToggleLeft, ToggleRight } from "lucide-react";
+import { Filter, Plus, RefreshCw } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { DataTable } from "@/components/common/data-table";
 import { ColumnDef } from "@/components/common/data-table/components/DataTableHeader";
 import { useOffers } from "@/features/store/hooks/useOffers";
-import { useOfferToggle } from "@/features/store/hooks/useOfferToggle";
 import { OFFER_STATUS, OfferFilters } from "@/features/store/types";
 import { PageState } from "@/components/common/page-state/PageState";
 import { EntityActions } from "@/components/common/entity-actions/EntityActions";
@@ -16,7 +15,8 @@ import { FilterPanel } from "@/components/common/filter-panel/FilterPanel";
 import { FilterData } from "@/components/common/filter-panel/types";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import { Button } from "@/components/ui/button";
-import { PALETTE } from "@/lib/status-color";
+import Modal from "@/components/common/modal/Modal";
+import OfferForm from "@/features/store/components/OfferForm";
 
 import { OFFER_COLUMNS, STATUS_LABELS, OfferRow } from "@/features/store/components/OfferTableConfig";
 import { OFFER_FILTERS } from "@/features/store/hooks/OfferFilterConfig";
@@ -28,12 +28,7 @@ export default function StorePage() {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<OfferFilters>({});
 
-  // Hook kullanımı (Refresh desteği ile)
-  const { offers, loading, error, refresh, updateOfferStatus } = useOffers(filters);
-
-  const { toggle, loadingId } = useOfferToggle((id, status) => {
-    updateOfferStatus(id, status);
-  });
+  const { offers, loading, error, pagination, refresh } = useOffers(filters);
 
   const STATUS_OPTIONS = useMemo(() => [
     { label: "Tümü", value: "all" },
@@ -49,11 +44,15 @@ export default function StorePage() {
     }));
   };
 
+  const handlePageChange = (page: number) => {
+    setFilters((prev) => ({ ...prev, page }));
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
       <PageHeader
-        title="Tekliflerim"
-        count={offers.length}
+        title="Epinpay Teklifleri"
+        count={pagination?.total ?? offers.length}
         countLabel="teklif"
         actions={
           <div className="flex items-center gap-2">
@@ -77,13 +76,8 @@ export default function StorePage() {
               )}
             </Button>
 
-            <Button
-              onClick={() => router.push("/store/new")}
-              className="text-white flex items-center gap-2 px-6 h-10 shadow-lg shadow-emerald-500/20"
-              style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
-            >
-              <Plus size={18} strokeWidth={2.5} />
-              <span className="font-semibold text-sm">Yeni Teklif</span>
+            <Button onClick={() => router.push("/store/new")} className="bg-[#0085FF] hover:bg-[#0070D9] text-white">
+              <Plus size={16} className="mr-2" /> Yeni Teklif
             </Button>
           </div>
         }
@@ -111,24 +105,6 @@ export default function StorePage() {
             onStatusChange={handleStatusChange}
             actions={(row) => (
               <div className="flex items-center justify-end gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggle(row.id as number, row.status as OFFER_STATUS);
-                  }}
-                  disabled={loadingId === row.id}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:bg-black/5"
-                  title={row.status === OFFER_STATUS.ACTIVE ? "Pasife Al" : "Aktif Et"}
-                  style={{
-                    background: "var(--background-card)",
-                    borderColor: "var(--border)",
-                    color: row.status === OFFER_STATUS.ACTIVE ? PALETTE.green.color : PALETTE.red.color,
-                    opacity: loadingId === row.id ? 0.5 : 1,
-                  }}
-                >
-                  {row.status === OFFER_STATUS.ACTIVE ? <ToggleRight size={20} /> : <ToggleLeft size={20} />}
-                </button>
-
                 <EntityActions
                   row={row}
                   onView={() => router.push(`/store/${row.id}`)}
@@ -136,6 +112,35 @@ export default function StorePage() {
               </div>
             )}
           />
+
+          {/* Pagination */}
+          {pagination && pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between px-4 py-3 mt-2 rounded-xl border"
+              style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
+            >
+              <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                Toplam {pagination.total} teklif • Sayfa {pagination.page} / {pagination.totalPages}
+              </span>
+              <div className="flex gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={pagination.page <= 1}
+                  onClick={() => handlePageChange(pagination.page - 1)}
+                >
+                  Önceki
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={pagination.page >= pagination.totalPages}
+                  onClick={() => handlePageChange(pagination.page + 1)}
+                >
+                  Sonraki
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </PageState>
     </div>

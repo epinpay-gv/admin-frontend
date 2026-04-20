@@ -57,6 +57,13 @@ export const orderService = {
       { baseUrl: API_BASE }
     ),
 
+  updateStatus: (id: string | number, status: string): Promise<ApiResponse<void>> =>
+    api.patch<ApiResponse<void>, { status: string }>(
+      `${BASE_URL}/${id}/status`,
+      { status },
+      { baseUrl: API_BASE }
+    ),
+
   // Excel Export şimdilik mevcut haliyle kalıyor, BFF'de henüz karşılığı yok
   exportExcel: async (params?: OrderExportParams): Promise<Blob> => {
     const searchParams = new URLSearchParams();

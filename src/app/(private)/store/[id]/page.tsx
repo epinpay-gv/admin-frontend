@@ -1,43 +1,38 @@
 "use client";
 
-import { use, useState } from "react";
+import { use } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useOffer } from "@/features/store/hooks/useOffer";
-import { useOfferForm } from "@/features/store/hooks/useOfferForm";
-import { OFFER_STATUS, DELIVERY_TYPE } from "@/features/store/types";
+import { OFFER_STATUS, OFFER_TYPE } from "@/features/store/types";
 import { Button } from "@/components/ui/button";
-import OfferForm from "@/features/store/components/OfferForm";
-import {PageState} from "@/components/common/page-state/PageState";
+import { PageState } from "@/components/common/page-state/PageState";
 import { PALETTE } from "@/lib/status-color";
+import OfferForm from "@/features/store/components/OfferForm";
+import { Edit2, X } from "lucide-react";
+import { useState } from "react";
+import { StockManager } from "@/features/store/components/StockManager";
 
-// Sabitler 
-
-const STATUS_COLORS = {
-  [OFFER_STATUS.ACTIVE]:  PALETTE.green,
-  [OFFER_STATUS.PASSIVE]: PALETTE.red,
-  [OFFER_STATUS.DRAFT]:   PALETTE.yellow,
+const STATUS_COLORS: Record<string, typeof PALETTE.green> = {
+  [OFFER_STATUS.ACTIVE]: PALETTE.green,
+  [OFFER_STATUS.INACTIVE]: PALETTE.red,
+  [OFFER_STATUS.SOLD_OUT]: PALETTE.yellow,
+  [OFFER_STATUS.DELETED]: PALETTE.red,
 };
-const STATUS_LABELS: Record<OFFER_STATUS, string> = {
-  [OFFER_STATUS.ACTIVE]:  "Aktif",
-  [OFFER_STATUS.PASSIVE]: "Pasif",
-  [OFFER_STATUS.DRAFT]:   "Taslak",
+const STATUS_LABELS: Record<string, string> = {
+  [OFFER_STATUS.ACTIVE]: "Aktif",
+  [OFFER_STATUS.INACTIVE]: "Pasif",
+  [OFFER_STATUS.SOLD_OUT]: "Tükendi",
+  [OFFER_STATUS.DELETED]: "Silindi",
+};
+const TYPE_LABELS: Record<string, string> = {
+  [OFFER_TYPE.NORMAL]: "Stoklu",
+  [OFFER_TYPE.DROPSHIPPING]: "Stoksuz",
+  [OFFER_TYPE.TOP_UP]: "Top-Up",
 };
 
-const DELIVERY_LABELS: Record<DELIVERY_TYPE, string> = {
-  [DELIVERY_TYPE.AUTOMATIC]:    "Otomatik Teslimat",
-  [DELIVERY_TYPE.ID_UPLOAD]:    "ID Yükleme",
-  [DELIVERY_TYPE.DROPSHIPPING]: "Stoksuz",
-};
-
-type PageMode = "create" | "edit";
-
-function resolveMode(id: string): PageMode {
-  return id === "new" ? "create" : "edit";
-}
-
-function resolveOfferId(id: string): number | null {
-  return id === "new" ? null : Number(id);
+function resolveOfferId(id: string): string | null {
+  return id === "new" ? null : id;
 }
 
 export default function OfferDetailPage({
@@ -45,35 +40,64 @@ export default function OfferDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id }      = use(params);
-  const router      = useRouter();
-  const mode        = resolveMode(id);
-  const numericId   = resolveOfferId(id);
+  const { id } = use(params);
+  const router = useRouter();
+  const offerId = resolveOfferId(id);
+  const [isEditing, setIsEditing] = useState(false);
 
-  const { offer, loading, error } = useOffer(numericId);
-  const { submit, loading: saving, error: saveError, defaultValues } = useOfferForm(numericId ?? undefined);
+  const { offer, loading, error } = useOffer(offerId);
 
-  const [isDirty, setIsDirty] = useState(false);
+  const handleBack = () => router.back();
 
-  const handleBack = () => {
-    if (isDirty) {
-      if (confirm("Kaydedilmemiş değişiklikler var. Çıkmak istediğinize emin misiniz?")) {
-        router.back();
-      }
-    } else {
-      router.back();
-    }
-  };
-  const isEditMode = mode === "edit";
-  const isPageLoading = isEditMode && loading;
-  const pageError = error || (isEditMode && !offer && !loading ? "Teklif bulunamadı." : null);
+  const isNew = id === "new";
 
-  const pageTitle = mode === "create" ? "Yeni Teklif" : offer?.product.name ?? "Teklif Detay";
+  const statusStr = offer?.status as string ?? "";
+  const typeStr = offer?.type as string ?? "";
+
+  // Yeni teklif oluşturma sayfası
+  if (isNew) {
+    return (
+      <div className="flex flex-col h-full overflow-hidden">
+        <div className="pb-4">
+          <div
+            className="shrink-0 flex items-center justify-between px-6 py-4 mb-4 rounded-xl border gap-4"
+            style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
+          >
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleBack}
+                className="w-9 h-9 rounded-lg flex items-center justify-center border transition-colors"
+                style={{
+                  background: "var(--background-secondary)",
+                  borderColor: "var(--border)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <ArrowLeft size={16} />
+              </button>
+              <h1 className="text-xl font-semibold tracking-tight" style={{ color: "var(--text-primary)" }}>
+                Yeni Teklif Oluştur
+              </h1>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto pb-6 px-6">
+          <div 
+            className="max-w-3xl mx-auto p-6 rounded-2xl border"
+            style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
+          >
+            <OfferForm mode="create" onCancel={() => router.back()} />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <PageState 
-      loading={isPageLoading} 
-      error={pageError} 
+    <PageState
+      loading={loading}
+      error={error || (!offer && !loading ? "Teklif bulunamadı." : null)}
       onRetry={() => router.back()}
     >
       <div className="flex flex-col h-full overflow-hidden">
@@ -88,9 +112,9 @@ export default function OfferDetailPage({
                 onClick={handleBack}
                 className="w-9 h-9 shrink-0 rounded-lg flex items-center justify-center border transition-colors"
                 style={{
-                  background:  "var(--background-secondary)",
+                  background: "var(--background-secondary)",
                   borderColor: "var(--border)",
-                  color:       "var(--text-muted)",
+                  color: "var(--text-muted)",
                 }}
               >
                 <ArrowLeft size={16} />
@@ -102,18 +126,18 @@ export default function OfferDetailPage({
                     className="text-xl font-semibold tracking-tight truncate"
                     style={{ color: "var(--text-primary)" }}
                   >
-                    {pageTitle}
+                    Teklif Detay
                   </h1>
 
-                  {offer && mode === "edit" && (
+                  {offer && (
                     <span
                       className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
                       style={{
-                        background: STATUS_COLORS[offer.status].bg,
-                        color:      STATUS_COLORS[offer.status].color,
+                        background: (STATUS_COLORS[statusStr] ?? PALETTE.red).bg,
+                        color: (STATUS_COLORS[statusStr] ?? PALETTE.red).color,
                       }}
                     >
-                      {STATUS_LABELS[offer.status]}
+                      {STATUS_LABELS[statusStr] ?? statusStr}
                     </span>
                   )}
                   {offer && (
@@ -121,103 +145,115 @@ export default function OfferDetailPage({
                       className="text-[11px] px-2 py-0.5 rounded-full font-mono"
                       style={{
                         background: "var(--background-secondary)",
-                        color:      "var(--text-muted)",
+                        color: "var(--text-muted)",
                       }}
                     >
-                      {DELIVERY_LABELS[offer.deliveryType]}
-                    </span>
-                  )}
-
-                  {mode === "create" && (
-                    <span
-                      className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                      style={{ background: "rgba(255,180,0,0.15)", color: "#FFB400" }}
-                    >
-                      Yeni
-                    </span>
-                  )}
-
-                  {isDirty && (
-                    <span
-                      className="text-[11px] font-mono px-2 py-0.5 rounded-full"
-                      style={{ background: "rgba(255,180,0,0.15)", color: "#FFB400" }}
-                    >
-                      Kaydedilmemiş değişiklikler
+                      {TYPE_LABELS[typeStr] ?? typeStr}
                     </span>
                   )}
                 </div>
 
                 {offer && (
                   <span
-                    className="text-[11px] px-2 py-0.5 rounded-full font-mono"
-                    style={{
-                      background: "var(--background-secondary)",
-                      color:      "var(--text-muted)",
-                    }}
+                    className="text-[11px] font-mono mt-1 block"
+                    style={{ color: "var(--text-muted)" }}
                   >
-                    {DELIVERY_LABELS[offer.deliveryType]}
-                  </span>
-                )}
-
-                {mode === "create" && (
-                  <span
-                    className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-                    style={PALETTE.yellow}
-                  >
-                    Yeni
-                  </span>
-                )}
-
-                {isDirty && (
-                  <span
-                    className="text-[11px] font-mono px-2 py-0.5 rounded-full"
-                    style={PALETTE.yellow}
-                  >
-                    Kaydedilmemiş değişiklikler
+                    ID: {offer.id}
                   </span>
                 )}
               </div>
             </div>
-            <Button
-              onClick={() => {}} 
-              disabled={saving}
-              className="text-white flex items-center gap-2"
-              style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
-            >
-              {saving ? (
-                <span className="flex items-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Kaydediliyor...
-                </span>
-              ) : (
-                <>
-                  <Save size={14} />
-                  {mode === "create" ? "Oluştur" : "Kaydet"}
-                </>
-              )}
-            </Button>
+
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setIsEditing(!isEditing)}
+                variant="outline"
+                className="flex items-center gap-2"
+                style={{
+                  borderColor: isEditing ? "#FF5050" : "var(--border)",
+                  color: isEditing ? "#FF5050" : "var(--text-primary)",
+                }}
+              >
+                {isEditing ? <X size={14} /> : <Edit2 size={14} />}
+                {isEditing ? "İptal" : "Düzenle"}
+              </Button>
+              <Button
+                onClick={() => router.back()}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft size={14} />
+                Geri
+              </Button>
+            </div>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto pb-6">
-          <OfferForm
-            offer={offer ?? null}
-            mode={mode}
-            saving={saving}
-            defaultValues={defaultValues}
-            onDirtyChange={setIsDirty}
-            onSubmit={async (values) => {
-              await submit(values);
-              router.push("/epinpay/store");
-            }}
-          />
-          {saveError && (
-            <div className="px-6 py-4 mt-4 bg-red-400/10 border border-red-400/20 rounded-xl mx-6">
-               <p className="text-red-400 text-xs font-mono">{saveError}</p>
-            </div>
-          )}
-        </div>
+        {/* Detail Content */}
+        {offer && (
+          <div className="flex-1 overflow-y-auto pb-6 px-6">
+            {isEditing ? (
+              <div 
+                className="max-w-3xl mx-auto p-6 rounded-2xl border"
+                style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
+              >
+                <h2 className="text-lg font-bold mb-6">Teklifi Düzenle</h2>
+                <OfferForm 
+                  initialOffer={offer} 
+                  mode="edit" 
+                  onCancel={() => setIsEditing(false)} 
+                />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Info Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <DetailCard label="Ürün ID" value={`#${offer.product_id}`} />
+                  <DetailCard label="Mağaza ID" value={offer.store_id.slice(0, 12) + "…"} title={offer.store_id} />
+                  <DetailCard label="Fiyat" value={`${Number(offer.amount).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ${offer.currency_code ?? offer.currency_id}`} />
+                  {offer.usd_amount !== undefined && (
+                    <DetailCard label="USD Fiyat" value={`$${Number(offer.usd_amount).toLocaleString("en-US", { minimumFractionDigits: 2 })}`} />
+                  )}
+                  <DetailCard label="Tip" value={TYPE_LABELS[typeStr] ?? typeStr} />
+                  <DetailCard label="Durum" value={STATUS_LABELS[statusStr] ?? statusStr} />
+                  {offer.min_stock_threshold != null && (
+                    <DetailCard label="Min Stok Eşiği" value={String(offer.min_stock_threshold)} />
+                  )}
+                  {offer.server_id && (
+                    <DetailCard label="Server ID" value={offer.server_id} />
+                  )}
+                  {offer._count?.stocks !== undefined && (
+                    <DetailCard label="Mevcut Stok" value={String(offer._count.stocks)} />
+                  )}
+                  <DetailCard label="Oluşturulma" value={new Date(offer.created_at).toLocaleString("tr-TR")} />
+                  <DetailCard label="Güncelleme" value={new Date(offer.updated_at).toLocaleString("tr-TR")} />
+                </div>
+
+                {/* Stok Yönetimi */}
+                {offer.type === "NORMAL" && (
+                  <StockManager offerId={offer.id} offerType={offer.type} />
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </PageState>
+  );
+}
+
+function DetailCard({ label, value, title }: { label: string; value: string; title?: string }) {
+  return (
+    <div
+      className="rounded-xl border px-4 py-3"
+      style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
+    >
+      <span className="text-[11px] font-medium uppercase tracking-wider block mb-1" style={{ color: "var(--text-muted)" }}>
+        {label}
+      </span>
+      <span className="text-sm font-medium font-mono" style={{ color: "var(--text-primary)" }} title={title}>
+        {value}
+      </span>
+    </div>
   );
 }

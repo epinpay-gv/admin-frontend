@@ -14,6 +14,7 @@ import {
 } from "@/features/categories/types";
 
 const BASE = "/api/features/catalog";
+const API_BASE = "http://localhost:3011";
 
 export const categoryService = {
   /* ── Categories ─────────────────────────────────────────── */
@@ -22,25 +23,26 @@ export const categoryService = {
     api.get<CategoryListResponse, CategoryFilters>(
       `${BASE}/categories`,
       filters,
+      { baseUrl: API_BASE }
     ),
 
   getById: (id: number): Promise<Category> =>
-    api.get<Category>(`${BASE}/categories/${id}`),
+    api.get<Category>(`${BASE}/categories/${id}`,undefined, { baseUrl: API_BASE }),
 
   create: (payload: CategoryCreatePayload): Promise<Category> =>
-    api.post<Category, CategoryCreatePayload>(`${BASE}/categories`, payload),
+    api.post<Category, CategoryCreatePayload>(`${BASE}/categories`, payload, { baseUrl: API_BASE }),
 
   update: (
     id: number,
     payload: CategoryUpdatePayload,
   ): Promise<{ success: boolean; category: Category }> =>
-    api.put(`${BASE}/categories/${id}`, payload),
+    api.put(`${BASE}/categories/${id}`, payload, { baseUrl: API_BASE }),
 
   quickUpdate: (
     id: number,
     payload: CategoryQuickUpdatePayload,
   ): Promise<{ success: boolean; category?: Category }> =>
-    api.patch(`${BASE}/categories/${id}/quick-update`, payload),
+    api.patch(`${BASE}/categories/${id}/quick-update`, payload, { baseUrl: API_BASE }),
 
   /* ── Country ban/unban ──────────────────────────────────── */
 
@@ -48,6 +50,8 @@ export const categoryService = {
     api.post<BanCountriesResponse, BanCountriesPayload>(
       `${BASE}/categories/ban-countries`,
       payload,
+      { baseUrl: API_BASE }
+
     ),
 
   unbanCountries: (
@@ -56,6 +60,8 @@ export const categoryService = {
     api.post<BanCountriesResponse, BanCountriesPayload>(
       `${BASE}/categories/unban-countries`,
       payload,
+      { baseUrl: API_BASE }
+
     ),
 
   /* ── Category Products ───────────────────────────────────────────── */
@@ -68,6 +74,8 @@ export const categoryService = {
     api.get<CategoryProductsResponse>(
       `${BASE}/categories/${categoryId}/products`,
       { page, limit },
+      { baseUrl: API_BASE }
+
     ),
 
   searchProducts: (
@@ -79,17 +87,17 @@ export const categoryService = {
       q,
       page,
       perPage,
-    }),
+    }, { baseUrl: API_BASE }),
 
   addProduct: (
     categoryId: number,
     payload: AddProductToCategoryPayload,
   ): Promise<{ success: boolean }> =>
-    api.post(`${BASE}/categories/${categoryId}/products`, payload),
+    api.post(`${BASE}/categories/${categoryId}/products`, payload, { baseUrl: API_BASE }),
 
   removeProduct: (
     categoryId: number,
     productId: number,
   ): Promise<{ success: boolean }> =>
-    api.delete(`${BASE}/categories/${categoryId}/products/${productId}`),
+    api.delete(`${BASE}/categories/${categoryId}/products/${productId}`, { baseUrl: API_BASE }),
 };
