@@ -123,6 +123,35 @@ export async function baseFetcher<TResponse, TBody = unknown>(
 
   if (!response.ok) {
     const err = json as Partial<ApiErrorResponse>;
+
+    // Handle Token Refresh on 401 Unauthorized
+    if (response.status === 401 && !url.includes("/auth/refresh") && !url.includes("/auth/login")) {
+      try {
+        const { useAuthStore } = await import("@/store/useAuthStore");
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3011";
+        
+        const refreshResponse = await fetch(`${baseUrl}/api/auth/refresh`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+
+        if (refreshResponse.ok) {
+          const refreshData = await refreshResponse.json();
+          if (refreshData.token) {
+            useAuthStore.getState().setToken(refreshData.token);
+          }
+          // Retry the original request
+          return baseFetcher<TResponse, TBody>(endpoint, config);
+        } else {
+          useAuthStore.getState().logout();
+          if (typeof window !== "undefined") window.location.href = "/login";
+        }
+      } catch (e) {
+        console.error("Auth refresh failed:", e);
+      }
+    }
+
     throw createFetcherError(
       err.message ?? "Beklenmeyen bir hata oluştu.",
       response.status,
