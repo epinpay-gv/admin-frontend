@@ -2,13 +2,14 @@
 
 import { useState, useCallback } from "react";
 import { ProductFaq } from "@/features/products/types";
+import { CategoryFaq } from "@/features/categories";
 
 function generateId(): number {
   return Math.floor(Math.random() * 1000000);
 }
 
-export function useProductFaq(initialFaqs: ProductFaq[] = []) {
-  const [faqs, setFaqs] = useState<ProductFaq[]>(initialFaqs);
+export function useProductFaq(initialFaqs: CategoryFaq[] = []) {
+  const [faqs, setFaqs] = useState<CategoryFaq[]>(initialFaqs);
 
   const addFaq = useCallback(() => {
     setFaqs((prev) => [

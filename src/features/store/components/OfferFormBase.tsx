@@ -25,6 +25,7 @@ const STATUS_OPTIONS = [
 ];
 
 export default function OfferFormBase({ values, mode, onChange }: Props) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [productTypes, setProductTypes] = React.useState<any[]>([]);
 
   // Ürün tiplerini çek (Eşleşme için)

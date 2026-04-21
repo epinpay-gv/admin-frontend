@@ -4,9 +4,10 @@ import { useState } from "react";
 import { useProductFaq } from "@/features/products/hooks/useProductFaq";
 import { ProductFaq } from "@/features/products/types";
 import FaqFormSection from "@/components/common/faq/FaqFormSecion"; 
+import { CategoryFaq } from "@/features/categories";
 
 interface ProductFormFaqProps {
-  initialFaqs?: ProductFaq[];
+  initialFaqs?: CategoryFaq[];
 }
 
 export default function ProductFormFaq({ initialFaqs = [] }: ProductFormFaqProps) {  
@@ -14,7 +15,7 @@ export default function ProductFormFaq({ initialFaqs = [] }: ProductFormFaqProps
 
   return (
     <div className="product-faq-container">      
-      <FaqFormSection<ProductFaq> 
+      <FaqFormSection
         faqs={faqs} 
         onChange={setFaqs} 
       />

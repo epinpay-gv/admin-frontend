@@ -67,7 +67,7 @@ export function StoreSearch({ value, onChange, error }: StoreSearchProps) {
         onOpenChange={setOpen}
         open={open}
         onValueChange={(val) => {
-          onChange(val);
+          // onChange(val);
           const store = stores.find((s) => s.id === val);
           if (store) setSelectedStore(store);
           setOpen(false);

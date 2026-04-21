@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PaymentMethod } from "@/features/payment/types";
+import { PaymentMethod, PaymentProvider } from "@/features/payment/types";
 import { paymentService } from "@/features/payment/services/payment.service";
 import { toast } from "@/components/common/toast/toast";
 import { useCountries } from "@/features/products/hooks/useCountries";
@@ -12,7 +12,7 @@ export function usePaymentCountryStatus(method: PaymentMethod | null) {
   const { countries, loading: countriesLoading } = useCountries();
 
   useEffect(() => {
-    setForbidden(method?.forbiddenCountries ?? []);
+    // setForbidden(method?.forbiddenCountries ?? []);
   }, [method]);
 
   const isForbidden = (code: string) => forbidden.includes(code);
@@ -35,12 +35,14 @@ export function usePaymentCountryStatus(method: PaymentMethod | null) {
     if (!method) return;
     setSaving(true);
     try {
-      const updated = await paymentService.updateForbiddenCountries(
-        method.id,
-        forbidden
-      );
-      toast.success("Güncellendi", "Ülke kısıtlamaları güncellendi.");
-      onSuccess?.(updated);
+      // const updated = await paymentService.updateForbiddenCountries(
+      //   method.id,
+      //   forbidden
+      // );
+      // toast.success("Güncellendi", "Ülke kısıtlamaları güncellendi.");
+      // onSuccess?.(updated);
+      toast.success("TEST", "Burası şimdilik testte");
+
     } catch {
       toast.error("Hata", "Ülke kısıtlamaları güncellenemedi.");
     } finally {
