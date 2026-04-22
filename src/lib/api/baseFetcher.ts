@@ -7,7 +7,7 @@ import {
 const DEFAULT_HEADERS: Record<string, string> = {
   "Content-Type": "application/json",
   Accept: "application/json",
-  // "x-api-key": "AIzaSyBFUsWEISiImLREu2usXWXIjOpKowiGwjE",
+  "x-api-key": "AIzaSyBFUsWEISiImLREu2usXWXIjOpKowiGwjE",
 };
 
 function buildUrl(
@@ -15,7 +15,7 @@ function buildUrl(
   params?: Record<string, string | number | boolean | undefined | null>,
   customBaseUrl?: string 
 ): string {
-  const base = customBaseUrl ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3011";
+  const base = customBaseUrl ?? process.env.NEXT_PUBLIC_API_URL ?? "https://admin-gateway-ahj0yeia.ew.gateway.dev";
 
   let url: URL;
   try {

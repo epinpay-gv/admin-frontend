@@ -1,7 +1,7 @@
 import { api } from "@/lib/api/baseFetcher";
 
 const BFF_BASE = "/api/features/store";
-const API_BASE = "http://localhost:3011 ";
+const API_BASE = "https://admin-gateway-ahj0yeia.ew.gateway.dev ";
 
 export interface StoreListItem {
   id: string;

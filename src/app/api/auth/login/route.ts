@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const bffUrl = process.env.ADMIN_BFF_URL || "http://localhost:3011";
+    const bffUrl = process.env.ADMIN_BFF_URL || "https://admin-gateway-ahj0yeia.ew.gateway.dev";
         
     const bffResponse = await fetch(`${bffUrl}/api/features/auth/login`, {
       method: "POST",

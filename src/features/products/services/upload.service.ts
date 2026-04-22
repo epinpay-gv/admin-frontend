@@ -18,7 +18,7 @@ export const uploadService = {
     folder: "products" | "categories",
   ): Promise<UploadResponse> => {
 
-    const base =  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3011";
+    const base =  process.env.NEXT_PUBLIC_API_URL ?? "https://admin-gateway-ahj0yeia.ew.gateway.dev";
 
     const formData = new FormData();
     formData.append("file", file);
