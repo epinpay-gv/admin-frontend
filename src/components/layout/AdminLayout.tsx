@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import { IdleTimer } from "@/features/auth/components/IdleTimer";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -13,6 +14,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "var(--background)" }}>
+      <IdleTimer />
       <Sidebar
         collapsed={collapsed}
         onToggle={() => setCollapsed((prev) => !prev)}
