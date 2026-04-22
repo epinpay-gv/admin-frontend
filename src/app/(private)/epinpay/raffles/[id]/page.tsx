@@ -1,8 +1,8 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Users, Trophy, ScrollText, Gift } from "lucide-react";
+import { ArrowLeft, Users, Trophy, ScrollText, Gift, XCircle, PlayCircle, Loader2 } from "lucide-react";
 import { useRaffle, RaffleAuditLog, RaffleWinners, RaffleParticipants } from "@/features/raffles";
 import {
   RAFFLE_STATUS,
@@ -13,6 +13,7 @@ import {
 } from "@/features/raffles/types";
 import {PageState} from "@/components/common/page-state/PageState";
 import {PALETTE} from "@/lib/status-color";
+import { Button } from "@/components/ui/button";
 
 const STATUS_COLORS: Record<RAFFLE_STATUS, { bg: string; color: string }> = {
   [RAFFLE_STATUS.DRAFT]: { bg: "rgba(255,180,0,0.15)", color: "#FFB400" },
@@ -44,12 +45,46 @@ export default function RaffleDetailPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
-  const { raffle, loading, error } = useRaffle(id);
+  const { 
+    raffle, 
+    loading, 
+    error, 
+    cancelRaffle, 
+    drawRaffle 
+  } = useRaffle(id);
+
+  const [actionLoading, setActionLoading] = useState(false);
 
   // Veri gelmediğinde veya hata olduğunda gösterilecek mesaj
   const pageError = error || (!loading && !raffle ? "Çekiliş bulunamadı." : null);
 
   const statusColors = raffle ? STATUS_COLORS[raffle.status] : null;
+
+  const handleCancel = async () => {
+    if (!window.confirm("Bu çekilişi iptal etmek istediğinize emin misiniz?")) return;
+    
+    setActionLoading(true);
+    try {
+      await cancelRaffle("Yönetici tarafından iptal edildi.");
+    } catch (err) {
+      alert("İptal işlemi sırasında bir hata oluştu: " + (err as Error).message);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDraw = async () => {
+    if (!window.confirm("Çekilişi başlatmak istediğinize emin misiniz?")) return;
+    
+    setActionLoading(true);
+    try {
+      await drawRaffle();
+    } catch (err) {
+      alert("Çekiliş sırasında bir hata oluştu: " + (err as Error).message);
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   return (
     <PageState 
@@ -104,6 +139,32 @@ export default function RaffleDetailPage({
                   #{raffle.id} · {RAFFLE_CREATOR_TYPE_LABELS[raffle.creatorType]} — {raffle.creatorName}
                 </p>
               </div>
+            </div>
+
+            {/* Aksiyon Butonları */}
+            <div className="flex items-center gap-2">
+              {raffle.status === RAFFLE_STATUS.ACTIVE && (
+                <Button 
+                  onClick={handleDraw} 
+                  disabled={actionLoading}
+                  className="bg-[#00C6A2] hover:bg-[#00B594] text-white gap-2"
+                >
+                  {actionLoading ? <Loader2 size={16} className="animate-spin" /> : <PlayCircle size={16} />}
+                  Çekilişi Yap
+                </Button>
+              )}
+              
+              {(raffle.status === RAFFLE_STATUS.DRAFT || raffle.status === RAFFLE_STATUS.ACTIVE) && (
+                <Button 
+                  onClick={handleCancel} 
+                  disabled={actionLoading}
+                  variant="outline"
+                  className="border-red-500/20 text-red-500 hover:bg-red-500/10 gap-2"
+                >
+                  {actionLoading ? <Loader2 size={16} className="animate-spin" /> : <XCircle size={16} />}
+                  İptal Et
+                </Button>
+              )}
             </div>
           </div>
 

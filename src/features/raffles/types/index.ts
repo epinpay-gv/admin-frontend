@@ -177,3 +177,15 @@ export interface RaffleFormData {
   endDate: string;
   rewards: RaffleReward[];
 }
+
+export interface RaffleSuccessResponse<T> {
+  success: boolean;
+  message?: string;
+  data: T;
+  meta?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
