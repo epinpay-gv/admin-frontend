@@ -13,44 +13,41 @@ import {
   CategoryUpdatePayload,
 } from "@/features/categories/types";
 
-const BASE = "/api/features/catalog";
-const API_BASE = "http://localhost:3011";
-
 export const categoryService = {
   /* ── Categories ─────────────────────────────────────────── */
 
   getAll: (filters?: CategoryFilters): Promise<CategoryListResponse> =>
     api.get<CategoryListResponse, CategoryFilters>(
-      `${BASE}/categories`,
+      `/catalog/categories`,
       filters,
-      { baseUrl: API_BASE }
+      { baseUrl: process.env.ADMIN_BFF_URL }
     ),
 
   getById: (id: number): Promise<Category> =>
-    api.get<Category>(`${BASE}/categories/${id}`,undefined, { baseUrl: API_BASE }),
+    api.get<Category>(`/catalog/categories/${id}`,undefined, { baseUrl: process.env.ADMIN_BFF_URL }),
 
   create: (payload: CategoryCreatePayload): Promise<Category> =>
-    api.post<Category, CategoryCreatePayload>(`${BASE}/categories`, payload, { baseUrl: API_BASE }),
+    api.post<Category, CategoryCreatePayload>(`/catalog/categories`, payload, { baseUrl: process.env.ADMIN_BFF_URL }),
 
   update: (
     id: number,
     payload: CategoryUpdatePayload,
   ): Promise<{ success: boolean; category: Category }> =>
-    api.put(`${BASE}/categories/${id}`, payload, { baseUrl: API_BASE }),
+    api.put(`/catalog/categories/${id}`, payload, { baseUrl: process.env.ADMIN_BFF_URL }),
 
   quickUpdate: (
     id: number,
     payload: CategoryQuickUpdatePayload,
   ): Promise<{ success: boolean; category?: Category }> =>
-    api.patch(`${BASE}/categories/${id}/quick-update`, payload, { baseUrl: API_BASE }),
+    api.patch(`/catalog/categories/${id}/quick-update`, payload, { baseUrl: process.env.ADMIN_BFF_URL }),
 
   /* ── Country ban/unban ──────────────────────────────────── */
 
   banCountries: (payload: BanCountriesPayload): Promise<BanCountriesResponse> =>
     api.post<BanCountriesResponse, BanCountriesPayload>(
-      `${BASE}/categories/ban-countries`,
+      `/catalog/categories/ban-countries`,
       payload,
-      { baseUrl: API_BASE }
+      { baseUrl: process.env.ADMIN_BFF_URL }
 
     ),
 
@@ -58,9 +55,9 @@ export const categoryService = {
     payload: BanCountriesPayload,
   ): Promise<BanCountriesResponse> =>
     api.post<BanCountriesResponse, BanCountriesPayload>(
-      `${BASE}/categories/unban-countries`,
+      `/catalog/categories/unban-countries`,
       payload,
-      { baseUrl: API_BASE }
+      { baseUrl: process.env.ADMIN_BFF_URL }
 
     ),
 
@@ -72,9 +69,9 @@ export const categoryService = {
     limit = 50,
   ): Promise<CategoryProductsResponse> =>
     api.get<CategoryProductsResponse>(
-      `${BASE}/categories/${categoryId}/products`,
+      `/catalog/categories/${categoryId}/products`,
       { page, limit },
-      { baseUrl: API_BASE }
+      { baseUrl: process.env.ADMIN_BFF_URL }
 
     ),
 
@@ -83,21 +80,21 @@ export const categoryService = {
     page = 1,
     perPage = 10,
   ): Promise<ProductSearchResponse> =>
-    api.get<ProductSearchResponse>(`${BASE}/products/search`, {
+    api.get<ProductSearchResponse>(`/catalog/products/search`, {
       q,
       page,
       perPage,
-    }, { baseUrl: API_BASE }),
+    }, { baseUrl: process.env.ADMIN_BFF_URL }),
 
   addProduct: (
     categoryId: number,
     payload: AddProductToCategoryPayload,
   ): Promise<{ success: boolean }> =>
-    api.post(`${BASE}/categories/${categoryId}/products`, payload, { baseUrl: API_BASE }),
+    api.post(`/catalog/categories/${categoryId}/products`, payload, { baseUrl: process.env.ADMIN_BFF_URL }),
 
   removeProduct: (
     categoryId: number,
     productId: number,
   ): Promise<{ success: boolean }> =>
-    api.delete(`${BASE}/categories/${categoryId}/products/${productId}`, { baseUrl: API_BASE }),
+    api.delete(`/catalog/categories/${categoryId}/products/${productId}`, { baseUrl: process.env.ADMIN_BFF_URL }),
 };
