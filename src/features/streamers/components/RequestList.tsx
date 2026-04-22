@@ -1,28 +1,22 @@
 // src/features/streamers/components/RequestList.tsx
-
 "use client";
 
 import { useState } from "react";
 import { CheckCircle, XCircle } from "lucide-react";
-import { usePackageRequests } from "@/features/streamers/hooks/usePackageRequests";
-import { usePackageRequest }  from "@/features/streamers/hooks/usePackageRequest";
+import { useContracts, useContract } from "@/features/streamers/hooks/useContracts";
 import {
-  PackageRequest,
-  PACKAGE_REQUEST_STATUS,
-  PACKAGE_REQUEST_STATUS_LABELS,
-  PACKAGE_REQUEST_TYPE,
-  PACKAGE_REQUEST_TYPE_LABELS,
+  ContractWithRelations,
+  CONTRACT_STATUS,
+  CONTRACT_STATUS_LABELS,
 } from "@/features/streamers/types";
 
-const REQUEST_STATUS_COLOR: Record<PACKAGE_REQUEST_STATUS, { bg: string; color: string }> = {
-  [PACKAGE_REQUEST_STATUS.PENDING]:  { bg: "rgba(255,180,0,0.15)",   color: "#FFB400" },
-  [PACKAGE_REQUEST_STATUS.APPROVED]: { bg: "rgba(0,198,162,0.15)",   color: "#00C6A2" },
-  [PACKAGE_REQUEST_STATUS.REJECTED]: { bg: "rgba(255,80,80,0.15)",   color: "#FF5050" },
-};
 
-const REQUEST_TYPE_COLOR: Record<PACKAGE_REQUEST_TYPE, { bg: string; color: string }> = {
-  [PACKAGE_REQUEST_TYPE.RENEWAL]: { bg: "rgba(0,133,255,0.15)",  color: "#0085FF" },
-  [PACKAGE_REQUEST_TYPE.UPGRADE]: { bg: "rgba(160,80,255,0.15)", color: "#A050FF" },
+const CONTRACT_STATUS_COLOR: Record<CONTRACT_STATUS, { bg: string; color: string }> = {
+  [CONTRACT_STATUS.PENDING_UPLOAD]: { bg: "rgba(160,160,160,0.15)", color: "#A0A0A0" },
+  [CONTRACT_STATUS.UNDER_REVIEW]:   { bg: "rgba(255,180,0,0.15)",   color: "#FFB400" },
+  [CONTRACT_STATUS.APPROVED]:       { bg: "rgba(0,198,162,0.15)",   color: "#00C6A2" },
+  [CONTRACT_STATUS.REJECTED]:       { bg: "rgba(255,80,80,0.15)",   color: "#FF5050" },
+  [CONTRACT_STATUS.EXPIRED]:        { bg: "rgba(160,160,160,0.15)", color: "#A0A0A0" },
 };
 
 function fmt(date?: string) {
@@ -30,44 +24,70 @@ function fmt(date?: string) {
   return new Date(date).toLocaleDateString("tr-TR");
 }
 
-function RequestActionRow({ requestId, onDone }: { requestId: number; onDone: () => void }) {
-  const { approve, reject, actionLoading, actionError } = usePackageRequest(requestId);
+function ContractActionRow({
+  contractId,
+  onDone,
+}: {
+  contractId: string;
+  onDone: () => void;
+}) {
+  const { approve, reject } = useContract(contractId);
   const [rejectNote, setRejectNote] = useState("");
   const [showReject, setShowReject] = useState(false);
+  const [loading, setLoading]       = useState(false);
+  const [error, setError]           = useState<string | null>(null);
 
   const handleApprove = async () => {
-    await approve();
-    onDone();
+    setLoading(true);
+    try {
+      // Onay için zorunlu start_date/end_date —  formdan alınabilir
+      // şimdilik bugün + 1 yıl varsayılan
+      const today   = new Date().toISOString().split("T")[0];
+      const nextYear = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+      await approve({ start_date: today, end_date: nextYear });
+      onDone();
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleReject = async () => {
     if (!rejectNote.trim()) return;
-    await reject(rejectNote);
-    setShowReject(false);
-    setRejectNote("");
-    onDone();
+    setLoading(true);
+    try {
+      await reject({ notes: rejectNote });
+      setShowReject(false);
+      setRejectNote("");
+      onDone();
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="mt-3 pt-3" style={{ borderTop: "1px solid var(--border)" }}>
-      {actionError && (
-        <p className="text-xs font-mono mb-2" style={{ color: "#FF5050" }}>{actionError}</p>
+      {error && (
+        <p className="text-xs font-mono mb-2" style={{ color: "#FF5050" }}>{error}</p>
       )}
 
       {!showReject ? (
         <div className="flex items-center gap-2">
           <button
             onClick={handleApprove}
-            disabled={actionLoading}
+            disabled={loading}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-50"
             style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
           >
             <CheckCircle size={13} />
-            {actionLoading ? "İşleniyor..." : "Onayla"}
+            {loading ? "İşleniyor..." : "Onayla"}
           </button>
           <button
             onClick={() => setShowReject(true)}
-            disabled={actionLoading}
+            disabled={loading}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border disabled:opacity-50"
             style={{ background: "var(--background-secondary)", borderColor: "rgba(255,80,80,0.3)", color: "#FF5050" }}
           >
@@ -88,12 +108,12 @@ function RequestActionRow({ requestId, onDone }: { requestId: number; onDone: ()
           <div className="flex items-center gap-2">
             <button
               onClick={handleReject}
-              disabled={actionLoading || !rejectNote.trim()}
+              disabled={loading || !rejectNote.trim()}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-50"
               style={{ background: "#FF5050" }}
             >
               <XCircle size={13} />
-              {actionLoading ? "İşleniyor..." : "Reddet"}
+              {loading ? "İşleniyor..." : "Reddet"}
             </button>
             <button
               onClick={() => { setShowReject(false); setRejectNote(""); }}
@@ -109,10 +129,18 @@ function RequestActionRow({ requestId, onDone }: { requestId: number; onDone: ()
   );
 }
 
-function RequestCard({ request, onRefresh }: { request: PackageRequest; onRefresh: () => void }) {
-  const sc = REQUEST_STATUS_COLOR[request.status];
-  const tc = REQUEST_TYPE_COLOR[request.requestType];
-  const isPending = request.status === PACKAGE_REQUEST_STATUS.PENDING;
+
+function ContractCard({
+  contract,
+  onRefresh,
+}: {
+  contract: ContractWithRelations;
+  onRefresh: () => void;
+}) {
+  const sc        = CONTRACT_STATUS_COLOR[contract.status];
+  const isReviewable =
+    contract.status === CONTRACT_STATUS.PENDING_UPLOAD ||
+    contract.status === CONTRACT_STATUS.UNDER_REVIEW;
 
   return (
     <div
@@ -122,66 +150,75 @@ function RequestCard({ request, onRefresh }: { request: PackageRequest; onRefres
       {/* Üst satır */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
-          <span
-            className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-            style={{ background: tc.bg, color: tc.color }}
-          >
-            {PACKAGE_REQUEST_TYPE_LABELS[request.requestType]}
-          </span>
+          {/* Paket adı */}
+          {contract.package?.name && (
+            <span
+              className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
+              style={{ background: "rgba(0,133,255,0.15)", color: "#0085FF" }}
+            >
+              {contract.package.name}
+            </span>
+          )}
+          {/* Durum */}
           <span
             className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
             style={{ background: sc.bg, color: sc.color }}
           >
-            {PACKAGE_REQUEST_STATUS_LABELS[request.status]}
+            {CONTRACT_STATUS_LABELS[contract.status]}
           </span>
         </div>
         <span className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
-          {fmt(request.createdAt)}
+          {fmt(contract.createdAt)}
         </span>
       </div>
 
-      {/* Paket geçişi */}
-      <p className="text-xs font-mono mt-2" style={{ color: "var(--text-secondary)" }}>
-        {request.currentPackageName}
-        <span style={{ color: "var(--text-muted)" }}> → </span>
-        {request.requestedPackageName}
-      </p>
+      {/* Tarih aralığı */}
+      {(contract.startDate || contract.endDate) && (
+        <p className="text-xs font-mono mt-2" style={{ color: "var(--text-secondary)" }}>
+          {fmt(contract.startDate)}
+          <span style={{ color: "var(--text-muted)" }}> → </span>
+          {fmt(contract.endDate)}
+        </p>
+      )}
 
-      {/* Yayıncı notu */}
-      {request.publisherNote && (
+      {/* Notlar */}
+      {contract.notes && (
         <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
-          Not: {request.publisherNote}
+          Not: {contract.notes}
         </p>
       )}
 
-      {/* Admin notu — işlem yapılmışsa */}
-      {request.adminNote && (
-        <p
-          className="text-xs mt-1 font-mono"
-          style={{ color: request.status === PACKAGE_REQUEST_STATUS.REJECTED ? "#FF5050" : "#00C6A2" }}
+      {/* Belge linki */}
+      {contract.uploadedDocumentUrl && (
+        <a
+          href={contract.uploadedDocumentUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="text-xs font-mono mt-1 underline block"
+          style={{ color: "#0085FF" }}
         >
-          Admin: {request.adminNote}
-        </p>
+          Belgeyi Görüntüle
+        </a>
       )}
 
-      {/* Onay/Red — sadece beklemedeyse */}
-      {isPending && (
-        <RequestActionRow requestId={request.id} onDone={onRefresh} />
+      {/* Onay/Red — sadece incelenebilir durumdaysa */}
+      {isReviewable && (
+        <ContractActionRow contractId={contract.id} onDone={onRefresh} />
       )}
     </div>
   );
 }
 
 
-
 interface RequestListProps {
-  publisherId: number;
+  streamerId: string; // UUID
 }
 
-export default function RequestList({ publisherId }: RequestListProps) {
-  const { requests, loading, error, refresh } = usePackageRequests();
+export default function RequestList({ streamerId }: RequestListProps) {
+  const { contracts, loading, error, refresh } = useContracts();
 
-  const streamerRequests = requests.filter((r) => r.publisherId === publisherId);
+  // Sadece bu yayıncıya ait sözleşmeleri filtrele
+  const streamerContracts = contracts.filter((c) => c.streamerId === streamerId);
 
   if (loading) {
     return (
@@ -193,7 +230,9 @@ export default function RequestList({ publisherId }: RequestListProps) {
 
   if (error) {
     return (
-      <p className="text-sm font-mono" style={{ color: "#FF5050" }}>{error}</p>
+      <p className="text-sm font-mono" style={{ color: "#FF5050" }}>
+        {error}
+      </p>
     );
   }
 
@@ -206,17 +245,17 @@ export default function RequestList({ publisherId }: RequestListProps) {
         className="text-[11px] font-semibold uppercase tracking-widest font-mono mb-4"
         style={{ color: "var(--text-muted)" }}
       >
-        Paket Talepleri · {streamerRequests.length} kayıt
+        Sözleşmeler · {streamerContracts.length} kayıt
       </p>
 
-      {streamerRequests.length === 0 ? (
+      {streamerContracts.length === 0 ? (
         <p className="text-sm font-mono text-center py-4" style={{ color: "var(--text-muted)" }}>
-          Bu yayıncıya ait talep bulunmuyor.
+          Bu yayıncıya ait sözleşme bulunmuyor.
         </p>
       ) : (
         <div className="space-y-3">
-          {streamerRequests.map((r) => (
-            <RequestCard key={r.id} request={r} onRefresh={refresh} />
+          {streamerContracts.map((c) => (
+            <ContractCard key={c.id} contract={c} onRefresh={refresh} />
           ))}
         </div>
       )}

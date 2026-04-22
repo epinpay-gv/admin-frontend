@@ -1,17 +1,8 @@
+"use client";
 
-import {
-  Streamer,
-  PACKAGE_STATUS,
-  PACKAGE_STATUS_LABELS,
-} from "@/features/streamers/types";
+import { Streamer } from "@/features/streamers/types";
 
-const PACKAGE_STATUS_COLOR: Record<PACKAGE_STATUS, { bg: string; color: string }> = {
-  [PACKAGE_STATUS.ACTIVE]:  { bg: "rgba(0,198,162,0.15)",   color: "#00C6A2" },
-  [PACKAGE_STATUS.EXPIRED]: { bg: "rgba(255,80,80,0.15)",   color: "#FF5050" },
-  [PACKAGE_STATUS.NONE]:    { bg: "rgba(160,160,160,0.15)", color: "#A0A0A0" },
-};
-
-function fmt(date?: string) {
+function fmt(date?: string | Date | null) {
   if (!date) return "—";
   return new Date(date).toLocaleDateString("tr-TR");
 }
@@ -21,7 +12,9 @@ interface PackageCardProps {
 }
 
 export default function PackageCard({ streamer }: PackageCardProps) {
-  const c = PACKAGE_STATUS_COLOR[streamer.packageStatus];
+  const activeAssignment = streamer.package_assignments?.[0] ?? null;
+  const activePkg        = activeAssignment?.package ?? null;
+  const activeDetail     = activeAssignment?.detail ?? null;
 
   return (
     <div
@@ -35,77 +28,86 @@ export default function PackageCard({ streamer }: PackageCardProps) {
         Paket Bilgileri
       </p>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-4">
-        {/* Paket Durumu */}
-        <div>
-          <p className="text-[11px] font-mono uppercase tracking-wider mb-1" style={{ color: "var(--text-muted)" }}>
-            Durum
-          </p>
-          <span
-            className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
-            style={{ background: c.bg, color: c.color }}
-          >
-            {PACKAGE_STATUS_LABELS[streamer.packageStatus]}
-          </span>
-        </div>
-
-        {/* Paket Adı */}
-        <div>
-          <p className="text-[11px] font-mono uppercase tracking-wider mb-1" style={{ color: "var(--text-muted)" }}>
-            Aktif Paket
-          </p>
-          <p className="text-sm" style={{ color: "var(--text-primary)" }}>
-            {streamer.currentPackageName ?? "—"}
-          </p>
-        </div>
-
-        {/* Başlangıç */}
-        <div>
-          <p className="text-[11px] font-mono uppercase tracking-wider mb-1" style={{ color: "var(--text-muted)" }}>
-            Başlangıç
-          </p>
-          <p className="text-sm font-mono" style={{ color: "var(--text-secondary)" }}>
-            {fmt(streamer.packageStartDate)}
-          </p>
-        </div>
-
-        {/* Bitiş */}
-        <div>
-          <p className="text-[11px] font-mono uppercase tracking-wider mb-1" style={{ color: "var(--text-muted)" }}>
-            Bitiş
-          </p>
-          <p
-            className="text-sm font-mono"
-            style={{
-              color: streamer.packageStatus === PACKAGE_STATUS.EXPIRED ? "#FF5050" : "var(--text-secondary)",
-            }}
-          >
-            {fmt(streamer.packageEndDate)}
-          </p>
-        </div>
-      </div>
-
-      {/* Paketsiz uyarısı */}
-      {streamer.packageStatus === PACKAGE_STATUS.NONE && (
+      {!activePkg ? (
+        // Aktif paket yok
         <div
-          className="mt-4 rounded-lg px-4 py-3"
+          className="rounded-lg px-4 py-3"
           style={{ background: "rgba(160,160,160,0.08)", border: "1px solid var(--border)" }}
         >
           <p className="text-sm font-mono" style={{ color: "var(--text-muted)" }}>
             Bu yayıncının aktif bir paketi bulunmuyor.
           </p>
         </div>
-      )}
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-4">
+          {/* Paket Adı */}
+          <div>
+            <p className="text-[11px] font-mono uppercase tracking-wider mb-1" style={{ color: "var(--text-muted)" }}>
+              Aktif Paket
+            </p>
+            <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+              {activePkg.name}
+            </p>
+          </div>
 
-      {/* Süresi dolmuş uyarısı */}
-      {streamer.packageStatus === PACKAGE_STATUS.EXPIRED && (
-        <div
-          className="mt-4 rounded-lg px-4 py-3"
-          style={{ background: "rgba(255,80,80,0.06)", border: "1px solid rgba(255,80,80,0.2)" }}
-        >
-          <p className="text-sm font-mono" style={{ color: "#FF5050" }}>
-            Paket süresi dolmuş. Yayıncı yenileme veya yükseltme talebi oluşturabilir.
-          </p>
+          {/* Sıra / Seviye */}
+          <div>
+            <p className="text-[11px] font-mono uppercase tracking-wider mb-1" style={{ color: "var(--text-muted)" }}>
+              Sıra
+            </p>
+            <p className="text-sm font-mono" style={{ color: "var(--text-secondary)" }}>
+              #{activePkg.order_rank}
+            </p>
+          </div>
+
+          {/* Atanma tarihi */}
+          <div>
+            <p className="text-[11px] font-mono uppercase tracking-wider mb-1" style={{ color: "var(--text-muted)" }}>
+              Atanma
+            </p>
+            <p className="text-sm font-mono" style={{ color: "var(--text-secondary)" }}>
+              {fmt(activeAssignment.assigned_at)}
+            </p>
+          </div>
+
+          {/* Bitiş tarihi */}
+          <div>
+            <p className="text-[11px] font-mono uppercase tracking-wider mb-1" style={{ color: "var(--text-muted)" }}>
+              Bitiş
+            </p>
+            <p
+              className="text-sm font-mono"
+              style={{
+                color: activeAssignment.expires_at
+                  ? new Date(activeAssignment.expires_at) < new Date()
+                    ? "#FF5050"
+                    : "var(--text-secondary)"
+                  : "var(--text-muted)",
+              }}
+            >
+              {fmt(activeAssignment.expires_at)}
+            </p>
+          </div>
+
+          {/* Değerlendirme süresi */}
+          {activeDetail && (
+            <div className="col-span-2 sm:col-span-4">
+              <p className="text-[11px] font-mono uppercase tracking-wider mb-1" style={{ color: "var(--text-muted)" }}>
+                Değerlendirme Süresi
+              </p>
+              <p className="text-sm font-mono" style={{ color: "var(--text-secondary)" }}>
+                {activeDetail.evaluation_period_days} gün
+                {activeDetail.is_starter && (
+                  <span
+                    className="ml-2 text-[11px] px-2 py-0.5 rounded-full font-bold"
+                    style={{ background: "rgba(0,133,255,0.15)", color: "#0085FF" }}
+                  >
+                    Başlangıç Paketi
+                  </span>
+                )}
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

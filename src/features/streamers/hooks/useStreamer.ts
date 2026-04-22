@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import { Streamer } from "@/features/streamers/types";
 import { streamerService } from "../services/streamer.service";
 
-export function useStreamer(id: number | null) {
+export function useStreamer(id: string | null) {
   const [streamer, setStreamer] = useState<Streamer | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading]  = useState(false);
+  const [error, setError]      = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -28,10 +28,7 @@ export function useStreamer(id: number | null) {
     };
 
     fetch();
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [id]);
 
   return { streamer, loading, error };

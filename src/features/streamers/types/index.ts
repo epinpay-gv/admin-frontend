@@ -1,231 +1,194 @@
-// src/features/streamers/types/index.ts
-
-// ─── Enums ────────────────────────────────────────────────────────────────────
-
-export enum TEMPLATE_STATUS {
-  ACTIVE = "active",
-  INACTIVE = "inactive",
-}
-
-export enum VARIANT_STATUS {
-  ACTIVE = "active",
-  INACTIVE = "inactive",
-}
-
-export enum PACKAGE_REQUEST_STATUS {
-  PENDING = "pending",
-  APPROVED = "approved",
-  REJECTED = "rejected",
-}
-
-export enum PACKAGE_REQUEST_TYPE {
-  RENEWAL = "renewal",
-  UPGRADE = "upgrade",
-}
-
-export enum PACKAGE_LEVEL {
-  BRONZE = "bronze",
-  SILVER = "silver",
-  GOLD = "gold",
-}
-
-export enum CONTENT_FIELD_TYPE {
-  BOOLEAN = "boolean",
-  NUMERIC = "numeric",
-  TEXT = "text",
-  CURRENCY = "currency",
-}
-
 export enum STREAMER_STATUS {
-  PENDING = "pending",
+  ACTIVE       = "active",
+  UNDER_REVIEW = "under_review",
+  SUSPENDED    = "suspended",
+  BANNED       = "banned",
+}
+
+export enum CONTRACT_STATUS {
+  PENDING_UPLOAD = "pending_upload",
+  UNDER_REVIEW   = "under_review",
+  APPROVED       = "approved",
+  REJECTED       = "rejected",
+  EXPIRED        = "expired",
+}
+
+export enum EVALUATION_STATUS {
+  PENDING  = "pending",
   APPROVED = "approved",
   REJECTED = "rejected",
+  APPLIED  = "applied",
 }
 
-export enum PACKAGE_STATUS {
-  ACTIVE = "active",
-  EXPIRED = "expired",
-  NONE = "none",
+export enum EVALUATION_DECISION {
+  UPGRADE   = "upgrade",
+  KEEP      = "keep",
+  DOWNGRADE = "downgrade",
 }
 
-// ─── Label Maps ───────────────────────────────────────────────────────────────
-
-export const TEMPLATE_STATUS_LABELS: Record<TEMPLATE_STATUS, string> = {
-  [TEMPLATE_STATUS.ACTIVE]: "Aktif",
-  [TEMPLATE_STATUS.INACTIVE]: "Pasif",
-};
-
-export const VARIANT_STATUS_LABELS: Record<VARIANT_STATUS, string> = {
-  [VARIANT_STATUS.ACTIVE]: "Aktif",
-  [VARIANT_STATUS.INACTIVE]: "Pasif",
-};
-
-export const PACKAGE_REQUEST_STATUS_LABELS: Record<PACKAGE_REQUEST_STATUS, string> = {
-  [PACKAGE_REQUEST_STATUS.PENDING]: "Beklemede",
-  [PACKAGE_REQUEST_STATUS.APPROVED]: "Onaylandı",
-  [PACKAGE_REQUEST_STATUS.REJECTED]: "Reddedildi",
-};
-
-export const PACKAGE_REQUEST_TYPE_LABELS: Record<PACKAGE_REQUEST_TYPE, string> = {
-  [PACKAGE_REQUEST_TYPE.RENEWAL]: "Yenileme",
-  [PACKAGE_REQUEST_TYPE.UPGRADE]: "Yükseltme",
-};
-
-export const PACKAGE_LEVEL_LABELS: Record<PACKAGE_LEVEL, string> = {
-  [PACKAGE_LEVEL.BRONZE]: "Bronz",
-  [PACKAGE_LEVEL.SILVER]: "Gümüş",
-  [PACKAGE_LEVEL.GOLD]: "Altın",
-};
-
-export const CONTENT_FIELD_TYPE_LABELS: Record<CONTENT_FIELD_TYPE, string> = {
-  [CONTENT_FIELD_TYPE.BOOLEAN]: "Evet/Hayır",
-  [CONTENT_FIELD_TYPE.NUMERIC]: "Sayısal",
-  [CONTENT_FIELD_TYPE.TEXT]: "Metin",
-  [CONTENT_FIELD_TYPE.CURRENCY]: "Para Birimi",
-};
+export enum PLATFORM {
+  TWITCH  = "TWITCH",
+  KICK    = "KICK",
+  YOUTUBE = "YOUTUBE",
+}
 
 export const STREAMER_STATUS_LABELS: Record<STREAMER_STATUS, string> = {
-  [STREAMER_STATUS.PENDING]: "Beklemede",
-  [STREAMER_STATUS.APPROVED]: "Onaylı",
-  [STREAMER_STATUS.REJECTED]: "Reddedildi",
+  [STREAMER_STATUS.ACTIVE]:       "Aktif",
+  [STREAMER_STATUS.UNDER_REVIEW]: "İncelemede",
+  [STREAMER_STATUS.SUSPENDED]:    "Askıya Alındı",
+  [STREAMER_STATUS.BANNED]:       "Yasaklandı",
 };
 
-export const PACKAGE_STATUS_LABELS: Record<PACKAGE_STATUS, string> = {
-  [PACKAGE_STATUS.ACTIVE]: "Aktif",
-  [PACKAGE_STATUS.EXPIRED]: "Süresi Doldu",
-  [PACKAGE_STATUS.NONE]: "Paketsiz",
+export const CONTRACT_STATUS_LABELS: Record<CONTRACT_STATUS, string> = {
+  [CONTRACT_STATUS.PENDING_UPLOAD]: "Yükleme Bekleniyor",
+  [CONTRACT_STATUS.UNDER_REVIEW]:   "İncelemede",
+  [CONTRACT_STATUS.APPROVED]:       "Onaylandı",
+  [CONTRACT_STATUS.REJECTED]:       "Reddedildi",
+  [CONTRACT_STATUS.EXPIRED]:        "Süresi Doldu",
 };
 
-// ─── Shared ───────────────────────────────────────────────────────────────────
 
-export interface Country {
-  code: string;
-  name: string;
-  currency: string;
-}
+export const EVALUATION_STATUS_LABELS: Record<EVALUATION_STATUS, string> = {
+  [EVALUATION_STATUS.PENDING]:  "Beklemede",
+  [EVALUATION_STATUS.APPROVED]: "Onaylandı",
+  [EVALUATION_STATUS.REJECTED]: "Reddedildi",
+  [EVALUATION_STATUS.APPLIED]:  "Uygulandı",
+};
 
-// ─── Streamer ─────────────────────────────────────────────────────────────────
 
+export const EVALUATION_DECISION_LABELS: Record<EVALUATION_DECISION, string> = {
+  [EVALUATION_DECISION.UPGRADE]:   "Yükseltme",
+  [EVALUATION_DECISION.KEEP]:      "Koru",
+  [EVALUATION_DECISION.DOWNGRADE]: "Düşürme",
+};
+
+
+export const PLATFORM_LABELS: Record<PLATFORM, string> = {
+  [PLATFORM.TWITCH]:  "Twitch",
+  [PLATFORM.KICK]:    "Kick",
+  [PLATFORM.YOUTUBE]: "YouTube",
+};
 export interface Streamer {
-  id: number;
-  userId: number;
-  name: string;
-  email: string;
-  countryCode: string;
-  countryName: string;
-  streamerStatus: STREAMER_STATUS;
-  packageStatus: PACKAGE_STATUS;
-  currentVariantId?: number;
-  currentPackageName?: string;
-  packageStartDate?: string;
-  packageEndDate?: string;
+  package_assignments: any;
+  id: string;                    
+  userId?: string;                  
+  fullName: string;                
+  nickName?: string;              
+  email?: string;
+  phone?: string;
+  avatarUrl?: string;              
+  geoCountry: string[];            
+  streamUrls: string[];          
+  socialLinks?: Record<string, string>;
+  streamerStatus: STREAMER_STATUS;  
+  canReceiveDonation: boolean;      
   createdAt: string;
   updatedAt: string;
 }
-
-// ─── Template Content ─────────────────────────────────────────────────────────
-
-export interface TemplateContent {
-  id: number;
-  templateId: number;
-  key: string;
-  label: string;
-  fieldType: CONTENT_FIELD_TYPE;
-  defaultValue: string | number | boolean | null;
-  description?: string;
+export interface StreamerListItem {
+  id: string;
+  userId?: string;
+  fullName: string;
+  nickName?: string;
+  email?: string;
+  geoCountry: string[];
+  streamerStatus: STREAMER_STATUS;
+  createdAt: string;
+}
+export interface Package {
+  id: string;      
+  name: string;
+  orderRank: number;  
+  isActive: boolean;  
+  createdBy?: string;
+  updatedBy?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+export interface PackageCriteria {
+  id: string;
+  name: string;
+  unit?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
-
-// ─── Package Template ─────────────────────────────────────────────────────────
-
-export interface PackageTemplate {
-  id: number;
-  name: string;
-  level: PACKAGE_LEVEL;
-  description?: string;
-  status: TEMPLATE_STATUS;
-  contents: TemplateContent[];
+export interface PackageDetailCriteria {
+  id: string;
+  detailId: string;    
+  criteriaId: string;  
+  targetValue?: string;
+  isRequired: boolean;
+  criteria?: PackageCriteria;
+}
+export interface PackageDetail {
+  id: string;                                  
+  packageId: string;                              
+  version: number;
+  isCurrent: boolean;                            
+  eligibleCountries: string[] | null;            
+  advantages: Record<string, unknown> | null;  
+  evaluationPeriodDays: number;                  
+  isStarter: boolean;                            
+  criteria: PackageDetailCriteria[];              
+  createdBy?: string;
+  updatedBy?: string;
   createdAt: string;
   updatedAt: string;
 }
-
-// ─── Variant Content ──────────────────────────────────────────────────────────
-
-export interface VariantContent {
-  id: number;
-  variantId: number;
-  templateContentId: number;
-  key: string;
-  overrideValue: string | number | boolean | null;
-  updatedAt: string;
+export interface PackageWithCurrentDetail extends Package {
+  details: PackageDetail[];
 }
-
-// ─── Country Package Variant ──────────────────────────────────────────────────
-
-export interface CountryPackageVariant {
-  id: number;
-  templateId: number;
-  templateName: string;
-  templateLevel: PACKAGE_LEVEL;
-  countryCode: string;
-  countryName: string;
-  currency: string;
-  durationDays: number;
-  status: VARIANT_STATUS;
-  contents: VariantContent[];
+export interface Contract {
+  id: string;                        
+  streamerId: string;                  
+  status: CONTRACT_STATUS;
+  templateDocumentUrl?: string;      
+  uploadedDocumentUrl?: string;      
+  notes?: string;
+  startDate?: string;                
+  endDate?: string;                  
+  reviewedBy?: string;              
+  uploadedAt?: string;
+  packageId?: string;                
   createdAt: string;
-  updatedAt: string;
 }
-
-// ─── Package Request ──────────────────────────────────────────────────────────
-
-export interface PackageRequest {
-  id: number;
-  publisherId: number;
-  publisherName: string;
-  publisherEmail: string;
-  countryCode: string;
-  countryName: string;
-  requestType: PACKAGE_REQUEST_TYPE;
-  currentVariantId: number;
-  currentPackageName: string;
-  requestedVariantId: number;
-  requestedPackageName: string;
-  status: PACKAGE_REQUEST_STATUS;
-  adminId?: number;
-  adminNote?: string;
-  processedAt?: string;
-  publisherNote?: string;
-  createdAt: string;
-  updatedAt: string;
+export interface ContractWithRelations extends Contract {
+  streamer?: StreamerListItem;
+  package?: Package;
 }
-
-
-// Filter Types
-
 export interface StreamerFilters {
   search?: string;
-  countryCode?: string;
-  streamerStatus?: STREAMER_STATUS | "all";
-  packageStatus?: PACKAGE_STATUS | "all";
+  status?: STREAMER_STATUS | "all";
+  country?: string;
+}
+export interface PackageFilters {
+  search?: string;
+  isActive?: boolean | "all";
+}
+export interface PackageDetailFilters {
+  packageId?: string;
+  isCurrent?: boolean | "all";
+  isStarter?: boolean | "all";
+}
+export interface ContractFilters {
+  search?: string;
+  status?: CONTRACT_STATUS | "all";
+  packageId?: string;
 }
 
-export interface PackageTemplateFilters {
-  name?: string;
-  status?: TEMPLATE_STATUS | "all";
-  level?: PACKAGE_LEVEL | "all";
-}
+/** @deprecated Package kullan */
+export type PackageTemplate = PackageWithCurrentDetail;
 
-export interface CountryVariantFilters {
-  templateName?: string;
-  countryCode?: string;
-  status?: VARIANT_STATUS | "all";
-}
 
-export interface PackageRequestFilters {
-  publisherName?: string;
-  requestType?: PACKAGE_REQUEST_TYPE | "all";
-  status?: PACKAGE_REQUEST_STATUS | "all";
-}
+/** @deprecated PackageDetail kullan */
+export type CountryPackageVariant = PackageDetail;
+
+
+/** @deprecated Contract kullan */
+export type PackageRequest = ContractWithRelations;
+
+
+/** @deprecated StreamerListItem kullan */
+export type AdminStreamer = StreamerListItem;
+

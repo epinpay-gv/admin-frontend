@@ -1,166 +1,247 @@
 import { api } from "@/lib/api/baseFetcher";
-import { FetcherConfig } from "@/lib/api/types";
-import {
+import type { FetcherConfig } from "@/lib/api/types";
+import type {
   Streamer,
-  PackageTemplate,
-  CountryPackageVariant,
-  PackageRequest,
+  StreamerListItem,
+  Package,
+  PackageWithCurrentDetail,
+  PackageDetail,
+  PackageCriteria,
+  Contract,
+  ContractWithRelations,
+  StreamerFilters,
+  PackageFilters,
+  ContractFilters,
   STREAMER_STATUS,
-  PACKAGE_STATUS,
-  TEMPLATE_STATUS,
-  VARIANT_STATUS,
-  PACKAGE_REQUEST_STATUS,
-  PACKAGE_REQUEST_TYPE,
+  CONTRACT_STATUS,
 } from "@/features/streamers/types";
 
+const API_BASE       = "http://localhost:3011/api";
+const STREAMERS_URL  = "/features/streamers";
+const PACKAGES_URL   = "/features/streamers/packages";
+const CRITERIA_URL   = "/features/streamers/criteria";
+const CONTRACTS_URL  = "/features/streamers/contracts";
 
-const STREAMERS_URL = "/features/streamers";
-const TEMPLATES_URL = "/features/streamers/package-templates";
-const VARIANTS_URL = "/features/streamers/country-variants";
-const REQUESTS_URL = "/features/streamers/package-requests";
-
-const API_BASE = "http://localhost:3011/api";
-
-type StreamerListParams = {
-  search?: string;
-  countryCode?: string;
-  streamerStatus?: STREAMER_STATUS;
-  packageStatus?: PACKAGE_STATUS;
-  sortKey?: string;
-  sortDir?: string;
-};
-
-type PackageTemplateListParams = {
-  search?: string;
-  status?: TEMPLATE_STATUS;
-};
-
-type CountryPackageVariantListParams = {
-  search?: string;
-  countryCode?: string;
-  templateId?: number;
-  status?: VARIANT_STATUS;
-};
-
-type PackageRequestListParams = {
-  search?: string;
-  countryCode?: string;
-  requestType?: PACKAGE_REQUEST_TYPE;
-  status?: PACKAGE_REQUEST_STATUS;
-  packageId?: number;
-  dateFrom?: string;
-  dateTo?: string;
-  sortKey?: string;
-  sortDir?: string;
-};
-
-
-function buildStreamerParams(
-  filters: StreamerListParams
-): FetcherConfig["params"] {
+function buildStreamerParams(filters: StreamerFilters): FetcherConfig["params"] {
   return {
-    search: filters.search,
-    countryCode: filters.countryCode,
-    streamerStatus: filters.streamerStatus,
-    packageStatus: filters.packageStatus,
-    sortKey: filters.sortKey,
-    sortDir: filters.sortDir,
+    ...(filters.search   && { search:  filters.search }),
+    ...(filters.country  && { country: filters.country }),
+    ...(filters.status && filters.status !== "all" && { status: filters.status }),
   };
 }
 
-function buildTemplateParams(
-  filters: PackageTemplateListParams
-): FetcherConfig["params"] {
+function buildPackageParams(filters: PackageFilters): FetcherConfig["params"] {
   return {
-    search: filters.search,
-    status: filters.status,
+    ...(filters.search && { search: filters.search }),
+    ...(filters.isActive !== undefined && filters.isActive !== "all" && {
+      is_active: String(filters.isActive),
+    }),
   };
 }
 
-function buildVariantParams(
-  filters: CountryPackageVariantListParams
-): FetcherConfig["params"] {
+function buildContractParams(filters: ContractFilters): FetcherConfig["params"] {
   return {
-    search: filters.search,
-    countryCode: filters.countryCode,
-    templateId: filters.templateId,
-    status: filters.status,
-  };
-}
-
-function buildRequestParams(
-  filters: PackageRequestListParams
-): FetcherConfig["params"] {
-  return {
-    search: filters.search,
-    countryCode: filters.countryCode,
-    requestType: filters.requestType,
-    status: filters.status,
-    packageId: filters.packageId,
-    dateFrom: filters.dateFrom,
-    dateTo: filters.dateTo,
-    sortKey: filters.sortKey,
-    sortDir: filters.sortDir,
+    ...(filters.search    && { search:     filters.search }),
+    ...(filters.packageId && { package_id: filters.packageId }),
+    ...(filters.status && filters.status !== "all" && { status: filters.status }),
   };
 }
 
 export const streamerService = {
-  getAll: (filters: StreamerListParams = {}): Promise<Streamer[]> =>
-    api.get<Streamer[]>(STREAMERS_URL, buildStreamerParams(filters), { baseUrl: API_BASE }),
-
-  getById: (id: number): Promise<Streamer> =>
-    api.get<Streamer>(`${STREAMERS_URL}/${id}`, undefined, { baseUrl: API_BASE }),
-
-  update: (id: number, data: Partial<Streamer>): Promise<Streamer> =>
-    api.put<Streamer, Partial<Streamer>>(`${STREAMERS_URL}/${id}`, data, { baseUrl: API_BASE }),
-};
-
-export const packageTemplateService = {
-  getAll: (filters: PackageTemplateListParams = {}): Promise<PackageTemplate[]> =>
-    api.get<PackageTemplate[]>(TEMPLATES_URL, buildTemplateParams(filters), { baseUrl: API_BASE }),
-
-  getById: (id: number): Promise<PackageTemplate> =>
-    api.get<PackageTemplate>(`${TEMPLATES_URL}/${id}`, undefined, { baseUrl: API_BASE }),
-
-  create: (data: Partial<PackageTemplate>): Promise<PackageTemplate> =>
-    api.post<PackageTemplate, Partial<PackageTemplate>>(TEMPLATES_URL, data, { baseUrl: API_BASE }),
-
-  update: (id: number, data: Partial<PackageTemplate>): Promise<PackageTemplate> =>
-    api.put<PackageTemplate, Partial<PackageTemplate>>(`${TEMPLATES_URL}/${id}`, data, { baseUrl: API_BASE }),
-};
-
-
-export const countryPackageVariantService = {
-  getAll: (filters: CountryPackageVariantListParams = {}): Promise<CountryPackageVariant[]> =>
-    api.get<CountryPackageVariant[]>(VARIANTS_URL, buildVariantParams(filters), { baseUrl: API_BASE }),
-
-  getById: (id: number): Promise<CountryPackageVariant> =>
-    api.get<CountryPackageVariant>(`${VARIANTS_URL}/${id}`, undefined, { baseUrl: API_BASE }),
-
-  create: (data: Partial<CountryPackageVariant>): Promise<CountryPackageVariant> =>
-    api.post<CountryPackageVariant, Partial<CountryPackageVariant>>(VARIANTS_URL, data, { baseUrl: API_BASE }),
-
-  update: (id: number, data: Partial<CountryPackageVariant>): Promise<CountryPackageVariant> =>
-    api.put<CountryPackageVariant, Partial<CountryPackageVariant>>(`${VARIANTS_URL}/${id}`, data, { baseUrl: API_BASE }),
-};
-
-
-export const packageRequestService = {
-  getAll: (filters: PackageRequestListParams = {}): Promise<PackageRequest[]> =>
-    api.get<PackageRequest[]>(REQUESTS_URL, buildRequestParams(filters), { baseUrl: API_BASE }),
-
-  getById: (id: number): Promise<PackageRequest> =>
-    api.get<PackageRequest>(`${REQUESTS_URL}/${id}`, undefined, { baseUrl: API_BASE }),
-
-  approve: (id: number, adminNote?: string): Promise<PackageRequest> =>
-    api.patch<PackageRequest, { action: "approve"; adminNote?: string }>(
-      `${REQUESTS_URL}/${id}/status`,
-      { action: "approve", adminNote }, { baseUrl: API_BASE }
+  getAll: (filters: StreamerFilters = {}): Promise<StreamerListItem[]> =>
+    api.get<StreamerListItem[]>(
+      STREAMERS_URL,
+      buildStreamerParams(filters),
+      { baseUrl: API_BASE }
     ),
 
-  reject: (id: number, adminNote: string): Promise<PackageRequest> =>
-    api.patch<PackageRequest, { action: "reject"; adminNote: string }>(
-      `${REQUESTS_URL}/${id}/status`,
-      { action: "reject", adminNote }, { baseUrl: API_BASE }
+  getById: (id: string): Promise<Streamer> =>
+    api.get<Streamer>(
+      `${STREAMERS_URL}/${id}`,
+      undefined,
+      { baseUrl: API_BASE }
+    ),
+
+  updateStatus: (
+    id: string,
+    status: STREAMER_STATUS,
+    reason?: string
+  ): Promise<Streamer> =>
+    api.patch<Streamer, { status: STREAMER_STATUS; reason?: string }>(
+      `${STREAMERS_URL}/${id}/status`,
+      { status, reason },
+      { baseUrl: API_BASE }
+    ),
+};
+
+export type CreatePackageBody = {
+  name: string;
+  order_rank: number;
+};
+
+export type UpdatePackageBody = {
+  name?: string;
+  order_rank?: number;
+  is_active?: boolean;
+};
+
+export const packageService = {
+  getAll: (filters: PackageFilters = {}): Promise<PackageWithCurrentDetail[]> =>
+    api.get<PackageWithCurrentDetail[]>(
+      PACKAGES_URL,
+      buildPackageParams(filters),
+      { baseUrl: API_BASE }
+    ),
+
+  getById: (id: string): Promise<PackageWithCurrentDetail> =>
+    api.get<PackageWithCurrentDetail>(
+      `${PACKAGES_URL}/${id}`,
+      undefined,
+      { baseUrl: API_BASE }
+    ),
+
+  create: (data: CreatePackageBody): Promise<Package> =>
+    api.post<Package, CreatePackageBody>(
+      PACKAGES_URL,
+      data,
+      { baseUrl: API_BASE }
+    ),
+
+  update: (id: string, data: UpdatePackageBody): Promise<Package> =>
+    api.patch<Package, UpdatePackageBody>(
+      `${PACKAGES_URL}/${id}`,
+      data,
+      { baseUrl: API_BASE }
+    ),
+
+  remove: (id: string): Promise<{ message: string }> =>
+    api.delete<{ message: string }>(
+      `${PACKAGES_URL}/${id}`,
+      { baseUrl: API_BASE }
+    ),
+};
+
+export type CreatePackageDetailBody = {
+  eligible_countries?: string[];
+  advantages?: Record<string, unknown>;
+  evaluation_period_days: number;
+  is_starter?: boolean;
+  criteria: {
+    criteria_id: string;
+    target_value?: string;
+    is_required?: boolean;
+  }[];
+};
+
+export const packageDetailService = {
+  getByPackageId: (packageId: string): Promise<PackageDetail[]> =>
+    api.get<PackageDetail[]>(
+      `${PACKAGES_URL}/${packageId}/details`,
+      undefined,
+      { baseUrl: API_BASE }
+    ),
+
+  addVersion: (packageId: string, data: CreatePackageDetailBody): Promise<PackageDetail> =>
+    api.post<PackageDetail, CreatePackageDetailBody>(
+      `${PACKAGES_URL}/${packageId}/details`,
+      data,
+      { baseUrl: API_BASE }
+    ),
+
+
+  updateCurrent: (packageId: string, data: CreatePackageDetailBody): Promise<PackageDetail> =>
+    api.put<PackageDetail, CreatePackageDetailBody>(
+      `${PACKAGES_URL}/${packageId}/details/current`,
+      data,
+      { baseUrl: API_BASE }
+    ),
+};
+
+export type CreateCriteriaBody = {
+  name: string;
+  unit?: string;
+};
+
+export type UpdateCriteriaBody = {
+  name?: string;
+  unit?: string;
+  is_active?: boolean;
+};
+
+export const criteriaService = {
+  getAll: (params?: { search?: string; is_active?: boolean }): Promise<PackageCriteria[]> =>
+    api.get<PackageCriteria[]>(
+      CRITERIA_URL,
+      {
+        ...(params?.search     && { search:    params.search }),
+        ...(params?.is_active !== undefined && { is_active: String(params.is_active) }),
+      },
+      { baseUrl: API_BASE }
+    ),
+
+  create: (data: CreateCriteriaBody): Promise<PackageCriteria> =>
+    api.post<PackageCriteria, CreateCriteriaBody>(
+      CRITERIA_URL,
+      data,
+      { baseUrl: API_BASE }
+    ),
+
+  update: (id: string, data: UpdateCriteriaBody): Promise<PackageCriteria> =>
+    api.patch<PackageCriteria, UpdateCriteriaBody>(
+      `${CRITERIA_URL}/${id}`,
+      data,
+      { baseUrl: API_BASE }
+    ),
+};
+
+export type UpdateContractStatusBody = {
+  status: CONTRACT_STATUS;
+  notes?: string;
+};
+
+export type ApproveContractBody = {
+  notes?: string;
+  start_date: string;
+  end_date: string;
+};
+
+export type RejectContractBody = {
+  notes: string;
+};
+
+export const contractService = {
+  getAll: (filters: ContractFilters = {}): Promise<ContractWithRelations[]> =>
+    api.get<ContractWithRelations[]>(
+      CONTRACTS_URL,
+      buildContractParams(filters),
+      { baseUrl: API_BASE }
+    ),
+
+  getById: (id: string): Promise<ContractWithRelations> =>
+    api.get<ContractWithRelations>(
+      `${CONTRACTS_URL}/${id}`,
+      undefined,
+      { baseUrl: API_BASE }
+    ),
+
+  updateStatus: (id: string, data: UpdateContractStatusBody): Promise<Contract> =>
+    api.patch<Contract, UpdateContractStatusBody>(
+      `${CONTRACTS_URL}/${id}`,
+      data,
+      { baseUrl: API_BASE }
+    ),
+
+  approve: (id: string, data: ApproveContractBody): Promise<Contract> =>
+    api.patch<Contract, ApproveContractBody>(
+      `${CONTRACTS_URL}/${id}/approve`,
+      data,
+      { baseUrl: API_BASE }
+    ),
+
+  reject: (id: string, data: RejectContractBody): Promise<Contract> =>
+    api.patch<Contract, RejectContractBody>(
+      `${CONTRACTS_URL}/${id}/reject`,
+      data,
+      { baseUrl: API_BASE }
     ),
 };
