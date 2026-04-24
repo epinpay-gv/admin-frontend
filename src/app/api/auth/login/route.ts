@@ -13,9 +13,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const bffUrl = process.env.ADMIN_BFF_URL || "https://admin-gateway-ahj0yeia.ew.gateway.dev";
+    const bffUrl = "https://admin-gateway-ahj0yeia.ew.gateway.dev";
         
-    const bffResponse = await fetch(`${bffUrl}/api/features/auth/login`, {
+    const bffResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ firebaseToken, email }),

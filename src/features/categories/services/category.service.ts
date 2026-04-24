@@ -20,26 +20,26 @@ export const categoryService = {
     api.get<CategoryListResponse, CategoryFilters>(
       `/catalog/categories`,
       filters,
-      { baseUrl: process.env.ADMIN_BFF_URL }
+      { baseUrl: process.env.NEXT_PUBLIC_API_URL }
     ),
 
   getById: (id: number): Promise<Category> =>
-    api.get<Category>(`/catalog/categories/${id}`,undefined, { baseUrl: process.env.ADMIN_BFF_URL }),
+    api.get<Category>(`/catalog/categories/${id}`,undefined, { baseUrl: process.env.NEXT_PUBLIC_API_URL }),
 
   create: (payload: CategoryCreatePayload): Promise<Category> =>
-    api.post<Category, CategoryCreatePayload>(`/catalog/categories`, payload, { baseUrl: process.env.ADMIN_BFF_URL }),
+    api.post<Category, CategoryCreatePayload>(`/catalog/categories`, payload, { baseUrl: process.env.NEXT_PUBLIC_API_URL }),
 
   update: (
     id: number,
     payload: CategoryUpdatePayload,
   ): Promise<{ success: boolean; category: Category }> =>
-    api.put(`/catalog/categories/${id}`, payload, { baseUrl: process.env.ADMIN_BFF_URL }),
+    api.put(`/catalog/categories/${id}`, payload, { baseUrl: process.env.NEXT_PUBLIC_API_URL }),
 
   quickUpdate: (
     id: number,
     payload: CategoryQuickUpdatePayload,
   ): Promise<{ success: boolean; category?: Category }> =>
-    api.patch(`/catalog/categories/${id}/quick-update`, payload, { baseUrl: process.env.ADMIN_BFF_URL }),
+    api.patch(`/catalog/categories/${id}/quick-update`, payload, { baseUrl: process.env.NEXT_PUBLIC_API_URL }),
 
   /* ── Country ban/unban ──────────────────────────────────── */
 
@@ -47,7 +47,7 @@ export const categoryService = {
     api.post<BanCountriesResponse, BanCountriesPayload>(
       `/catalog/categories/ban-countries`,
       payload,
-      { baseUrl: process.env.ADMIN_BFF_URL }
+      { baseUrl: process.env.NEXT_PUBLIC_API_URL }
 
     ),
 
@@ -57,7 +57,7 @@ export const categoryService = {
     api.post<BanCountriesResponse, BanCountriesPayload>(
       `/catalog/categories/unban-countries`,
       payload,
-      { baseUrl: process.env.ADMIN_BFF_URL }
+      { baseUrl: process.env.NEXT_PUBLIC_API_URL }
 
     ),
 
@@ -71,7 +71,7 @@ export const categoryService = {
     api.get<CategoryProductsResponse>(
       `/catalog/categories/${categoryId}/products`,
       { page, limit },
-      { baseUrl: process.env.ADMIN_BFF_URL }
+      { baseUrl: process.env.NEXT_PUBLIC_API_URL }
 
     ),
 
@@ -84,17 +84,17 @@ export const categoryService = {
       q,
       page,
       perPage,
-    }, { baseUrl: process.env.ADMIN_BFF_URL }),
+    }, { baseUrl: process.env.NEXT_PUBLIC_API_URL }),
 
   addProduct: (
     categoryId: number,
     payload: AddProductToCategoryPayload,
   ): Promise<{ success: boolean }> =>
-    api.post(`/catalog/categories/${categoryId}/products`, payload, { baseUrl: process.env.ADMIN_BFF_URL }),
+    api.post(`/catalog/categories/${categoryId}/products`, payload, { baseUrl: process.env.NEXT_PUBLIC_API_URL }),
 
   removeProduct: (
     categoryId: number,
     productId: number,
   ): Promise<{ success: boolean }> =>
-    api.delete(`/catalog/categories/${categoryId}/products/${productId}`, { baseUrl: process.env.ADMIN_BFF_URL }),
+    api.delete(`/catalog/categories/${categoryId}/products/${productId}`, { baseUrl: process.env.NEXT_PUBLIC_API_URL }),
 };
