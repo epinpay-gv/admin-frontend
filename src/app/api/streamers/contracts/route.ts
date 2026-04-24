@@ -6,23 +6,23 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const params = new URLSearchParams();
 
-  const search  = searchParams.get("search");
-  const country = searchParams.get("country");
-  const status  = searchParams.get("status");
+  const search    = searchParams.get("search");
+  const status    = searchParams.get("status");
+  const packageId = searchParams.get("package_id");
 
-  if (search)  params.set("search",  search);
-  if (country) params.set("country", country);
+  if (search)    params.set("search",     search);
+  if (packageId) params.set("package_id", packageId);
   if (status && status !== "all") params.set("status", status);
 
-  const url = `${BFF_BASE}/features/streamers?${params.toString()}`;
-
   try {
-    const res  = await fetch(url, { cache: "no-store" });
+    const res  = await fetch(`${BFF_BASE}/features/streamers/contracts?${params.toString()}`, {
+      cache: "no-store",
+    });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
   } catch {
     return NextResponse.json(
-      { message: "Streamer servisi yanıt vermedi." },
+      { message: "Sözleşme servisi yanıt vermedi." },
       { status: 503 }
     );
   }

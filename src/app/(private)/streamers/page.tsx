@@ -2,8 +2,8 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { RefreshCw, Users, Package, Globe, ClipboardList, Filter } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { RefreshCw, Users, Package, FileText, Filter } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
 
 import { DataTable } from "@/components/common/data-table";
 import { ColumnDef } from "@/components/common/data-table/components/DataTableHeader";
@@ -15,155 +15,177 @@ import { FilterData } from "@/components/common/filter-panel/types";
 import { EntityActions } from "@/components/common/entity-actions/EntityActions";
 
 import { useStreamers } from "@/features/streamers/hooks/useStreamers";
-import { usePackageTemplates } from "@/features/streamers/hooks/usePackageTemplates";
-import { useCountryVariants } from "@/features/streamers/hooks/useCountryVariants";
-import { usePackageRequests } from "@/features/streamers/hooks/usePackageRequests";
+import { usePackages } from "@/features/streamers/hooks/usePackages";
+import { useContracts } from "@/features/streamers/hooks/useContracts";
 
-import { STREAMER_COLUMNS, TEMPLATE_COLUMNS, VARIANT_COLUMNS, REQUEST_COLUMNS } from "@/features/streamers/components/StreamerTableConfig";
+import {
+  STREAMER_COLUMNS,
+  PACKAGE_COLUMNS,
+  CONTRACT_COLUMNS,
+} from "@/features/streamers/components/StreamerTableConfig";
 import { TAB_FILTERS } from "@/features/streamers/hooks/StreamerFilterConfig";
-import { 
-  Streamer, 
-  PackageTemplate, 
-  CountryPackageVariant, 
-  PackageRequest,
-  // Yeni eklenenler:
+
+import type {
   StreamerFilters,
-  PackageTemplateFilters,
-  CountryVariantFilters,
-  PackageRequestFilters 
+  PackageFilters,
+  ContractFilters,
 } from "@/features/streamers/types";
 
-type TabKey = "streamers" | "templates" | "variants" | "requests";
+
+
+type TabKey = "streamers" | "packages" | "contracts";
 type BaseRow = Record<string, unknown>;
-type AllFilters = StreamerFilters & PackageTemplateFilters & CountryVariantFilters & PackageRequestFilters;
+
+const TAB_INFO: Record<TabKey, { label: string; icon: React.ReactNode }> = {
+  streamers: { label: "Yayıncılar",      icon: <Users size={13} /> },
+  packages:  { label: "Paket Şablonları", icon: <Package size={13} /> },
+  contracts: { label: "Sözleşmeler",     icon: <FileText size={13} /> },
+};
+
 
 export default function StreamersPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<TabKey>("streamers");
+  const [activeTab, setActiveTab]   = useState<TabKey>("streamers");
   const [showFilters, setShowFilters] = useState(false);
 
-  const streamers = useStreamers();
-  const templates = usePackageTemplates();
-  const variants = useCountryVariants();
-  const requests = usePackageRequests();
+  const streamersHook = useStreamers();
+  const packagesHook  = usePackages();
+  const contractsHook = useContracts();
 
-  const hooks = { streamers, templates, variants, requests };
-  const active = hooks[activeTab];
-  const displayData = useMemo(() => {
-    switch (activeTab) {
-      case "streamers": return streamers.streamers as unknown as BaseRow[];
-      case "templates": return templates.templates as unknown as BaseRow[];
-      case "variants": return variants.variants as unknown as BaseRow[]; // hook'tan gelen veri CountryPackageVariant[] olmalı
-      case "requests": return requests.requests as unknown as BaseRow[];
-      default: return [];
-    }
-  }, [activeTab, streamers.streamers, templates.templates, variants.variants, requests.requests]);
+  const activeHook = {
+    streamers: streamersHook,
+    packages:  packagesHook,
+    contracts: contractsHook,
+  }[activeTab];
 
-  const displayColumns = useMemo(() => {
+const displayData = useMemo<BaseRow[]>(() => {
+  switch (activeTab) {
+    case "streamers": return (streamersHook.streamers ?? []) as unknown as BaseRow[];
+    case "packages":  return (packagesHook.packages   ?? []) as unknown as BaseRow[];
+    case "contracts": return (contractsHook.contracts ?? []) as unknown as BaseRow[];
+    default: return [];
+  }
+}, [
+  activeTab,
+  streamersHook.streamers,
+  packagesHook.packages,
+  contractsHook.contracts,
+]);
+
+  const displayColumns = useMemo<ColumnDef<BaseRow>[]>(() => {
     switch (activeTab) {
       case "streamers": return STREAMER_COLUMNS as unknown as ColumnDef<BaseRow>[];
-      case "templates": return TEMPLATE_COLUMNS as unknown as ColumnDef<BaseRow>[];
-      case "variants": return VARIANT_COLUMNS as unknown as ColumnDef<BaseRow>[];
-      case "requests": return REQUEST_COLUMNS as unknown as ColumnDef<BaseRow>[];
-      default: return [];
+      case "packages":  return PACKAGE_COLUMNS  as unknown as ColumnDef<BaseRow>[];
+      case "contracts": return CONTRACT_COLUMNS as unknown as ColumnDef<BaseRow>[];
     }
   }, [activeTab]);
 
-  const hasActiveFilters = Object.entries(active.filters || {}).some(([k, v]) => v && v !== "" && v !== "all");
+  const handleView = (row: BaseRow) => {
+    const id = (row as { id: string }).id;
+    const routes: Record<TabKey, string> = {
+      streamers: "/streamers",
+      packages:  "/streamers/packages",
+      contracts: "/streamers/contracts",
+    };
+    router.push(`${routes[activeTab]}/${id}`);
+  };
+
+  const handleApplyFilters = (f: FilterData) => {
+    if (activeTab === "streamers") {
+      streamersHook.setFilters(f as unknown as StreamerFilters);
+    } else if (activeTab === "packages") {
+      packagesHook.setFilters(f as unknown as PackageFilters);
+    } else if (activeTab === "contracts") {
+      contractsHook.setFilters(f as unknown as ContractFilters);
+    }
+  };
+
+  const handleResetFilters = () => {
+    if (activeTab === "streamers") streamersHook.resetFilters();
+    else if (activeTab === "packages")  packagesHook.resetFilters();
+    else if (activeTab === "contracts") contractsHook.resetFilters();
+  };
+
+  const currentFilters = activeHook.filters as unknown as FilterData;
+  const tabFilterConfig = TAB_FILTERS[activeTab] ?? [];
 
   return (
     <div className="flex flex-col h-[calc(100vh-100px)] overflow-hidden px-1">
-  <PageHeader
-  title="Yayıncılar"
-  count={displayData.length}
-  countLabel="kayıt"
-  actions={
-    <div className="flex items-center gap-2">
-      <Button variant="outline" size="icon" onClick={active.refresh} title="Yenile">
-        <RefreshCw size={14} className={active.loading ? "animate-spin" : ""} />
-      </Button>
-      
-      {TAB_FILTERS[activeTab]?.length > 0 && TAB_FILTERS[activeTab] && (
-        <Button 
-          variant="outline" 
-          onClick={() => setShowFilters(!showFilters)}
-          // ... stiller
-        >
-          <Filter size={14} className="mr-2" /> Filtre
-        </Button>
-      )}
-
-      {/* YENİ EKLENEN KISIM: Sadece aktif tab templates veya variants ise göster */}
-      {activeTab === "templates" && (
-        <Button 
-           onClick={() => router.push("/streamers/package-templates/new")}
-           style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)", color: "white" }}
-        >
-           + Yeni Şablon
-        </Button>
-      )}
-    </div>
-  }
-/>
-
-
-      <div className="flex items-center gap-1 p-1 rounded-xl mb-4 shrink-0" style={{ background: "var(--background-card)", border: "1px solid var(--border)" }}>
-        {(Object.keys(hooks) as TabKey[]).map((key) => {
-          const tabInfo = {
-            streamers: { label: "Yayıncılar", icon: <Users size={13} /> },
-            templates: { label: "Paket Şablonları", icon: <Package size={13} /> },
-            variants: { label: "Ülke Varyantları", icon: <Globe size={13} /> },
-            requests: { label: "Paket Talepleri", icon: <ClipboardList size={13} /> },
-          }[key];
-          
-          return (
-            <button
-              key={key}
-              onClick={() => { setActiveTab(key); setShowFilters(false); }}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
-              style={{
-                background: activeTab === key ? "var(--background-secondary)" : "transparent",
-                color: activeTab === key ? "var(--text-primary)" : "var(--text-muted)",
-                border: activeTab === key ? "1px solid var(--border)" : "1px solid transparent",
-              }}
+      <PageHeader
+        title="Yayıncılar"
+        count={displayData.length}
+        countLabel="kayıt"
+        actions={
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={activeHook.refresh}
+              title="Yenile"
             >
-              {tabInfo.icon} {tabInfo.label}
-            </button>
-          );
-        })}
+              <RefreshCw
+                size={14}
+                className={activeHook.loading ? "animate-spin" : ""}
+              />
+            </Button>
+
+            {tabFilterConfig.length > 0 && (
+              <Button
+                variant="outline"
+                onClick={() => setShowFilters((p) => !p)}
+              >
+                <Filter size={14} className="mr-2" />
+                Filtre
+              </Button>
+            )}
+
+            {activeTab === "packages" && (
+              <Button
+                onClick={() => router.push("/streamers/packages/new")}
+                style={{
+                  background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)",
+                  color: "white",
+                }}
+              >
+                + Yeni Paket
+              </Button>
+            )}
+          </div>
+        }
+      />
+
+      <div
+        className="flex items-center gap-1 p-1 rounded-xl mb-4 shrink-0"
+        style={{ background: "var(--background-card)", border: "1px solid var(--border)" }}
+      >
+        {(Object.keys(TAB_INFO) as TabKey[]).map((key) => (
+          <button
+            key={key}
+            onClick={() => { setActiveTab(key); setShowFilters(false); }}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+            style={{
+              background:    activeTab === key ? "var(--background-secondary)" : "transparent",
+              color:         activeTab === key ? "var(--text-primary)" : "var(--text-muted)",
+              border:        activeTab === key ? "1px solid var(--border)" : "1px solid transparent",
+            }}
+          >
+            {TAB_INFO[key].icon}
+            {TAB_INFO[key].label}
+          </button>
+        ))}
       </div>
 
       <AnimatePresence mode="popLayout">
-        {showFilters && TAB_FILTERS[activeTab]?.length > 0 && (
+        {showFilters && tabFilterConfig.length > 0 && (
           <FilterPanel
-            configs={TAB_FILTERS[activeTab]}
-            initialFilters={active.filters as unknown as FilterData}
-            onApply={(f) => {
-              const raw = f as unknown;
-
-              if (activeTab === "streamers") {
-                // 'as unknown as Parameters<typeof streamers.setFilters>[0]' 
-                // Bu ifade: "Fonksiyon ne bekliyorsa ona dönüştür" demektir. any değildir.
-                streamers.setFilters(raw as unknown as Parameters<typeof streamers.setFilters>[0]);
-              } else if (activeTab === "templates") {
-                templates.setFilters(raw as unknown as Parameters<typeof templates.setFilters>[0]);
-              } else if (activeTab === "variants") {
-                variants.setFilters(raw as unknown as Parameters<typeof variants.setFilters>[0]);
-              } else if (activeTab === "requests") {
-                requests.setFilters(raw as unknown as Parameters<typeof requests.setFilters>[0]);
-              }
-            }}
-            onReset={() => {
-              if (activeTab === "streamers") streamers.setFilters({} as unknown as Parameters<typeof streamers.setFilters>[0]);
-              else if (activeTab === "templates") templates.setFilters({} as unknown as Parameters<typeof templates.setFilters>[0]);
-              else if (activeTab === "variants") variants.setFilters({} as unknown as Parameters<typeof variants.setFilters>[0]);
-              else if (activeTab === "requests") requests.setFilters({} as unknown as Parameters<typeof requests.setFilters>[0]);
-            }}
+            configs={tabFilterConfig}
+            initialFilters={currentFilters}
+            onApply={handleApplyFilters}
+            onReset={handleResetFilters}
           />
         )}
       </AnimatePresence>
-
-      <PageState loading={active.loading} error={active.error}>
+      <PageState loading={activeHook.loading} error={activeHook.error}>
         <div className="flex-1 overflow-y-auto min-h-0 pr-1 custom-scrollbar pb-10">
           <DataTable
             data={displayData}
@@ -171,16 +193,7 @@ export default function StreamersPage() {
             actions={(row) => (
               <EntityActions
                 row={row}
-                onView={() => {
-                  const id = activeTab === 'requests' ? (row as unknown as PackageRequest).publisherId : (row as unknown as {id: number}).id;
-                  const route = {
-                    streamers: "/streamers",
-                    templates: "/streamers/package-templates",
-                    variants: "/streamers/country-variants",
-                    requests: "/streamers",
-                  }[activeTab];
-                  router.push(`${route}/${id}`);
-                }}
+                onView={() => handleView(row)}
               />
             )}
           />

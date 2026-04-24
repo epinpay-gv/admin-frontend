@@ -87,7 +87,7 @@ export function useDataTable<T extends Record<string, unknown>>({
   };
 
   const filtered = useMemo(() => {
-    let result = [...data];
+    let result = [...(Array.isArray(data) ? data : [])];
 
     // Global arama
     if (search) {
