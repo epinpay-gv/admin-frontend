@@ -7,7 +7,7 @@ export interface AuthLoginRequest {
   email: string;
 }
 
-const BASE_URL = "/api/auth";
+const BASE_URL = "/auth";
 
 export const authService = {
   login: (data: AuthLoginRequest): Promise<LoginResponse> =>
