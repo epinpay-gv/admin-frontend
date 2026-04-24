@@ -75,15 +75,20 @@ export async function baseFetcher<TResponse, TBody = unknown>(
     tags,
   } = config;
 
-  const url = buildUrl(
-    endpoint,
-    params as Record<string, string | number | boolean | undefined | null>,
-    baseUrl,
-  );
+  const url = buildUrl(endpoint, params, baseUrl);
 
-  console.log("[baseFetcher] endpoint:", endpoint);
-  console.log("[baseFetcher] baseUrl:", baseUrl);
-  console.log("[baseFetcher] final URL:", url);
+  const authHeaders: Record<string, string> = {};
+  if (typeof window !== "undefined") {
+    try {
+      const { useAuthStore } = await import("@/store/useAuthStore");
+      const token = useAuthStore.getState().token;
+      if (token) {
+        authHeaders["Authorization"] = `Bearer ${token}`;
+      }
+    } catch {
+      // ignore
+    }
+  }
 
   const nextConfig: RequestInit["next"] = {};
   if (revalidate !== undefined) nextConfig.revalidate = revalidate;
@@ -93,6 +98,7 @@ export async function baseFetcher<TResponse, TBody = unknown>(
     method,
     headers: {
       ...DEFAULT_HEADERS,
+      ...authHeaders,
       ...headers,
     },
     credentials: "include",
