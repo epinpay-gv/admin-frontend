@@ -9,35 +9,52 @@ export async function POST(request: NextRequest) {
     if (!firebaseToken) {
       return NextResponse.json<LoginResponse>(
         { success: false, message: "Token zorunludur." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const bffUrl = "https://admin-gateway-ahj0yeia.ew.gateway.dev";
-        
-    const bffResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ firebaseToken, email }),
-    });
+    const bffResponse = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": process.env.GATEWAY_API_KEY ?? "",
+        },
+        body: JSON.stringify({ firebaseToken, email }),
+      },
+    );
 
-    const data = await bffResponse.json();
+    const rawText = await bffResponse.text();
+
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      return NextResponse.json<LoginResponse>(
+        {
+          success: false,
+          message: `BFF hatası: ${bffResponse.status} - ${rawText.slice(0, 200)}`,
+        },
+        { status: 500 },
+      );
+    }
 
     if (!bffResponse.ok) {
       return NextResponse.json<LoginResponse>(
         { success: false, message: data.message || "Giriş başarısız." },
-        { status: bffResponse.status }
+        { status: bffResponse.status },
       );
     }
 
     const response = NextResponse.json<LoginResponse>(
-      { 
-        success: true, 
+      {
+        success: true,
         message: "Giriş başarılı.",
         user: data.user,
-        token: data.token
+        token: data.token,
       },
-      { status: 200 }
+      { status: 200 },
     );
     response.cookies.set("token", data.token, {
       httpOnly: true,
@@ -52,7 +69,7 @@ export async function POST(request: NextRequest) {
     console.error("BFF Connection Error:", error);
     return NextResponse.json<LoginResponse>(
       { success: false, message: "Sunucu bağlantı hatası." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

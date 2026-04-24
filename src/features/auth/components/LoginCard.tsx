@@ -42,9 +42,6 @@ export default function LoginCard() {
 
         <LoginForm />
 
-        <p className="text-[11px] text-center mt-10 font-mono" style={{ color: "var(--text-muted)" }}>
-          admin@epinpay.com · moderator@epinpay.com
-        </p>
       </motion.div>
     </div>
   );

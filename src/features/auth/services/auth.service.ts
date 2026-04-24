@@ -7,15 +7,23 @@ export interface AuthLoginRequest {
   email: string;
 }
 
-const BASE_URL = "/auth";
+const NEXT_BASE_URL = typeof window !== "undefined"
+  ? window.location.origin
+  : "http://localhost:3000";
 
 export const authService = {
   login: (data: AuthLoginRequest): Promise<LoginResponse> =>
-    api.post<LoginResponse>(`${BASE_URL}/login`, data),
+    api.post<LoginResponse>("/api/auth/login", data, {
+      baseUrl: NEXT_BASE_URL,
+    }),
 
   refresh: (): Promise<{ success: boolean; token: string }> =>
-    api.post(`${BASE_URL}/refresh`),
+    api.post("/api/auth/refresh", undefined, {
+      baseUrl: NEXT_BASE_URL,
+    }),
 
   logout: (): Promise<{ success: boolean }> =>
-    api.post(`${BASE_URL}/logout`),
+    api.post("/api/auth/logout", undefined, {
+      baseUrl: NEXT_BASE_URL,
+    }),
 };
