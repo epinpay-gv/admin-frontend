@@ -29,7 +29,7 @@ export const uploadService = {
     let response: Response;
 
     try {
-      response = await fetch(`${base}/api/features/catalog/media/upload`, {
+      response = await fetch(`${base}/catalog/media/upload`, {
         method: "POST",
         body: formData,
         // DO NOT set Content-Type 
