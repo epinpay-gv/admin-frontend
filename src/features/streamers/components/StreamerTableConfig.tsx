@@ -9,6 +9,7 @@ import {
   PackageWithCurrentDetail,
   PackageDetail,
   ContractWithRelations,
+  PackageCriteria 
 } from "../types";
 
 const Badge = ({ label, bg, color }: { label: string; bg: string; color: string }) => (
@@ -162,6 +163,50 @@ export const PACKAGE_COLUMNS: ColumnDef<PackageWithCurrentDetail>[] = [
   {
     key:    "createdAt",
     label:  "Oluşturulma",
+    render: (v) => <DateText value={v as string} />,
+  },
+];
+
+export const CRITERIA_COLUMNS: ColumnDef<PackageCriteria>[] = [
+  {
+    key: "id",
+    label: "ID",
+    width: "100px",
+    render: (v) => <UUIDText value={v as string} />,
+  },
+  {
+    key: "name",
+    label: "Kriter Adı",
+    sortable: true,
+    render: (v) => (
+      <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+        {v as string}
+      </span>
+    ),
+  },
+  {
+    key: "unit",
+    label: "Birim",
+    render: (v) => (
+      <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>
+        {(v as string) ?? "—"}
+      </span>
+    ),
+  },
+  {
+    key: "isActive",
+    label: "Durum",
+    render: (v) => (
+      <Badge
+        label={v ? "Aktif" : "Pasif"}
+        bg={v ? PALETTE.green.bg : PALETTE.gray.bg}
+        color={v ? PALETTE.green.color : PALETTE.gray.color}
+      />
+    ),
+  },
+  {
+    key: "createdAt",
+    label: "Oluşturulma",
     render: (v) => <DateText value={v as string} />,
   },
 ];

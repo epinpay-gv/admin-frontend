@@ -11,6 +11,7 @@ const DEFAULT_FILTERS: PackageFilters = {
 
 export function usePackages() {
   const [packages, setPackages]     = useState<PackageWithCurrentDetail[]>([]);
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading]       = useState(true);
   const [error, setError]           = useState<string | null>(null);
   const [filters, setFiltersState]  = useState<PackageFilters>(DEFAULT_FILTERS);
@@ -45,14 +46,23 @@ export function usePackages() {
     setTick((t) => t + 1);
   }, []);
 
+  // Sadece local state'den kaldırır — backend'e istek atmaz
+  const localDelete = useCallback((id: string) => {
+    setDeletedIds((prev) => new Set([...prev, id]));
+  }, []);
+
+  // Silinen ID'leri listeden filtrele
+  const visiblePackages = packages.filter((p) => !deletedIds.has(p.id));
+
   return {
-    packages,
+    packages: visiblePackages,
     loading,
     error,
     filters,
     setFilters,
     resetFilters,
     refresh,
+    localDelete,
   };
 }
 
@@ -71,8 +81,9 @@ export function usePackage(id: string | null) {
       setLoading(true);
       setError(null);
       try {
-        const data = await packageService.getById(id);
-        if (!cancelled) setPkg(data);
+        const all   = await packageService.getAll({});
+        const found = all.find((p) => p.id === id) ?? null;
+        if (!cancelled) setPkg(found);
       } catch (err) {
         if (!cancelled) setError((err as Error).message);
       } finally {
@@ -89,7 +100,7 @@ export function usePackage(id: string | null) {
     setLoading(true);
     try {
       await packageService.update(id, data);
-      setTick((t) => t + 1); // refetch
+      setTick((t) => t + 1);
     } catch (err) {
       setError((err as Error).message);
     } finally {

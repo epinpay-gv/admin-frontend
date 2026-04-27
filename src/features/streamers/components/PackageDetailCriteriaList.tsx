@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Plus, Pencil, Check, X } from "lucide-react";
-import { PackageDetail, PackageDetailCriteria } from "@/features/streamers/types";
+import { PackageDetail, PackageDetailCriteria, PackageCriteria } from "@/features/streamers/types";
+import { useCriteria } from "@/features/streamers/hooks/useCriteria";
 
 function CriteriaRow({
   item,
@@ -115,9 +116,11 @@ function CriteriaRow({
 function AddCriteriaForm({
   onAdd,
   onCancel,
+  availableCriteria,
 }: {
   onAdd: (data: { criteria_id: string; target_value?: string; is_required?: boolean }) => Promise<void>;
   onCancel: () => void;
+  availableCriteria: PackageCriteria[];
 }) {
   const [form, setForm] = useState({
     criteria_id:  "",
@@ -149,15 +152,25 @@ function AddCriteriaForm({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
           <label className="text-[11px] font-mono uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
-            Kriter ID (UUID) <span style={{ color: "#FF5050" }}>*</span>
+            Kriter <span style={{ color: "#FF5050" }}>*</span>
           </label>
-          <input
+          <select
             value={form.criteria_id}
             onChange={(e) => setForm({ ...form, criteria_id: e.target.value })}
-            placeholder="package_criteria tablosundan UUID"
-            className="h-8 rounded-lg border px-3 text-sm outline-none font-mono"
-            style={{ background: "var(--background-card)", borderColor: "var(--border)", color: "var(--text-primary)" }}
-          />
+            className="h-8 rounded-lg border px-3 text-sm outline-none"
+              style={{
+    background: "#181A22",
+    borderColor: "var(--border)",
+    color: "var(--text-secondary)",
+  }}
+          >
+            <option value="">Kriter Seçin</option>
+            {availableCriteria.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name} {c.unit ? `(${c.unit})` : ""}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-[11px] font-mono uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
@@ -222,6 +235,9 @@ export default function PackageDetailCriteriaList({
   onAddCriteria,
 }: PackageDetailCriteriaListProps) {
   const [showAddForm, setShowAddForm] = useState(false);
+  const { criteria: allCriteria, loading: criteriaLoading } = useCriteria();
+
+  const availableCriteria = allCriteria.filter(c => c.isActive);
 
   return (
     <div
@@ -256,10 +272,18 @@ export default function PackageDetailCriteriaList({
         )}
 
         {showAddForm && (
-          <AddCriteriaForm
-            onAdd={onAddCriteria}
-            onCancel={() => setShowAddForm(false)}
-          />
+          <div className="relative">
+            {criteriaLoading && (
+              <div className="absolute inset-0 bg-black/5 z-10 rounded-lg flex items-center justify-center">
+                <span className="text-xs font-mono text-muted-foreground animate-pulse">Yükleniyor...</span>
+              </div>
+            )}
+            <AddCriteriaForm
+              onAdd={onAddCriteria}
+              onCancel={() => setShowAddForm(false)}
+              availableCriteria={availableCriteria}
+            />
+          </div>
         )}
       </div>
     </div>

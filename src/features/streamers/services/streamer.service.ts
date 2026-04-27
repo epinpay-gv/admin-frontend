@@ -194,6 +194,7 @@ export const criteriaService = {
     ),
 };
 
+
 export type UpdateContractStatusBody = {
   status: CONTRACT_STATUS;
   notes?: string;
