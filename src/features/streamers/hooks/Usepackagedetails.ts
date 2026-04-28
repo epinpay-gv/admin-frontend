@@ -19,18 +19,19 @@ export function usePackageDetails(packageId: string | null) {
 
     let cancelled = false;
 
-    const fetch = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await packageDetailService.getByPackageId(packageId);
-        if (!cancelled) setDetails(data);
-      } catch (err) {
-        if (!cancelled) setError((err as Error).message);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
+  const fetch = async () => {
+  setLoading(true);
+  setError(null);
+  try {
+    const data = await packageDetailService.getByPackageId(packageId);
+    console.log("getByPackageId response:", JSON.stringify(data, null, 2));
+    if (!cancelled) setDetails(data);
+  } catch (err) {
+    if (!cancelled) setError((err as Error).message);
+  } finally {
+    if (!cancelled) setLoading(false);
+  }
+};
 
     fetch();
     return () => { cancelled = true; };

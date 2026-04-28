@@ -137,31 +137,36 @@ export default function PackageDetailPage({
   };
 
   // ── Kriter ekle ──
-  const handleAddCriteria = async (data: {
-    criteria_id:  string;
-    target_value?: string;
-    is_required?:  boolean;
-  }) => {
-    if (!currentDetail) return;
-    try {
-      await updateCurrent({
-        evaluation_period_days: currentDetail.evaluationPeriodDays,
-        eligible_countries:     currentDetail.eligibleCountries ?? undefined,
-        is_starter:             currentDetail.isStarter,
-        criteria: [
-          ...currentDetail.criteria.map((c) => ({
-            criteria_id:  c.criteriaId,
-            target_value: c.targetValue,
-            is_required:  c.isRequired,
-          })),
-          data,
-        ],
-      });
-      refresh();
-    } catch (err) {
-      console.error("Kriter ekleme hatası:", err);
-    }
+const handleAddCriteria = async (data: {
+  criteria_id:   string;
+  target_value?: string;
+  is_required?:  boolean;
+}) => {
+  if (!currentDetail) return;
+  
+  const body = {
+    evaluation_period_days: currentDetail.evaluationPeriodDays,
+    eligible_countries:     currentDetail.eligibleCountries ?? undefined,
+    is_starter:             currentDetail.isStarter,
+    criteria: [
+      ...currentDetail.criteria.map((c) => ({
+        criteria_id:  c.criteriaId,
+        target_value: c.targetValue,
+        is_required:  c.isRequired,
+      })),
+      data,
+    ],
   };
+  
+  console.log("PUT body:", JSON.stringify(body, null, 2));
+  
+  try {
+    await updateCurrent(body);
+    refresh();
+  } catch (err) {
+    console.error("Kriter ekleme hatası:", err);
+  }
+};
 
   // ── Sayfa durum yönetimi ──
   const isLoading = isNew ? false : loading || detailLoading;
