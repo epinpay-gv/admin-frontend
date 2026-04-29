@@ -5,20 +5,16 @@ import { Copy } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import { DataTable } from "@/components/common/data-table";
 import { useProducts, ProductEditModal } from "@/features/products";
-import {
-  Product,
-  PRODUCT_STATUS,
-  ProductFilters,
-} from "@/features/products/types";
+import { Product, PRODUCT_STATUS, ProductFilters } from "@/features/products/types";
 import PageHeader from "@/components/common/page-header/PageHeader";
 import { PageState } from "@/components/common/page-state/PageState";
 import { EntityActions } from "@/components/common/entity-actions/EntityActions";
 import { FilterPanel } from "@/components/common/filter-panel/FilterPanel";
 import { FilterValue } from "@/components/common/filter-panel/types";
 import ForbiddenCountriesModal from "@/features/products/components/products/ForbiddenCountriesModal";
-import { PRODUCT_FILTER_CONFIG } from "@/features/products/hooks/ProductFilterConfig";
 import { PRODUCT_COLUMNS } from "@/features/products/components/products/ProductTableConfig";
 import ProductsHeaderAction from "@/features/products/components/products/ProductsHeaderAction";
+import { useCategories } from "@/features/products/hooks/useCategories";
 
 const STATUS_OPTIONS = [
   { label: "Tümü", value: "all" },
@@ -36,6 +32,7 @@ export default function ProductsPage() {
 
 function ProductsContent() {
   const router = useRouter();
+  const categoryOptions = useCategories();
   const {
     products,
     pagination,
@@ -51,6 +48,21 @@ function ProductsContent() {
   const [editModal, setEditModal] = useState<Product | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [forbiddenModal, setForbiddenModal] = useState<Product | null>(null);
+
+    const filterConfig = useMemo(() => [
+    {
+      key: "name",
+      label: "Ürün Adı",
+      type: "text" as const,
+      placeholder: "Ürün adı veya slug...",
+    },
+    {
+      key: "categoryId",
+      label: "Kategori",
+      type: "select" as const,
+      options: categoryOptions,
+    },
+  ], [categoryOptions]);
 
   const columns = useMemo(() => PRODUCT_COLUMNS(setForbiddenModal, setEditModal), []);
 
@@ -82,7 +94,7 @@ function ProductsContent() {
       <AnimatePresence mode="popLayout">
         {showFilters && (
           <FilterPanel
-            configs={PRODUCT_FILTER_CONFIG}
+            configs={filterConfig}
             initialFilters={filters as unknown as Record<string, FilterValue>}
             onApply={(data) => setFilters(data as unknown as ProductFilters)}
             onReset={resetFilters}
@@ -95,7 +107,7 @@ function ProductsContent() {
           <DataTable
             data={products as unknown as Record<string, unknown>[]}
             columns={columns}
-            showStatusFilter={false}
+            showStatusFilter={true}
             statusOptions={STATUS_OPTIONS}
             currentStatus={String(filters.status || "all")}
             onStatusChange={handleStatusChange}

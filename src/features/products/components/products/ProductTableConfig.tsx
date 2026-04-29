@@ -7,13 +7,11 @@ import { PALETTE } from "@/lib/status-color";
 const STATUS_LABELS: Record<PRODUCT_STATUS, string> = {
   [PRODUCT_STATUS.ACTIVE]: "Aktif",
   [PRODUCT_STATUS.INACTIVE]: "Pasif",
-  [PRODUCT_STATUS.DRAFT]: "Taslak",
 };
 
 const STATUS_COLORS = {
   [PRODUCT_STATUS.ACTIVE]: PALETTE.green,
   [PRODUCT_STATUS.INACTIVE]: PALETTE.red,
-  [PRODUCT_STATUS.DRAFT]: PALETTE.yellow,
 };
 
 export const PRODUCT_COLUMNS = (

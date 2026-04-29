@@ -3,6 +3,7 @@ export type FilterValue = string | number | undefined;
 export interface FilterOption {
   label: string;
   value: string;
+  status?: string;
 }
 
 export interface FilterField {

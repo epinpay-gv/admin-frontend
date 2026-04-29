@@ -24,7 +24,6 @@ interface ProductEditModalProps {
 const STATUS_OPTIONS = [
   { label: "Aktif", value: PRODUCT_STATUS.ACTIVE, color: "#00C6A2" },
   { label: "Pasif", value: PRODUCT_STATUS.INACTIVE, color: "#FF5050" },
-  { label: "Taslak", value: PRODUCT_STATUS.DRAFT, color: "#FFB400" },
 ];
 
 export default function ProductEditModal({

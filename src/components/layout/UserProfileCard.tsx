@@ -2,16 +2,21 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { parseJwt, getInitials } from "@/lib/utils/auth";
+import { useLogout } from "@/features/auth";
 
 export default function UserProfileCard() {
-  const { user, token, logout } = useAuthStore();
+  const { user, token } = useAuthStore();
+  const { logout, loading } = useLogout();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Dışarı tıklandığında menüyü kapat
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -35,7 +40,7 @@ export default function UserProfileCard() {
         <span className="text-xs font-bold text-[#00C6A2] tracking-wider">
           {initials}
         </span>
-        
+
         {/* Opsiyonel: Hover durumunda çok küçük bir nokta göstererek aktifliği belli edebiliriz */}
         <div className="absolute -bottom-0.5 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-[#0a0a0a] rounded-full"></div>
       </button>
@@ -43,7 +48,6 @@ export default function UserProfileCard() {
       {/* Açılır Menü */}
       {isOpen && (
         <div className="absolute right-0 mt-3 w-64 origin-top-right rounded-2xl bg-[#121212] border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 overflow-hidden animate-in fade-in zoom-in duration-150">
-          
           {/* Kullanıcı Bilgileri Bölümü (Eskiden butonda olan kısımlar buraya geldi) */}
           <div className="px-5 py-4 border-b border-white/[0.05] bg-white/[0.02]">
             <div className="flex flex-col gap-0.5">
@@ -82,14 +86,25 @@ export default function UserProfileCard() {
           </div> */}
 
           {/* Çıkış Bölümü */}
-          <div className="p-2 border-t border-white/[0.05]">
-            <button 
-              onClick={() => logout?.()} 
+          <div className="p-2 border-t border-white/5">
+            <button
+              onClick={logout}
+              disabled={loading}
               className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 rounded-xl transition-all group"
             >
               <div className="p-1.5 rounded-lg bg-red-500/5 group-hover:bg-red-500/10 transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
                 </svg>
               </div>
               Güvenli Çıkış

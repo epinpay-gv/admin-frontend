@@ -16,7 +16,7 @@ export function useProducts() {
 const filters = {
   name:       searchParams.get("name")       ?? undefined,
   status:     searchParams.get("status")     ?? undefined,
-  categoryId: searchParams.get("productId") ? Number(searchParams.get("productId")) : undefined,
+  categoryId: searchParams.get("categoryId") ? Number(searchParams.get("categoryId")) : undefined,
   page:       Number(searchParams.get("page")  ?? 1),
   limit:      Number(searchParams.get("limit") ?? DEFAULT_LIMIT),
 };

@@ -13,37 +13,47 @@ interface FilterPanelProps {
 }
 
 const panelVariants: Variants = {
-  hidden: { 
-    opacity: 0, 
-    height: 0, 
+  hidden: {
+    opacity: 0,
+    height: 0,
     y: -15,
-    transition: { duration: 0.2, ease: "easeInOut" }
+    transition: { duration: 0.2, ease: "easeInOut" },
   },
-  visible: { 
-    opacity: 1, 
-    height: "auto", 
+  visible: {
+    opacity: 1,
+    height: "auto",
     y: 0,
-    transition: { duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }
-  }
+    transition: { duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] },
+  },
 };
 
-export function FilterPanel({ configs, initialFilters, onApply, onReset }: FilterPanelProps) {
-  const [localFilters, setLocalFilters] = useState<Record<string, FilterValue>>(initialFilters);
+export function FilterPanel({
+  configs,
+  initialFilters,
+  onApply,
+  onReset,
+}: FilterPanelProps) {
+  const [localFilters, setLocalFilters] =
+    useState<Record<string, FilterValue>>(initialFilters);
 
   // Aktif filtreleri hesapla (Badge'ler için)
   const activeFilters = useMemo(() => {
     return configs
-      .map(config => {
+      .map((config) => {
         const value = localFilters[config.key];
         if (!value || value === "all" || value === "") return null;
-        
+
         let displayValue = value;
         if (config.type === "select") {
-          displayValue = config.options?.find(o => o.value === value)?.label || value;
+          displayValue =
+            config.options?.find((o) => o.value === value)?.label || value;
         }
         return { key: config.key, label: config.label, value: displayValue };
       })
-      .filter((f): f is { key: string; label: string; value: string | number } => f !== null);
+      .filter(
+        (f): f is { key: string; label: string; value: string | number } =>
+          f !== null,
+      );
   }, [localFilters, configs]);
 
   // Münferit filtre silme
@@ -74,15 +84,25 @@ export function FilterPanel({ configs, initialFilters, onApply, onReset }: Filte
                 <div className="relative">
                   <select
                     value={String(localFilters[config.key] || "all")}
-                    onChange={(e) => setLocalFilters(p => ({ ...p, [config.key]: e.target.value }))}
-                    className="w-full h-10 pl-3 pr-10 bg-(--background-secondary) border border-border rounded-lg text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-[#00C6A2]/20 transition-all"
+                    onChange={(e) =>
+                      setLocalFilters((p) => ({
+                        ...p,
+                        [config.key]: e.target.value,
+                      }))
+                    }
+                    className="cursor-pointer w-full h-10 pl-3 pr-10 bg-(--background-secondary) border border-border rounded-lg text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-[#00C6A2]/20 transition-all"
                   >
                     <option value="all">Tümü</option>
                     {config.options?.map((opt) => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label} | {opt.status}
+                      </option>
                     ))}
                   </select>
-                  <ChevronDown size={14} className="absolute right-3 top-3 text-(--text-muted) pointer-events-none" />
+                  <ChevronDown
+                    size={14}
+                    className="absolute right-3 top-3 text-(--text-muted) pointer-events-none"
+                  />
                 </div>
               ) : (
                 <div className="relative">
@@ -90,10 +110,20 @@ export function FilterPanel({ configs, initialFilters, onApply, onReset }: Filte
                     type={config.type}
                     placeholder={config.placeholder}
                     value={String(localFilters[config.key] || "")}
-                    onChange={(e) => setLocalFilters(p => ({ ...p, [config.key]: e.target.value }))}
+                    onChange={(e) =>
+                      setLocalFilters((p) => ({
+                        ...p,
+                        [config.key]: e.target.value,
+                      }))
+                    }
                     className="w-full h-10 px-3 bg-(--background-secondary) border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00C6A2]/20 transition-all"
                   />
-                  {config.type === "text" && <Search size={14} className="absolute right-3 top-3 text-(--text-muted)" />}
+                  {config.type === "text" && (
+                    <Search
+                      size={14}
+                      className="absolute right-3 top-3 text-(--text-muted)"
+                    />
+                  )}
                 </div>
               )}
             </div>
@@ -103,7 +133,9 @@ export function FilterPanel({ configs, initialFilters, onApply, onReset }: Filte
         {/* Footer: Aktif Badge'ler ve Aksiyonlar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-border">
           <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-[11px] text-(--text-muted) font-medium mr-1">Uygulanan:</span>
+            <span className="text-[11px] text-(--text-muted) font-medium mr-1">
+              Uygulanan:
+            </span>
             <AnimatePresence>
               {activeFilters.length > 0 ? (
                 activeFilters.map((f) => (
@@ -114,9 +146,13 @@ export function FilterPanel({ configs, initialFilters, onApply, onReset }: Filte
                     exit={{ scale: 0.8, opacity: 0 }}
                     className="flex items-center gap-1.5 pl-2 pr-1 py-1 bg-[#00C6A2]/10 border border-[#00C6A2]/20 rounded-md group"
                   >
-                    <span className="text-[10px] font-bold text-[#00C6A2]">{f.label}:</span>
-                    <span className="text-[10px] font-medium text-(--text-primary)">{f.value}</span>
-                    <button 
+                    <span className="text-[10px] font-bold text-[#00C6A2]">
+                      {f.label}:
+                    </span>
+                    <span className="text-[10px] font-medium text-(--text-primary)">
+                      {f.value}
+                    </span>
+                    <button
                       onClick={() => removeFilter(f.key)}
                       className="p-0.5 hover:bg-[#00C6A2]/20 rounded-full text-[#00C6A2] transition-colors"
                     >
@@ -125,20 +161,25 @@ export function FilterPanel({ configs, initialFilters, onApply, onReset }: Filte
                   </motion.div>
                 ))
               ) : (
-                <span className="text-[11px] text-(--text-muted) italic">Filtre yok</span>
+                <span className="text-[11px] text-(--text-muted) italic">
+                  Filtre yok
+                </span>
               )}
             </AnimatePresence>
           </div>
 
           <div className="flex items-center gap-2 ml-auto">
-            <Button 
-              variant="ghost" 
-              onClick={() => { setLocalFilters({}); onReset(); }}
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setLocalFilters({});
+                onReset();
+              }}
               className="h-9 text-xs font-semibold text-(--text-muted) hover:bg-red-50 hover:text-red-500"
             >
               <RotateCcw size={14} className="mr-2" /> Sıfırla
             </Button>
-            <Button 
+            <Button
               onClick={() => onApply(localFilters)}
               className="h-9 px-6 text-xs font-bold bg-[#00C6A2] hover:bg-[#00b090] text-white rounded-lg shadow-sm transition-transform active:scale-95"
             >

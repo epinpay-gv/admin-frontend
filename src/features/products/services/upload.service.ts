@@ -5,7 +5,11 @@ export interface UploadResponse {
   imageUrl: string;
 }
 
-function createUploadError(message: string, statusCode: number, code?: string): FetcherError {
+function createUploadError(
+  message: string,
+  statusCode: number,
+  code?: string,
+): FetcherError {
   const error = new Error(message) as FetcherError;
   error.statusCode = statusCode;
   error.code = code;
@@ -17,8 +21,9 @@ export const uploadService = {
     file: File,
     folder: "products" | "categories",
   ): Promise<UploadResponse> => {
-
-    const base =  process.env.NEXT_PUBLIC_API_URL ?? "https://admin-gateway-ahj0yeia.ew.gateway.dev";
+    const base =
+      process.env.NEXT_PUBLIC_API_URL ??
+      "https://admin-gateway-ahj0yeia.ew.gateway.dev";
 
     const formData = new FormData();
     formData.append("file", file);
@@ -29,10 +34,18 @@ export const uploadService = {
     let response: Response;
 
     try {
+      const { useAuthStore } = await import("@/store/useAuthStore");
+      const token = useAuthStore.getState().token;
       response = await fetch(`${base}/catalog/media/upload`, {
         method: "POST",
         body: formData,
-        // DO NOT set Content-Type 
+        // DO NOT set Content-Type
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "x-api-key": "AIzaSyBFUsWEISiImLREu2usXWXIjOpKowiGwjE",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
       });
     } catch {
       throw createUploadError("Sunucuya bağlanılamadı.", 0, "NETWORK_ERROR");

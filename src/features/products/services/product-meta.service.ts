@@ -36,5 +36,6 @@ const BASE_URL = "/api/features/catalog";
 
 export const productMetaService = {
   getAll: (): Promise<ProductMeta> =>
-    api.get<ProductMeta>(`${BASE_URL}/specs/meta`, undefined, { baseUrl: "https://admin-gateway-ahj0yeia.ew.gateway.dev" }),
+    api.get<ProductMeta>(`${BASE_URL}/specs/meta`, undefined),
+    // api.get<ProductMeta>(`${BASE_URL}/specs/meta`, undefined, { baseUrl: "https://admin-gateway-ahj0yeia.ew.gateway.dev" }),
 };
