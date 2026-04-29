@@ -1,23 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Check, X } from "lucide-react";
+import { Plus, Pencil, Check, X, Trash2 } from "lucide-react";
 import { PackageDetail, PackageDetailCriteria, PackageCriteria } from "@/features/streamers/types";
 import { useCriteria } from "@/features/streamers/hooks/useCriteria";
 
 function CriteriaRow({
   item,
   onSave,
+  onDelete,
 }: {
   item: PackageDetailCriteria;
   onSave: (id: string, data: Partial<PackageDetailCriteria>) => Promise<void>;
+  onDelete: (id: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
-  const [form, setForm]       = useState({
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [form, setForm] = useState({
     targetValue: item.targetValue ?? "",
     isRequired:  item.isRequired,
   });
-  const [saving, setSaving]   = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
     setSaving(true);
@@ -44,7 +47,7 @@ function CriteriaRow({
             {item.isRequired ? "Zorunlu" : "Opsiyonel"}
           </p>
         </div>
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <span className="text-sm font-mono" style={{ color: "var(--text-secondary)" }}>
             Hedef: {item.targetValue ?? "—"}
           </span>
@@ -55,6 +58,32 @@ function CriteriaRow({
           >
             <Pencil size={12} />
           </button>
+          {confirmDelete ? (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => onDelete(item.id)}
+                className="h-7 px-2 rounded-lg text-[11px] font-semibold text-white flex items-center gap-1"
+                style={{ background: "#FF5050" }}
+              >
+                <Check size={11} /> Sil
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="w-7 h-7 rounded-lg flex items-center justify-center border"
+                style={{ background: "var(--background-card)", borderColor: "var(--border)", color: "var(--text-muted)" }}
+              >
+                <X size={11} />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="w-7 h-7 rounded-lg flex items-center justify-center border"
+              style={{ background: "var(--background-card)", borderColor: "var(--border)", color: "#FF5050" }}
+            >
+              <Trash2 size={12} />
+            </button>
+          )}
         </div>
       </div>
     );
@@ -158,11 +187,11 @@ function AddCriteriaForm({
             value={form.criteria_id}
             onChange={(e) => setForm({ ...form, criteria_id: e.target.value })}
             className="h-8 rounded-lg border px-3 text-sm outline-none"
-              style={{
-    background: "#181A22",
-    borderColor: "var(--border)",
-    color: "var(--text-secondary)",
-  }}
+            style={{
+              background: "#181A22",
+              borderColor: "var(--border)",
+              color: "var(--text-secondary)",
+            }}
           >
             <option value="">Kriter Seçin</option>
             {availableCriteria.map((c) => (
@@ -227,45 +256,70 @@ interface PackageDetailCriteriaListProps {
     target_value?: string;
     is_required?: boolean;
   }) => Promise<void>;
+  onAddVersion?: () => void;
 }
 
 export default function PackageDetailCriteriaList({
   detail,
   onUpdateCriteria,
   onAddCriteria,
+  onAddVersion,
 }: PackageDetailCriteriaListProps) {
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddForm, setShowAddForm]   = useState(false);
+  const [deletedIds, setDeletedIds]     = useState<Set<string>>(new Set());
   const { criteria: allCriteria, loading: criteriaLoading } = useCriteria();
 
   const availableCriteria = allCriteria.filter(c => c.isActive);
+
+  const handleDelete = (id: string) => {
+    setDeletedIds((prev) => new Set(prev).add(id));
+  };
+
+  const visibleCriteria = detail.criteria.filter((c) => !deletedIds.has(c.id));
 
   return (
     <div
       className="rounded-xl border p-6"
       style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
     >
-      <div className="flex items-center justify-between mb-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
         <p className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
-          Kriterler · {detail.criteria.length} madde
+          Kriterler · {visibleCriteria.length} madde
         </p>
-        {!showAddForm && (
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border"
-            style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-muted)" }}
-          >
-            <Plus size={12} />
-            Kriter Ekle
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {onAddVersion && (
+            <button
+              onClick={onAddVersion}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border font-mono"
+              style={{ background: "var(--background-secondary)", borderColor: "#0085FF44", color: "#0085FF" }}
+            >
+              <Plus size={12} /> Yeni Versiyon
+            </button>
+          )}
+          {!showAddForm && (
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border"
+              style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-muted)" }}
+            >
+              <Plus size={12} /> Kriter Ekle
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-2">
-        {detail.criteria.map((c) => (
-          <CriteriaRow key={c.id} item={c} onSave={onUpdateCriteria} />
+        {visibleCriteria.map((c) => (
+          <CriteriaRow
+            key={c.id}
+            item={c}
+            onSave={onUpdateCriteria}
+            onDelete={handleDelete}
+          />
         ))}
 
-        {detail.criteria.length === 0 && !showAddForm && (
+        {visibleCriteria.length === 0 && !showAddForm && (
           <p className="text-sm font-mono text-center py-4" style={{ color: "var(--text-muted)" }}>
             Henüz kriter eklenmemiş.
           </p>

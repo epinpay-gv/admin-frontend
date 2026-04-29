@@ -12,10 +12,13 @@ import { packageService } from "@/features/streamers/services/streamer.service";
 import PackageDetailCriteriaList from "@/features/streamers/components/PackageDetailCriteriaList";
 import PackageDetailVersionList from "@/features/streamers/components/PackageDetailVersionList";
 import type { PackageDetailCriteria } from "@/features/streamers/types";
+import type { CategoryCountry } from "@/features/categories/types";
+import CountryRestrictionForm from "@/features/categories/components/category-form/CountryRestrictionForm";
+
 
 const EMPTY_VERSION_FORM = {
   evaluation_period_days: "",
-  eligible_countries:     "",
+  eligible_countries:     [] as CategoryCountry[],
   is_starter:             false,
 };
 
@@ -99,11 +102,11 @@ export default function PackageDetailPage({
     try {
       await addVersion({
         evaluation_period_days: Number(versionForm.evaluation_period_days),
-        eligible_countries: versionForm.eligible_countries
-          ? versionForm.eligible_countries.split(",").map((s) => s.trim()).filter(Boolean)
+        eligible_countries: versionForm.eligible_countries.length > 0
+          ? versionForm.eligible_countries.map((c) => c.code)
           : undefined,
         is_starter: versionForm.is_starter,
-        criteria:   [],  
+        criteria:   [],
       });
       setVersionForm(EMPTY_VERSION_FORM);
       setShowVersionForm(false);
@@ -113,7 +116,6 @@ export default function PackageDetailPage({
       setVersionSaving(false);
     }
   };
-
 
   const handleUpdateCriteria = async (
     criteriaId: string,
@@ -137,40 +139,137 @@ export default function PackageDetailPage({
   };
 
   // ── Kriter ekle ──
-const handleAddCriteria = async (data: {
-  criteria_id:   string;
-  target_value?: string;
-  is_required?:  boolean;
-}) => {
-  if (!currentDetail) return;
-  
-  const body = {
-    evaluation_period_days: currentDetail.evaluationPeriodDays,
-    eligible_countries:     currentDetail.eligibleCountries ?? undefined,
-    is_starter:             currentDetail.isStarter,
-    criteria: [
-      ...currentDetail.criteria.map((c) => ({
-        criteria_id:  c.criteriaId,
-        target_value: c.targetValue,
-        is_required:  c.isRequired,
-      })),
-      data,
-    ],
+  const handleAddCriteria = async (data: {
+    criteria_id:   string;
+    target_value?: string;
+    is_required?:  boolean;
+  }) => {
+    if (!currentDetail) return;
+
+    const body = {
+      evaluation_period_days: currentDetail.evaluationPeriodDays,
+      eligible_countries:     currentDetail.eligibleCountries ?? undefined,
+      is_starter:             currentDetail.isStarter,
+      criteria: [
+        ...currentDetail.criteria.map((c) => ({
+          criteria_id:  c.criteriaId,
+          target_value: c.targetValue,
+          is_required:  c.isRequired,
+        })),
+        data,
+      ],
+    };
+
+    try {
+      await updateCurrent(body);
+      refresh();
+    } catch (err) {
+      console.error("Kriter ekleme hatası:", err);
+    }
   };
-  
-  console.log("PUT body:", JSON.stringify(body, null, 2));
-  
-  try {
-    await updateCurrent(body);
-    refresh();
-  } catch (err) {
-    console.error("Kriter ekleme hatası:", err);
-  }
-};
 
   // ── Sayfa durum yönetimi ──
   const isLoading = isNew ? false : loading || detailLoading;
   const pageError = isNew ? null : error || (!pkg && !loading ? "Paket bulunamadı." : null);
+
+  // ── Versiyon formu paneli (hem currentDetail varken hem yokken kullanılır) ──
+  const versionFormPanel = (
+    <div
+      className="rounded-xl border p-6"
+      style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
+    >
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
+          {showVersionForm ? "Yeni Versiyon Ekle" : "Paket Versiyonu"}
+        </p>
+        {!showVersionForm && (
+          <button
+            onClick={() => setShowVersionForm(true)}
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border"
+            style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-muted)" }}
+          >
+            <Plus size={12} /> Versiyon Ekle
+          </button>
+        )}
+      </div>
+
+      {!showVersionForm ? (
+        <p className="text-sm font-mono text-center py-4" style={{ color: "var(--text-muted)" }}>
+          Bu pakete henüz versiyon eklenmemiş.
+        </p>
+      ) : (
+        <div className="space-y-4">
+          {versionError && (
+            <p className="text-xs font-mono" style={{ color: "#FF5050" }}>{versionError}</p>
+          )}
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Değerlendirme Süresi */}
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-mono uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+                  Değerlendirme Süresi (Gün) <span style={{ color: "#FF5050" }}>*</span>
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={versionForm.evaluation_period_days}
+                  onChange={(e) => setVersionForm((p) => ({ ...p, evaluation_period_days: e.target.value }))}
+                  placeholder="örn. 30"
+                  className="h-9 rounded-lg border px-3 text-sm outline-none font-mono"
+                  style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+                />
+              </div>
+
+              {/* Başlangıç Paketi */}
+              <div className="flex items-center gap-2 pt-5">
+                <input
+                  type="checkbox"
+                  id="is_starter"
+                  checked={versionForm.is_starter}
+                  onChange={(e) => setVersionForm((p) => ({ ...p, is_starter: e.target.checked }))}
+                  className="w-4 h-4"
+                />
+                <label htmlFor="is_starter" className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                  Başlangıç Paketi
+                </label>
+              </div>
+            </div>
+
+            {/* Uygun Ülkeler */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-mono uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+                Uygun Ülkeler
+              </label>
+              <CountryRestrictionForm
+                forbidden={versionForm.eligible_countries}
+                onChange={(countries) => setVersionForm((p) => ({ ...p, eligible_countries: countries }))}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleAddVersion}
+              disabled={versionSaving || !versionForm.evaluation_period_days}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-50"
+              style={{ background: "linear-gradient(135deg, #00C6A2 0%, #0085FF 100%)" }}
+            >
+              <Plus size={13} />
+              {versionSaving ? "Ekleniyor..." : "Versiyon Ekle"}
+            </button>
+            <button
+              onClick={() => { setShowVersionForm(false); setVersionForm(EMPTY_VERSION_FORM); setVersionError(null); }}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm border"
+              style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-muted)" }}
+            >
+              <X size={13} /> İptal
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <PageState loading={isLoading} error={pageError} onRetry={() => router.back()}>
@@ -290,90 +389,77 @@ const handleAddCriteria = async (data: {
           {!isNew && (
             <>
               {currentDetail ? (
-                // Versiyon var → kriterleri göster
-                <PackageDetailCriteriaList
-                  detail={currentDetail}
-                  onUpdateCriteria={handleUpdateCriteria}
-                  onAddCriteria={handleAddCriteria}
-                />
-              ) : (
-                // Versiyon yok → versiyon ekleme formu
-                <div
-                  className="rounded-xl border p-6"
-                  style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
-                      Paket Versiyonu
-                    </p>
-                    {!showVersionForm && (
-                      <button
-                        onClick={() => setShowVersionForm(true)}
-                        className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border"
-                        style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-muted)" }}
-                      >
-                        <Plus size={12} /> Versiyon Ekle
-                      </button>
-                    )}
-                  </div>
+                // Versiyon var → kriterleri göster + yeni versiyon butonu
+                <>
+                  <PackageDetailCriteriaList
+                    detail={currentDetail}
+                    onUpdateCriteria={handleUpdateCriteria}
+                    onAddCriteria={handleAddCriteria}
+                    onAddVersion={() => setShowVersionForm(true)}
+                  />
+                  {/* Versiyon formu — currentDetail varken de açılabilir */}
+                  {showVersionForm && (
+                    <div
+                      className="rounded-xl border p-6"
+                      style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
+                          Yeni Versiyon Ekle
+                        </p>
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded-full" style={{ background: "rgba(0,133,255,0.1)", color: "#0085FF" }}>
+                          Mevcut versiyon arşivlenir
+                        </span>
+                      </div>
 
-                  {!showVersionForm ? (
-                    <p className="text-sm font-mono text-center py-4" style={{ color: "var(--text-muted)" }}>
-                      Bu pakete henüz versiyon eklenmemiş.
-                    </p>
-                  ) : (
-                    <div className="space-y-4">
                       {versionError && (
-                        <p className="text-xs font-mono" style={{ color: "#FF5050" }}>{versionError}</p>
+                        <p className="text-xs font-mono mb-3" style={{ color: "#FF5050" }}>{versionError}</p>
                       )}
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {/* Değerlendirme Süresi */}
-                        <div className="flex flex-col gap-1">
-                          <label className="text-[11px] font-mono uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
-                            Değerlendirme Süresi (Gün) <span style={{ color: "#FF5050" }}>*</span>
-                          </label>
-                          <input
-                            type="number"
-                            min={1}
-                            value={versionForm.evaluation_period_days}
-                            onChange={(e) => setVersionForm((p) => ({ ...p, evaluation_period_days: e.target.value }))}
-                            placeholder="örn. 30"
-                            className="h-9 rounded-lg border px-3 text-sm outline-none font-mono"
-                            style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
-                          />
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[11px] font-mono uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+                              Değerlendirme Süresi (Gün) <span style={{ color: "#FF5050" }}>*</span>
+                            </label>
+                            <input
+                              type="number"
+                              min={1}
+                              value={versionForm.evaluation_period_days}
+                              onChange={(e) => setVersionForm((p) => ({ ...p, evaluation_period_days: e.target.value }))}
+                              placeholder="örn. 30"
+                              className="h-9 rounded-lg border px-3 text-sm outline-none font-mono"
+                              style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+                            />
+                          </div>
+
+                          <div className="flex items-center gap-2 pt-5">
+                            <input
+                              type="checkbox"
+                              id="is_starter_new"
+                              checked={versionForm.is_starter}
+                              onChange={(e) => setVersionForm((p) => ({ ...p, is_starter: e.target.checked }))}
+                              className="w-4 h-4"
+                            />
+                            <label htmlFor="is_starter_new" className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                              Başlangıç Paketi
+                            </label>
+                          </div>
                         </div>
 
                         {/* Uygun Ülkeler */}
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-1.5">
                           <label className="text-[11px] font-mono uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
-                            Uygun Ülkeler (virgülle ayır)
+                            Uygun Ülkeler
                           </label>
-                          <input
-                            value={versionForm.eligible_countries}
-                            onChange={(e) => setVersionForm((p) => ({ ...p, eligible_countries: e.target.value }))}
-                            placeholder="TR, US, AE"
-                            className="h-9 rounded-lg border px-3 text-sm outline-none font-mono"
-                            style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+                          <CountryRestrictionForm
+                            forbidden={versionForm.eligible_countries}
+                            onChange={(countries) => setVersionForm((p) => ({ ...p, eligible_countries: countries }))}
                           />
-                        </div>
-
-                        {/* Başlangıç Paketi */}
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            id="is_starter"
-                            checked={versionForm.is_starter}
-                            onChange={(e) => setVersionForm((p) => ({ ...p, is_starter: e.target.checked }))}
-                            className="w-4 h-4"
-                          />
-                          <label htmlFor="is_starter" className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                            Başlangıç Paketi
-                          </label>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 mt-4">
                         <button
                           onClick={handleAddVersion}
                           disabled={versionSaving || !versionForm.evaluation_period_days}
@@ -393,7 +479,10 @@ const handleAddCriteria = async (data: {
                       </div>
                     </div>
                   )}
-                </div>
+                </>
+              ) : (
+                // Versiyon yok → versiyon ekleme formu
+                versionFormPanel
               )}
 
               {/* Versiyon geçmişi */}
