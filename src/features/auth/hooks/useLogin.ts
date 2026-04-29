@@ -32,10 +32,12 @@ export function useLogin() {
         form.password
       );
       const idToken = await userCredential.user.getIdToken();
+      const refreshToken = userCredential.user.refreshToken;
 
       // 2. Call internal API route to set session cookie via BFF
       const data = await authService.login({
         firebaseToken: idToken,
+        refreshToken: refreshToken,
         email: form.email,
       });
 

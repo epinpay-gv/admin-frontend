@@ -68,24 +68,24 @@ export const NAV_GROUPS: NavGroup[] = [
           },
         ],
       },
-      {
-        href: "/hub/admin/cms",
-        label: "İçerik ve SEO",
-        icon: PersonStanding,
-        children: [
-          { href: "/blog", label: "Blog Yönetimi", icon: Newspaper },
-          {
-            href: "/admin/cms/redirects",
-            label: "Yönlendirmeler",
-            icon: ArrowLeftRight,
-          }, 
-          {
-            href: "/admin/cms/legal",
-            label: "Yasal Sayfalar",
-            icon: Newspaper,
-          }, 
-        ],
-      },
+      // {
+      //   href: "/hub/admin/cms",
+      //   label: "İçerik ve SEO",
+      //   icon: PersonStanding,
+      //   children: [
+      //     { href: "/blog", label: "Blog Yönetimi", icon: Newspaper },
+      //     {
+      //       href: "/admin/cms/redirects",
+      //       label: "Yönlendirmeler",
+      //       icon: ArrowLeftRight,
+      //     }, 
+      //     {
+      //       href: "/admin/cms/legal",
+      //       label: "Yasal Sayfalar",
+      //       icon: Newspaper,
+      //     }, 
+      //   ],
+      // },
     ],
   },
   {
@@ -125,23 +125,23 @@ export const NAV_GROUPS: NavGroup[] = [
           },
         ],
       },
-      {
-        href: "/hub/epinpay/marketing",
-        label: "Pazarlama & Kampanya",
-        icon: TrendingUp,
-        children: [
-          {
-            href: "/epinpay/raffles",
-            label: "Çekilişler",
-            icon: Gift,
-          },
-          {
-            href: "/streamers",
-            label: "Yayıncılar",
-            icon: Gamepad,
-          },
-        ],
-      },
+      // {
+      //   href: "/hub/epinpay/marketing",
+      //   label: "Pazarlama & Kampanya",
+      //   icon: TrendingUp,
+      //   children: [
+      //     {
+      //       href: "/epinpay/raffles",
+      //       label: "Çekilişler",
+      //       icon: Gift,
+      //     },
+      //     {
+      //       href: "/streamers",
+      //       label: "Yayıncılar",
+      //       icon: Gamepad,
+      //     },
+      //   ],
+      // },
     ],
   },
 ];
