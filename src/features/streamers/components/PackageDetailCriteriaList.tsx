@@ -14,11 +14,12 @@ function CriteriaRow({
   onSave: (id: string, data: Partial<PackageDetailCriteria>) => Promise<void>;
   onDelete: (id: string) => void;
 }) {
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing]           = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [form, setForm] = useState({
     targetValue: item.targetValue ?? "",
     isRequired:  item.isRequired,
+    description: item.description ?? "",  // ← YENİ
   });
   const [saving, setSaving] = useState(false);
 
@@ -27,6 +28,7 @@ function CriteriaRow({
     await onSave(item.id, {
       targetValue: form.targetValue || undefined,
       isRequired:  form.isRequired,
+      description: form.description || undefined,  // ← YENİ
     });
     setSaving(false);
     setEditing(false);
@@ -45,6 +47,7 @@ function CriteriaRow({
           <p className="text-[11px] font-mono mt-0.5" style={{ color: "var(--text-muted)" }}>
             {item.criteria?.unit && `Birim: ${item.criteria.unit} · `}
             {item.isRequired ? "Zorunlu" : "Opsiyonel"}
+            {item.description && ` · ${item.description}`}  {/* ← YENİ */}
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -119,7 +122,22 @@ function CriteriaRow({
             Zorunlu
           </label>
         </div>
+
+        {/* Açıklama — YENİ, her zaman edit modunda görünür */}
+        <div className="flex flex-col gap-1 sm:col-span-2">
+          <label className="text-[11px] font-mono uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+            Açıklama
+          </label>
+          <input
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            placeholder="Bu kriterin bu paketteki açıklaması..."
+            className="h-8 rounded-lg border px-3 text-sm outline-none"
+            style={{ background: "var(--background-card)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+          />
+        </div>
       </div>
+
       <div className="flex items-center gap-2">
         <button
           onClick={handleSave}
@@ -147,7 +165,7 @@ function AddCriteriaForm({
   onCancel,
   availableCriteria,
 }: {
-  onAdd: (data: { criteria_id: string; target_value?: string; is_required?: boolean }) => Promise<void>;
+  onAdd: (data: { criteria_id: string; target_value?: string; is_required?: boolean; description?: string }) => Promise<void>;
   onCancel: () => void;
   availableCriteria: PackageCriteria[];
 }) {
@@ -155,6 +173,7 @@ function AddCriteriaForm({
     criteria_id:  "",
     target_value: "",
     is_required:  true,
+    description:  "",
   });
   const [saving, setSaving] = useState(false);
 
@@ -165,6 +184,7 @@ function AddCriteriaForm({
       criteria_id:  form.criteria_id.trim(),
       target_value: form.target_value || undefined,
       is_required:  form.is_required,
+      description:  form.description || undefined,  // ← YENİ
     });
     setSaving(false);
     onCancel();
@@ -187,11 +207,7 @@ function AddCriteriaForm({
             value={form.criteria_id}
             onChange={(e) => setForm({ ...form, criteria_id: e.target.value })}
             className="h-8 rounded-lg border px-3 text-sm outline-none"
-            style={{
-              background: "#181A22",
-              borderColor: "var(--border)",
-              color: "var(--text-secondary)",
-            }}
+            style={{ background: "#181A22", borderColor: "var(--border)", color: "var(--text-secondary)" }}
           >
             <option value="">Kriter Seçin</option>
             {availableCriteria.map((c) => (
@@ -201,6 +217,7 @@ function AddCriteriaForm({
             ))}
           </select>
         </div>
+
         <div className="flex flex-col gap-1">
           <label className="text-[11px] font-mono uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
             Hedef Değer
@@ -213,6 +230,7 @@ function AddCriteriaForm({
             style={{ background: "var(--background-card)", borderColor: "var(--border)", color: "var(--text-primary)" }}
           />
         </div>
+
         <div className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -225,7 +243,24 @@ function AddCriteriaForm({
             Zorunlu
           </label>
         </div>
+
+        {/* Açıklama — kriter seçilince açılır */}
+        {form.criteria_id && (
+          <div className="flex flex-col gap-1 sm:col-span-2">
+            <label className="text-[11px] font-mono uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+              Açıklama
+            </label>
+            <input
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              placeholder="Bu kriterin bu paketteki açıklaması..."
+              className="h-8 rounded-lg border px-3 text-sm outline-none"
+              style={{ background: "var(--background-card)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+            />
+          </div>
+        )}
       </div>
+
       <div className="flex items-center gap-2">
         <button
           onClick={handleAdd}
@@ -252,9 +287,10 @@ interface PackageDetailCriteriaListProps {
   detail: PackageDetail;
   onUpdateCriteria: (id: string, data: Partial<PackageDetailCriteria>) => Promise<void>;
   onAddCriteria: (data: {
-    criteria_id: string;
+    criteria_id:   string;
     target_value?: string;
-    is_required?: boolean;
+    is_required?:  boolean;
+    description?:  string;   // ← YENİ
   }) => Promise<void>;
   onAddVersion?: () => void;
 }
@@ -265,11 +301,11 @@ export default function PackageDetailCriteriaList({
   onAddCriteria,
   onAddVersion,
 }: PackageDetailCriteriaListProps) {
-  const [showAddForm, setShowAddForm]   = useState(false);
-  const [deletedIds, setDeletedIds]     = useState<Set<string>>(new Set());
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [deletedIds, setDeletedIds]   = useState<Set<string>>(new Set());
   const { criteria: allCriteria, loading: criteriaLoading } = useCriteria();
 
-  const availableCriteria = allCriteria.filter(c => c.isActive);
+  const availableCriteria = allCriteria.filter((c) => c.isActive);
 
   const handleDelete = (id: string) => {
     setDeletedIds((prev) => new Set(prev).add(id));
@@ -282,7 +318,6 @@ export default function PackageDetailCriteriaList({
       className="rounded-xl border p-6"
       style={{ background: "var(--background-card)", borderColor: "var(--border)" }}
     >
-      {/* Header */}
       <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
         <p className="text-[11px] font-semibold uppercase tracking-widest font-mono" style={{ color: "var(--text-muted)" }}>
           Kriterler · {visibleCriteria.length} madde

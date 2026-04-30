@@ -7,19 +7,20 @@ import { Button } from "@/components/ui/button";
 import { PageState } from "@/components/common/page-state/PageState";
 import { PALETTE } from "@/lib/status-color";
 import { usePackage } from "@/features/streamers/hooks/usePackages";
-import { usePackageDetails } from "@/features/streamers/hooks/usePackageDetails";
+
 import { packageService } from "@/features/streamers/services/streamer.service";
 import PackageDetailCriteriaList from "@/features/streamers/components/PackageDetailCriteriaList";
 import PackageDetailVersionList from "@/features/streamers/components/PackageDetailVersionList";
 import type { PackageDetailCriteria } from "@/features/streamers/types";
 import type { CategoryCountry } from "@/features/categories/types";
 import CountryRestrictionForm from "@/features/categories/components/category-form/CountryRestrictionForm";
+import { usePackageDetails } from "@/features/streamers/hooks/Usepackagedetails";
 
 
 const EMPTY_VERSION_FORM = {
   evaluation_period_days: "",
-  eligible_countries:     [] as CategoryCountry[],
-  is_starter:             false,
+  eligible_countries: [] as CategoryCountry[],
+  is_starter: false,
 };
 
 // ─── Sayfa ───────────────────────────────────────────────────────────────────
@@ -29,37 +30,38 @@ export default function PackageDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id }  = use(params);
-  const router  = useRouter();
-  const isNew   = id === "new";
+  const { id } = use(params);
+  const router = useRouter();
+  const isNew = id === "new";
 
   const { pkg, loading, error, updatePackage, refresh } = usePackage(isNew ? null : id);
   const {
     details,
     currentDetail,
-    loading:  detailLoading,
+    loading: detailLoading,
     updateCurrent,
     addVersion,
   } = usePackageDetails(isNew ? null : id);
 
   // ── Paket bilgi formu ──
-  const [form, setForm]     = useState({ name: "", order_rank: "1", is_active: true });
+  const [form, setForm] = useState({ name: "", order_rank: "1", is_active: true, reward_currency: "", });
   const [saving, setSaving] = useState(false);
-  const [dirty, setDirty]   = useState(false);
+  const [dirty, setDirty] = useState(false);
 
   // ── Versiyon ekleme formu ──
   const [showVersionForm, setShowVersionForm] = useState(false);
-  const [versionForm, setVersionForm]         = useState(EMPTY_VERSION_FORM);
-  const [versionSaving, setVersionSaving]     = useState(false);
-  const [versionError, setVersionError]       = useState<string | null>(null);
+  const [versionForm, setVersionForm] = useState(EMPTY_VERSION_FORM);
+  const [versionSaving, setVersionSaving] = useState(false);
+  const [versionError, setVersionError] = useState<string | null>(null);
 
   // Paket verisi gelince formu doldur
   useEffect(() => {
     if (!isNew && pkg && !dirty) {
       setForm({
-        name:       pkg.name,
+        name: pkg.name,
         order_rank: String(pkg.orderRank),
-        is_active:  pkg.isActive,
+        is_active: pkg.isActive,
+        reward_currency: pkg.details?.[0]?.rewardCurrency ?? "",
       });
     }
   }, [pkg, dirty, isNew]);
@@ -75,15 +77,15 @@ export default function PackageDetailPage({
     try {
       if (isNew) {
         const created = await packageService.create({
-          name:       form.name,
+          name: form.name,
           order_rank: Number(form.order_rank),
         });
         router.replace(`/streamers/packages/${created.id}`);
       } else {
         await updatePackage({
-          name:       form.name,
+          name: form.name,
           order_rank: Number(form.order_rank),
-          is_active:  form.is_active,
+          is_active: form.is_active,
         });
         setDirty(false);
       }
@@ -106,7 +108,7 @@ export default function PackageDetailPage({
           ? versionForm.eligible_countries.map((c) => c.code)
           : undefined,
         is_starter: versionForm.is_starter,
-        criteria:   [],
+        criteria: [],
       });
       setVersionForm(EMPTY_VERSION_FORM);
       setShowVersionForm(false);
@@ -127,12 +129,14 @@ export default function PackageDetailPage({
     );
     await updateCurrent({
       evaluation_period_days: currentDetail.evaluationPeriodDays,
-      eligible_countries:     currentDetail.eligibleCountries ?? undefined,
-      is_starter:             currentDetail.isStarter,
+      eligible_countries: currentDetail.eligibleCountries ?? undefined,
+      is_starter: currentDetail.isStarter,
+       reward_currency:        form.reward_currency || undefined,
       criteria: updated.map((c) => ({
-        criteria_id:  c.criteriaId,
+        criteria_id: c.criteriaId,
         target_value: c.targetValue,
-        is_required:  c.isRequired,
+        is_required: c.isRequired,
+        description:  c.description,
       })),
     });
     refresh();
@@ -140,21 +144,24 @@ export default function PackageDetailPage({
 
   // ── Kriter ekle ──
   const handleAddCriteria = async (data: {
-    criteria_id:   string;
+    criteria_id: string;
     target_value?: string;
-    is_required?:  boolean;
+    is_required?: boolean;
+    description?:  string;   
   }) => {
     if (!currentDetail) return;
 
     const body = {
       evaluation_period_days: currentDetail.evaluationPeriodDays,
-      eligible_countries:     currentDetail.eligibleCountries ?? undefined,
-      is_starter:             currentDetail.isStarter,
+      eligible_countries: currentDetail.eligibleCountries ?? undefined,
+      is_starter: currentDetail.isStarter,
+       reward_currency:        form.reward_currency || undefined,  
       criteria: [
         ...currentDetail.criteria.map((c) => ({
-          criteria_id:  c.criteriaId,
+          criteria_id: c.criteriaId,
           target_value: c.targetValue,
-          is_required:  c.isRequired,
+          is_required: c.isRequired,
+          description:  c.description,  
         })),
         data,
       ],
@@ -299,7 +306,7 @@ export default function PackageDetailPage({
                     className="text-[11px] font-bold px-2 py-0.5 rounded-full font-mono"
                     style={{
                       background: pkg.isActive ? PALETTE.green.bg : PALETTE.gray.bg,
-                      color:      pkg.isActive ? PALETTE.green.color : PALETTE.gray.color,
+                      color: pkg.isActive ? PALETTE.green.color : PALETTE.gray.color,
                     }}
                   >
                     {pkg.isActive ? "Aktif" : "Pasif"}
@@ -363,6 +370,22 @@ export default function PackageDetailPage({
                   min={1}
                   value={form.order_rank}
                   onChange={(e) => handleChange("order_rank", e.target.value)}
+                  className="h-9 rounded-lg border px-3 text-sm outline-none font-mono"
+                  style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+                />
+              </div>
+
+              {/* Currency — YENİ */}
+              <div className="flex flex-col gap-1">
+                <label className="text-[11px] font-mono uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+                  Ödül Tutarı
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={form.reward_currency}
+                  onChange={(e) => handleChange("reward_currency", e.target.value)}
+                  placeholder="örn. 100"
                   className="h-9 rounded-lg border px-3 text-sm outline-none font-mono"
                   style={{ background: "var(--background-secondary)", borderColor: "var(--border)", color: "var(--text-primary)" }}
                 />

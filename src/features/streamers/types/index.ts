@@ -100,6 +100,7 @@ export interface Package {
   name: string;
   orderRank: number;  
   isActive: boolean;  
+  description: string[];
   createdBy?: string;
   updatedBy?: string;
   createdAt: string;
@@ -119,6 +120,7 @@ export interface PackageDetailCriteria {
   criteriaId: string;  
   targetValue?: string;
   isRequired: boolean;
+   description?: string; 
   criteria?: PackageCriteria;
 }
 export interface PackageDetail {
@@ -129,7 +131,10 @@ export interface PackageDetail {
   eligibleCountries: string[] | null;            
   advantages: Record<string, unknown> | null;  
   evaluationPeriodDays: number;                  
-  isStarter: boolean;                            
+  isStarter: boolean;              
+  rewardMin?: string;
+  rewardMax?: string;
+  rewardCurrency: string;               
   criteria: PackageDetailCriteria[];              
   createdBy?: string;
   updatedBy?: string;

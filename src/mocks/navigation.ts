@@ -125,23 +125,23 @@ export const NAV_GROUPS: NavGroup[] = [
           },
         ],
       },
-      // {
-      //   href: "/hub/epinpay/marketing",
-      //   label: "Pazarlama & Kampanya",
-      //   icon: TrendingUp,
-      //   children: [
-      //     {
-      //       href: "/epinpay/raffles",
-      //       label: "Çekilişler",
-      //       icon: Gift,
-      //     },
-      //     {
-      //       href: "/streamers",
-      //       label: "Yayıncılar",
-      //       icon: Gamepad,
-      //     },
-      //   ],
-      // },
+      {
+        href: "/hub/epinpay/marketing",
+        label: "Pazarlama & Kampanya",
+        icon: TrendingUp,
+        children: [
+          {
+            href: "/epinpay/raffles",
+            label: "Çekilişler",
+            icon: Gift,
+          },
+          {
+            href: "/streamers",
+            label: "Yayıncılar",
+            icon: Gamepad,
+          },
+        ],
+      },
     ],
   },
 ];

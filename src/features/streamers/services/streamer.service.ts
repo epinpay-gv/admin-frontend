@@ -77,12 +77,14 @@ export const streamerService = {
 export type CreatePackageBody = {
   name: string;
   order_rank: number;
+  description?: string[];   
 };
 
 export type UpdatePackageBody = {
   name?: string;
   order_rank?: number;
   is_active?: boolean;
+  description?: string[];
 };
 
 export const packageService = {
@@ -126,10 +128,14 @@ export type CreatePackageDetailBody = {
   advantages?: Record<string, unknown>;
   evaluation_period_days: number;
   is_starter?: boolean;
+  reward_min?: string;         
+  reward_max?: string;         
+  reward_currency?: string;    
   criteria: {
     criteria_id: string;
     target_value?: string;
     is_required?: boolean;
+     description?: string;
   }[];
 };
 
